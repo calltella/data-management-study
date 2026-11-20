@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#176b60" />
+    <meta
+      name="description"
+      content="2027年度開始予定のデータマネジメント試験（仮称）科目Aを学ぶ非公式の学習支援アプリ"
+    />
+    <link rel="icon" href="/logo.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <title>DM STUDY｜データマネジメント試験 科目A</title>
+  </head>
+  <body>
+    <div id="app"><p style="padding:32px;font-family:sans-serif">DM STUDYを読み込んでいます…</p></div>
+    <noscript>このアプリを表示するにはJavaScriptを有効にしてください。</noscript>
+    <script>
+      window.addEventListener('error', function(event) {
+        var app = document.getElementById('app');
+        if (app && !app.querySelector('header')) {
+          app.textContent = '画面の読み込みに失敗しました。Ctrl+Shift+R（MacはCommand+Shift+R）で再読み込みしてください。改善しない場合はブラウザーのエラー内容をお知らせください。';
+          app.style.padding = '32px';
+        }
+      }, true);
+    </script>
+    <script type="module" src="/src/client/main.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,18 @@
+node_modules/
+dist/
+.cloudflare/
+.wrangler/
+.dev.vars*
+!.dev.vars.example
+.env*
+!.env.example
+*.log
+.DS_Store
+
+# 作業説明とローカル作業ルール
+docs/
+AGENTS.md
+
+# 検証で生成するファイル
+test-results/
+playwright-report/

@@ -1,0 +1,25 @@
+{
+  "name": "data-management-study",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "cf dev",
+    "build": "cf build",
+    "deploy": "cf deploy",
+    "typecheck": "cf workers types && tsc && tsc -p tsconfig.client.json",
+    "test": "node --experimental-strip-types --test tests/*.test.mjs",
+    "test:browser": "playwright test"
+  },
+  "devDependencies": {
+    "@cloudflare/vite-plugin": "beta",
+    "@electric-sql/pglite": "0.5.16",
+    "@playwright/test": "1.65.1",
+    "cf": "^1.0.0-beta.32",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.0"
+  },
+  "dependencies": {
+    "@fontsource/noto-sans-jp": "5.3.1",
+    "@supabase/supabase-js": "2.119.0"
+  }
+}
