@@ -1,5 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { demoCategories, demoQuestions } from "../../src/demo";
+import pastQuestions from "../../database/questions-2024.json" with { type: "json" };
+import pastQuestions2023 from "../../database/questions-2023.json" with { type: "json" };
 test.beforeEach(async ({ page }) => {
   await page.route("**/api/config", (route) =>
     route.fulfill({ json: { configured: false, url: null, key: null } }),
@@ -24,18 +26,30 @@ test("ログイン案内・ゲスト回答・正答を先に見る・変更禁�
   await page.getByRole("combobox", { name: "出題数" }).selectOption("0");
   await page.locator('input[name="category"][value="data"]').uncheck();
   await page.getByRole("checkbox", { name: "選択肢を並べ替える" }).check();
-  await page.getByRole("button", { name: "勉強を始める", exact: true }).click();
+  await page.getByRole("button", { name: "最初から出題する", exact: true }).click();
   await page.getByRole("button", { name: "先に正答・解説を見る" }).click();
   await expect(page.locator(".explanation")).toBeVisible();
-  await expect(page.locator("[data-choice]").first()).toBeEnabled();
+  await expect(page.getByRole("button", { name: /問題を編集|解説を編集/ })).toHaveCount(0);
+  const choice = page.locator("[data-choice]").first();
+  const text = page.locator("[data-eliminate]").first();
+  await expect(choice).toBeEnabled();
+  await text.click();
+  await expect(text).toHaveAttribute("aria-pressed", "true");
+  await expect(text).toHaveCSS("text-decoration-line", "line-through");
+  await expect(choice).toBeDisabled();
+  await text.press("Space");
+  await expect(text).toHaveAttribute("aria-pressed", "false");
+  await expect(choice).toBeEnabled();
   await page.locator("[data-choice]").first().click();
   await expect(page.locator("[data-choice]").first()).toBeDisabled();
   await expect(page.getByText("ゲストの回答は保存していません")).toBeVisible();
-  await page.getByRole("button", { name: "次の問題へ" }).click();
-  await expect(page.getByText("QUESTION 02 / 2")).toBeVisible();
+  const nextQuestion = page.getByRole("link", { name: "次の問題へ" });
+  await expect(nextQuestion).toHaveCSS("font-size", "16px");
+  await nextQuestion.click();
+  await expect(page.getByRole("heading", { name: "問 2 ／ 2問" })).toBeVisible();
   await page.locator("[data-choice]").first().click();
   await page
-    .getByRole("button", { name: "演習を終了", exact: true })
+    .getByRole("link", { name: "演習を終了", exact: true })
     .last()
     .click();
   await expect(
@@ -47,7 +61,7 @@ test("ログイン案内・ゲスト回答・正答を先に見る・変更禁�
 test("スマートフォン表示と問題不足の案内", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/#practice");
-  await page.getByRole("button", { name: "勉強を始める", exact: true }).click();
+  await page.getByRole("button", { name: "最初から出題する", exact: true }).click();
   await expect(page.getByRole("status")).toContainText("条件に合う問題は3問");
   expect(
     await page.evaluate(
@@ -79,15 +93,15 @@ test("分類は初期全選択で全解除と全選択を切り替えられる",
   await page.getByRole("button", { name: "全解除", exact: true }).click();
   await expect(page.locator('input[name="category"]:checked')).toHaveCount(0);
   await expect(page.getByRole("combobox", { name: "出題数" })).toHaveValue("0");
-  await page.getByRole("button", { name: "勉強を始める", exact: true }).click();
+  await page.getByRole("button", { name: "最初から出題する", exact: true }).click();
   await expect(page.getByRole("status")).toContainText(
     "分類を1つ以上選択してください",
   );
   await expect(page.locator('input[name="category"]:checked')).toHaveCount(0);
   await page.getByRole("button", { name: "全選択", exact: true }).click();
   await expect(page.locator('input[name="category"]:checked')).toHaveCount(2);
-  await page.getByRole("button", { name: "勉強を始める", exact: true }).click();
-  await expect(page.getByText("QUESTION 01 / 3")).toBeVisible();
+  await page.getByRole("button", { name: "最初から出題する", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "問 1 ／ 3問" })).toBeVisible();
 });
 
 test("出題数メニューと設定は分類枠内にあり全部を選べる", async ({ page }) => {
@@ -96,6 +110,8 @@ test("出題数メニューと設定は分類枠内にあり全部を選べる",
   await expect(
     page.getByRole("link", { name: "学習する", exact: true }),
   ).toBeVisible();
+  await expect(page.locator(".setup-heading")).toContainText("公開問題 3問");
+  await expect(page.getByRole("button", { name: "全解除" })).toHaveCSS("font-size", "11px");
   const menu = page.locator('.categories select[name="count"]');
   await expect(menu).toHaveValue("10");
   await expect(menu.locator("option")).toHaveText([
@@ -110,12 +126,196 @@ test("出題数メニューと設定は分類枠内にあり全部を選べる",
     1,
   );
   await menu.selectOption("0");
-  await page.getByRole("button", { name: "勉強を始める", exact: true }).click();
-  await expect(page.getByText("QUESTION 01 / 3")).toBeVisible();
+  await page.getByRole("button", { name: "最初から出題する", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "問 1 ／ 3問" })).toBeVisible();
   await expect(page.getByText(/指定は/)).toHaveCount(0);
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= innerWidth,
     ),
   ).toBe(true);
+});
+
+test("回答の取得中は出題画面を保ち、結果が届いてから切り替える", async ({ page }) => {
+  const q = demoQuestions[0];
+  const response = Promise.withResolvers<void>();
+  const requested = Promise.withResolvers<void>();
+  let submissions = 0;
+  await page.route("**/api/config", (route) =>
+    route.fulfill({
+      json: { configured: true, url: "https://example.supabase.co", key: "test-key" },
+    }),
+  );
+  await page.route("**/api/rpc", async (route) => {
+    const { name } = route.request().postDataJSON();
+    if (name === "catalog")
+      return route.fulfill({ json: { categories: demoCategories, questions: [q] } });
+    submissions++;
+    requested.resolve();
+    await response.promise;
+    await route.fulfill({ json: q });
+  });
+
+  await page.goto("/#practice");
+  await page.getByRole("button", { name: "最初から出題する", exact: true }).click();
+  const panel = await page.locator(".question").elementHandle();
+  const choice = page.locator(`[data-choice="${(q.correct! % 4) + 1}"]`);
+  await choice.click();
+  await requested.promise;
+  try {
+    await choice.click();
+    await expect(page.getByRole("alert")).toHaveCount(0);
+    await expect(page.locator(".explanation")).toHaveCount(0);
+    expect(await panel!.evaluate((element) => element.isConnected)).toBe(true);
+  } finally {
+    response.resolve();
+  }
+  await expect(page.locator(".explanation")).toContainText("不正解です");
+  await expect(page.locator(".explanation h2")).toHaveCSS("color", "rgb(132, 45, 37)");
+  await expect(page.locator(".choice.correct")).toContainText("正解");
+  await expect(page.locator(".choice.selected")).toContainText("誤答");
+  for (const selector of [".choices", ".choice.correct", ".explanation", ".choice-explanations"]) {
+    await expect(page.locator(selector)).toHaveCSS("background-color", "rgb(232, 241, 251)");
+  }
+  for (const label of await page.locator("[data-choice]").all()) {
+    await expect(label).toHaveCSS("background-color", "rgb(255, 255, 255)");
+    await expect(label).toHaveCSS("opacity", "1");
+  }
+  await expect(page.getByRole("group", { name: "過去の回答" })).toHaveCount(0);
+  expect(submissions).toBe(1);
+  await expect(page.locator(".question-body")).toHaveCSS("font-size", "13px");
+  await expect(page.locator(".explanation p").first()).toHaveCSS("font-size", "13px");
+});
+
+for (const longChoices of [false, true]) {
+  test(`出典の編集注記を省き、${longChoices ? "長い選択肢は1列" : "短い選択肢は2列"}で表示する`, async ({ page }) => {
+    const pastQuestion = pastQuestions.find(({ id }) => id === "DMQ-0033")!;
+    const question = {
+      ...pastQuestion,
+      category_id: demoQuestions[0].category_id,
+      choices: longChoices ? pastQuestion.choices : pastQuestion.choices.map(({ id }) => ({ id, body: `選択肢${id}` })),
+    };
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.route("**/api/demo", (route) =>
+      route.fulfill({ json: { categories: demoCategories, questions: [question] } }),
+    );
+    await page.goto("/#practice");
+    await page.getByRole("button", { name: "最初から出題する", exact: true }).click();
+    await expect(page.locator(".question-source")).toHaveText(
+      "令和6年度 秋期 データベーススペシャリスト試験 午前Ⅱ 問20",
+    );
+    const rows = await page.locator("[data-choice]").evaluateAll((choices) =>
+      choices.map((choice) => choice.getBoundingClientRect().top),
+    );
+    expect(new Set(rows).size).toBe(longChoices ? 4 : 2);
+    await expect(page.locator("[data-choice]").first()).toBeEnabled();
+  });
+}
+
+test("解説では並べ替え後の記号と選択肢本文に個別解説が対応する", async ({ page }) => {
+  const question = {
+    ...pastQuestions.find(({ id }) => id === "DMQ-0023")!,
+    category_id: demoQuestions[0].category_id,
+  };
+  await page.route("**/api/demo", (route) =>
+    route.fulfill({ json: { categories: demoCategories, questions: [question] } }),
+  );
+  await page.goto("/#practice");
+  await page.getByRole("checkbox", { name: "選択肢を並べ替える" }).check();
+  await page.getByRole("button", { name: "最初から出題する", exact: true }).click();
+  await expect(page.locator(".choice-explanation")).toHaveCount(0);
+  const correctLabel = await page.locator('[data-choice="4"]').innerText();
+  await page.getByRole("button", { name: "先に正答・解説を見る" }).click();
+  await expect(page.locator(".choice-explanation")).toHaveCount(4);
+  const correctDetail = page.locator(".choice-explanation").filter({
+    hasText: question.choices[3].body,
+  });
+  await expect(correctDetail.locator(".choice-explanation-label")).toHaveText(correctLabel);
+  await expect(correctDetail.locator(".choice-explanation-result")).toHaveText("正解");
+  await expect(correctDetail.locator(".choice-explanation-label")).toHaveCSS("color", "rgb(34, 88, 62)");
+  await expect(correctDetail.locator(".choice-explanation-detail")).toContainText("公開と再利用を日常の業務に組み込む");
+});
+
+test("親和図の問題は解説に4種類の図を表示する", async ({ page }) => {
+  const question = {
+    ...pastQuestions.find(({ id }) => id === "DMQ-0029")!,
+    category_id: demoQuestions[0].category_id,
+  };
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.route("**/api/demo", (route) =>
+    route.fulfill({ json: { categories: demoCategories, questions: [question] } }),
+  );
+  await page.goto("/#practice");
+  await page.getByRole("button", { name: "最初から出題する", exact: true }).click();
+  await expect(page.locator(".choice-explanation-figure")).toHaveCount(0);
+  await page.getByRole("button", { name: "先に正答・解説を見る" }).click();
+
+  const figures = page.locator(".choice-explanation-figure");
+  await expect(figures.locator("figcaption")).toHaveText([
+    "特性要因図の例", "親和図の例", "マトリックス図の例", "ヒストグラムの例",
+  ]);
+  for (const image of await figures.getByRole("img").all()) {
+    expect(await image.evaluate((element: HTMLImageElement) => element.naturalWidth)).toBeGreaterThan(0);
+  }
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});
+
+test("再構成の注記を出典見出しから移し、パンくずから出題条件へ戻れる", async ({ page }) => {
+  const question = {
+    ...demoQuestions[0],
+    source: "出典：令和5年度 秋期 データベーススペシャリスト試験 午前Ⅱ 問2（問題文・選択肢を再構成）",
+  };
+  await page.route("**/api/demo", (route) =>
+    route.fulfill({ json: { categories: demoCategories, questions: [question] } }),
+  );
+  await page.goto("/#practice");
+  await page.getByRole("button", { name: "最初から出題する" }).click();
+  await expect(page.locator(".question-source")).toHaveText(
+    "令和5年度 秋期 データベーススペシャリスト試験 午前Ⅱ 問2",
+  );
+  await page.getByRole("button", { name: "先に正答・解説を見る" }).click();
+  await expect(page.locator(".explanation")).toContainText("問題文・選択肢を再構成");
+  await expect(page.getByRole("button", { name: "出題条件へ戻る" })).toHaveCount(0);
+  page.once("dialog", (dialog) => dialog.accept());
+  await page.getByRole("navigation", { name: "パンくず" }).getByRole("link", { name: "出題条件" }).click();
+  await expect(page.getByRole("button", { name: "最初から出題する" })).toBeVisible();
+});
+
+test("科目Aとの関連度を言葉で表示し、根拠を確認できる", async ({ page }) => {
+  const question = {
+    ...pastQuestions2023.find(({ id }) => id === "DMQ-0043")!,
+    category_id: demoQuestions[0].category_id,
+  };
+  await page.route("**/api/demo", (route) =>
+    route.fulfill({ json: { categories: demoCategories, questions: [question] } }),
+  );
+  await page.goto("/#practice");
+  await page.getByRole("button", { name: "最初から出題する" }).click();
+  const assessment = page.locator(".question-likelihood");
+  await expect(assessment.locator("summary")).toHaveText("科目Aとの関連度（AI評価）｜間接的に関連");
+  await expect(assessment.locator("p")).toBeHidden();
+  const collapsed = (await assessment.boundingBox())!;
+  await assessment.locator("summary").press("Enter");
+  await expect(assessment.locator("p")).toContainText("決定木と期待値");
+  await expect(assessment.locator("p")).toBeVisible();
+  const expanded = (await assessment.boundingBox())!;
+  expect(expanded.width).toBe(collapsed.width);
+  expect(expanded.x).toBe(collapsed.x);
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});
+
+test("問題文を文の区切りで改行して表示する", async ({ page }) => {
+  const question = {
+    ...pastQuestions2023.find(({ id }) => id === "DMQ-0047")!,
+    category_id: demoQuestions[0].category_id,
+  };
+  await page.route("**/api/demo", (route) =>
+    route.fulfill({ json: { categories: demoCategories, questions: [question] } }),
+  );
+  await page.goto("/#practice");
+  await page.getByRole("button", { name: "最初から出題する" }).click();
+  const body = page.locator(".question-body");
+  await expect(body).toHaveCSS("white-space", "pre-wrap");
+  expect(await body.textContent()).toContain("第三者へ提供する。\n個人情報保護法");
 });

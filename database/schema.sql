@@ -10,7 +10,7 @@ create function study.request_user_id() returns uuid language sql stable securit
 revoke all on function study.request_user_id() from public,anon,authenticated;
 grant execute on function study.request_user_id() to study_executor;
 create table study.categories(id text primary key,parent_id text references study.categories(id),name text not null,level int not null check(level between 1 and 3));
-create table study.questions(id text primary key,title text not null,body text not null,category_id text not null references study.categories(id),origin text not null check(origin in('ipa_past','ai_original','ipa_sample')),source text not null default '',choices jsonb not null,correct int not null check(correct between 1 and 4),explanation text not null,asset_key text,published boolean not null default true,check(jsonb_array_length(choices)=4));
+create table study.questions(id text primary key,public_id uuid not null default pg_catalog.gen_random_uuid() unique,title text not null,body text not null,category_id text not null references study.categories(id),origin text not null check(origin in('ipa_past','ai_original','ipa_sample')),source text not null default '',choices jsonb not null,correct int not null check(correct between 1 and 4),explanation text not null,asset_key text,published boolean not null default true,check(jsonb_array_length(choices)=4));
 create table study.accounts(user_id uuid primary key references auth.users(id) on delete cascade,blocked boolean not null default false);
 create table study.exercises(id uuid primary key default gen_random_uuid(),user_id uuid not null references auth.users(id) on delete cascade,requested int not null,status text not null default 'active' check(status in('active','completed','replaced')),created_at timestamptz not null default now());
 create unique index one_active_exercise on study.exercises(user_id) where status='active';
@@ -20,6 +20,7 @@ create table study.latest(user_id uuid not null references auth.users(id) on del
 create table study.ratings(user_id uuid not null references auth.users(id) on delete cascade,question_id text not null references study.questions(id),stars int not null check(stars between 1 and 5),primary key(user_id,question_id));
 create index questions_category on study.questions(category_id,published);
 create index answers_history on study.answers(user_id,sequence desc);
+create index if not exists answers_question_history on study.answers(user_id, question_id, sequence desc);
 create index exercises_owner on study.exercises(user_id);
 create index items_exercise on study.items(exercise_id,position);
 create index latest_wrong on study.latest(user_id,correct);
@@ -48,7 +49,7 @@ create policy latest_own on study.latest for all to study_executor using(user_id
 create policy ratings_own on study.ratings for all to study_executor using(user_id=study.request_user_id() and study.is_active()) with check(user_id=study.request_user_id() and study.is_active());
 
 create function study.question_json(q study.questions, reveal boolean default false) returns jsonb language sql stable security invoker set search_path='' as $$
- select jsonb_build_object('id',q.id,'title',q.title,'body',q.body,'category_id',q.category_id,'origin',q.origin,'source',q.source,'choices',q.choices,'asset_key',q.asset_key,'published',q.published,'my_rating',(select r.stars from study.ratings r where r.question_id=q.id and r.user_id=study.request_user_id()))
+ select jsonb_build_object('id',q.id,'public_id',q.public_id,'title',q.title,'body',q.body,'category_id',q.category_id,'origin',q.origin,'source',q.source,'choices',q.choices,'asset_key',q.asset_key,'published',q.published,'my_rating',(select r.stars from study.ratings r where r.question_id=q.id and r.user_id=study.request_user_id()))
  || case when reveal then jsonb_build_object('correct',q.correct,'explanation',q.explanation) else '{}'::jsonb end
 $$;
 create function public.dm_catalog() returns jsonb language sql stable security definer set search_path='' as $$
@@ -56,8 +57,38 @@ create function public.dm_catalog() returns jsonb language sql stable security d
 $$;
 create function public.dm_reveal_question(question_id text) returns jsonb language plpgsql stable security definer set search_path='' as $$
 declare q study.questions;begin select * into q from study.questions where id=question_id;if not found then raise exception '問題は非公開または削除されています。';end if;return study.question_json(q,true);end $$;
-create function study.exercise_json(eid uuid) returns jsonb language sql stable security invoker set search_path='' as $$
- select jsonb_build_object('id',e.id,'requested',e.requested,'available',(select count(*) from study.items i join study.questions q on q.id=i.question_id where i.exercise_id=e.id),'items',coalesce((select jsonb_agg(jsonb_build_object('id',i.id,'sequence',i.sequence,'question',study.question_json(q),'choice_order',i.choice_order,'answer',case when a.item_id is null then null else jsonb_build_object('selected',a.selected,'correct',a.correct,'correct_choice',a.correct_choice,'explanation',a.explanation) end) order by i.position) from study.items i join study.questions q on q.id=i.question_id left join study.answers a on a.item_id=i.id where i.exercise_id=e.id),'[]')) from study.exercises e where e.id=eid
+create or replace function study.exercise_json(eid uuid)
+returns jsonb language sql stable security invoker set search_path='' as $$
+  select jsonb_build_object(
+    'id', e.id,
+    'requested', e.requested,
+    'available', count(i.id),
+    'items', coalesce(jsonb_agg(jsonb_build_object(
+      'id', i.id,
+      'sequence', i.sequence,
+      'question', study.question_json(q),
+      'choice_order', i.choice_order,
+      'previous_correct', previous.results->-1,
+      'answer_history', coalesce(previous.results, '[]'::jsonb),
+      'answer', case when a.item_id is not null then jsonb_build_object(
+        'selected', a.selected, 'correct', a.correct,
+        'correct_choice', a.correct_choice, 'explanation', a.explanation
+      ) end
+    ) order by i.position) filter (where i.id is not null), '[]')
+  )
+  from study.exercises e
+  left join (study.items i join study.questions q on q.id = i.question_id)
+    on i.exercise_id = e.id
+  left join study.answers a on a.item_id = i.id
+  left join lateral (
+    select jsonb_agg(history.correct order by history.answered_at, history.sequence) as results
+    from study.answers history
+    where history.user_id = e.user_id
+      and history.question_id = i.question_id
+      and history.sequence < i.sequence
+  ) previous on true
+  where e.id = eid and e.user_id = study.request_user_id()
+  group by e.id
 $$;
 create function public.dm_start_exercise(category_ids text[] default '{}',question_count int default 10,wrong_only boolean default false,shuffle_choices boolean default false,replace_existing boolean default false) returns jsonb language plpgsql security definer set search_path='' as $$
 declare eid uuid;ids text[];qid text;ord int[];pos int:=0;begin
@@ -66,7 +97,23 @@ declare eid uuid;ids text[];qid text;ord int[];pos int:=0;begin
  perform pg_advisory_xact_lock(hashtextextended(study.request_user_id()::text,0));
  if exists(select 1 from study.exercises where user_id=study.request_user_id() and status='active') and not replace_existing then raise exception '中断中の演習があります。再開するか、置き換えを選択してください。';end if;
  with recursive selected as(select id from study.categories where id=any(category_ids) union all select c.id from study.categories c join selected s on c.parent_id=s.id)
- select array_agg(x.id order by x.answered,x.draw) into ids from(select q.id,exists(select 1 from study.latest a where a.user_id=study.request_user_id() and a.question_id=q.id) as answered,random() as draw from study.questions q where q.published and (cardinality(category_ids)=0 or q.category_id in(select id from selected)) and (not wrong_only or exists(select 1 from study.latest l where l.user_id=study.request_user_id() and l.question_id=q.id and not l.correct)) order by answered,draw limit case when question_count=0 then null else question_count end)x;
+ select array_agg(candidate.id order by candidate.priority, candidate.draw)
+ into ids
+ from (
+   select q.id,
+     case when last_answer.correct is null then 0
+          when last_answer.correct = false then 1
+          else 2 end as priority,
+     random() as draw
+   from study.questions q
+   left join study.latest last_answer
+     on last_answer.question_id = q.id and last_answer.user_id = study.request_user_id()
+   where q.published
+     and (cardinality(category_ids) = 0 or q.category_id in (select id from selected))
+     and (not wrong_only or last_answer.correct is false)
+   order by priority, draw
+   limit case when question_count = 0 then null else question_count end
+ ) candidate;
  if ids is null then raise exception '条件に合う問題がありません。';end if;
  update study.exercises set status='replaced' where user_id=study.request_user_id() and status='active';
  insert into study.exercises(user_id,requested) values(study.request_user_id(),case when question_count=0 then cardinality(ids) else question_count end) returning id into eid;
@@ -181,8 +228,15 @@ revoke create on schema public from study_executor;
 create or replace function public.dm_history_by_category(category_ids text[], page_number int default 0)
 returns jsonb language sql stable security definer set search_path='' as $$
  select jsonb_build_object(
-   'answers', coalesce((select jsonb_agg(x) from (
-     select a.question_id,q.title,q.category_id,a.selected,a.correct,a.answered_at
+   'answers', coalesce((select jsonb_agg(
+     (to_jsonb(x) - 'sequence') || jsonb_build_object('previous_results', coalesce((
+       select jsonb_agg(previous.correct order by previous.sequence desc)
+       from study.answers previous
+       where previous.user_id=study.request_user_id()
+         and previous.question_id=x.question_id and previous.sequence<x.sequence
+     ), '[]'::jsonb)) order by x.sequence desc
+   ) from (
+     select a.question_id,q.title,q.category_id,a.selected,a.correct,a.answered_at,a.sequence
      from study.answers a left join study.questions q on q.id=a.question_id
      where a.user_id=study.request_user_id() and q.category_id=any(category_ids)
      order by a.sequence desc limit 50 offset greatest(0,least(page_number,10000))*50

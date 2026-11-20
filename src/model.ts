@@ -8,9 +8,11 @@ export interface Choice {
   id: number;
   body: string;
   explanation?: string;
+  diagram_key?: string;
 }
 export interface Question {
   id: string;
+  public_id?: string;
   title: string;
   body: string;
   category_id: string;
@@ -24,12 +26,15 @@ export interface Question {
   published?: boolean;
   correct?: number;
   explanation?: string;
+  diagram_key?: string;
 }
 export interface ExerciseItem {
   id: string;
   sequence: number;
   question: Question;
   choice_order: number[];
+  previous_correct?: boolean | null;
+  answer_history?: boolean[];
   answer?: {
     selected: number;
     correct: boolean;

@@ -18,18 +18,18 @@ for (const q of samples) {
     );
     await page.goto("/#practice");
     await page
-      .getByRole("button", { name: "勉強を始める", exact: true })
+      .getByRole("button", { name: "最初から出題する", exact: true })
       .click();
-    await expect(page.locator(".badge")).toHaveText("IPA公式サンプル");
+    await expect(page.locator(".question-source")).toHaveText(`IPA データマネジメント試験（仮称）科目A サンプル問題 問${q.reference.question_number}`);
     await expect(page.locator(".question")).toContainText("サンプル問題");
     if (q.id === "DMQ-0039") {
-      await expect(page.locator(".question h1")).toContainText(
+      await expect(page.locator(".question-body")).toContainText(
         "データの意味、利用ルールの説明など",
       );
-      await expect(page.locator(".question h1")).toContainText(
+      await expect(page.locator(".question-body")).toContainText(
         "カラムの型・桁",
       );
-      await expect(page.locator(".question h1")).toContainText(
+      await expect(page.locator(".question-body")).toContainText(
         "データの作成日時",
       );
     }

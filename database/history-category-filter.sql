@@ -2,8 +2,15 @@
 create or replace function public.dm_history_by_category(category_ids text[], page_number int default 0)
 returns jsonb language sql stable security definer set search_path='' as $$
  select jsonb_build_object(
-   'answers', coalesce((select jsonb_agg(x) from (
-     select a.question_id,q.title,q.category_id,a.selected,a.correct,a.answered_at
+   'answers', coalesce((select jsonb_agg(
+     (to_jsonb(x) - 'sequence') || jsonb_build_object('previous_results', coalesce((
+       select jsonb_agg(previous.correct order by previous.sequence desc)
+       from study.answers previous
+       where previous.user_id=study.request_user_id()
+         and previous.question_id=x.question_id and previous.sequence<x.sequence
+     ), '[]'::jsonb)) order by x.sequence desc
+   ) from (
+     select a.question_id,q.title,q.category_id,a.selected,a.correct,a.answered_at,a.sequence
      from study.answers a left join study.questions q on q.id=a.question_id
      where a.user_id=study.request_user_id() and q.category_id=any(category_ids)
      order by a.sequence desc limit 50 offset greatest(0,least(page_number,10000))*50

@@ -60,7 +60,8 @@ test("星クリックで即保存し連打と失敗後の再評価に対応す�
       return r.fulfill({
         json: { categories: demoCategories, questions: [q] },
       });
-    if (body.name === "start_exercise")
+    if (body.name === "start_exercise") {
+      expect(body.args.replace_existing).toBe(true);
       return r.fulfill({
         json: {
           id: "exercise",
@@ -71,6 +72,8 @@ test("星クリックで即保存し連打と失敗後の再評価に対応す�
               id: "item",
               sequence: 1,
               question: q,
+              previous_correct: false,
+              answer_history: [true, false, true],
               choice_order: [1, 2, 3, 4],
               answer: {
                 selected: 1,
@@ -82,6 +85,7 @@ test("星クリックで即保存し連打と失敗後の再評価に対応す�
           ],
         },
       });
+    }
     if (body.name === "rate_question") {
       const stars = body.args.stars;
       submitted.push(stars);
@@ -98,9 +102,36 @@ test("星クリックで即保存し連打と失敗後の再評価に対応す�
     }
     return r.fulfill({ json: null });
   });
+  const dialogs: string[] = [];
+  page.on("dialog", async (dialog) => {
+    dialogs.push(dialog.message());
+    await dialog.dismiss();
+  });
   await page.goto("/#practice");
-  await page.getByRole("button", { name: "勉強を始める", exact: true }).click();
+  const resume = page.locator(".setup-actions").getByRole("button", { name: "中断している問題から再開" });
+  await expect(resume).toBeVisible();
+  await expect(resume).toHaveAttribute("type", "button");
+  await resume.click();
+  await expect(page.getByText("中断中の演習はありません。")).toBeVisible();
+  await page.getByRole("button", { name: "最初から出題する", exact: true }).click();
+  await expect(page.getByRole("navigation", { name: "パンくず" })).toHaveText(
+    "出題条件 » データベース » 設計 » 正規化",
+  );
+  const history = page.getByRole("group", { name: "過去の回答" }).getByRole("img");
+  await expect(history).toHaveText(["✓", "×", "✓"]);
+  await expect(history.nth(0)).toHaveCSS("background-color", "rgb(232, 241, 251)");
+  await expect(history.nth(1)).toHaveCSS("background-color", "rgb(232, 241, 251)");
+  expect(dialogs).toEqual([]);
+  await expect(page.locator(".explanation h2")).toHaveCSS("color", "rgb(34, 88, 62)");
+  await expect(page.getByText("回答を保存しました", { exact: true })).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "今回の演習" })).toHaveCount(0);
+  const questionFooter = page.locator(".question .question-exit-actions");
+  await expect(questionFooter.getByRole("button", { name: "中断して保存" })).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "パンくず" }).getByRole("link", { name: "出題条件" })).toBeVisible();
+  await expect(questionFooter.getByRole("button", { name: "中断して保存" })).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
+  await expect(page.locator(".rating")).toHaveCSS("justify-content", /end$/);
   const stars = page.getByRole("group", { name: "このAI問題を評価" });
+  await expect(stars.getByRole("button", { name: "1点", exact: true })).toHaveCSS("font-size", "21px");
   await expect(
     stars.getByRole("button", { name: "2点", exact: true }),
   ).toHaveAttribute("aria-pressed", "true");

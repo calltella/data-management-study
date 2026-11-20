@@ -1,0 +1,752 @@
+[
+  {
+    "id": "DMQ-0082",
+    "title": "データディクショナリ",
+    "body": "関係データベース管理システム（RDBMS）のデータディクショナリに格納されるものはどれか。",
+    "category_id": "DM-A-08-05-01",
+    "origin": "ipa_past",
+    "source": "出典：平成30年度 春期 応用情報技術者試験 午前 問29（句読点を統一。解説は独自作成）",
+    "choices": [
+      {
+        "id": 1,
+        "body": "OSが管理するファイルの定義情報",
+        "explanation": "OSが管理するファイルの情報は、DBのスキーマ定義とは別である。"
+      },
+      {
+        "id": 2,
+        "body": "スキーマの定義情報",
+        "explanation": "表や列など、データベースの構造を記述するメタデータが格納される。"
+      },
+      {
+        "id": 3,
+        "body": "表に格納された列データの組",
+        "explanation": "表の列データは管理対象のデータそのものである。"
+      },
+      {
+        "id": 4,
+        "body": "表の列に付けられたインデックスの値",
+        "explanation": "索引の定義はメタデータだが、索引の値は検索用の実データである。"
+      }
+    ],
+    "correct": 2,
+    "explanation": "表や列など、データベースの構造を記述するメタデータが格納される。",
+    "asset_key": null,
+    "published": true,
+    "reference": {
+      "book": "2018h30h_ap_am",
+      "question_number": 29,
+      "pdf_page": 15,
+      "question_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000fabr-att/2018h30h_ap_am_qs.pdf",
+      "answer_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000fabr-att/2018h30h_ap_am_ans.pdf"
+    }
+  },
+  {
+    "id": "DMQ-0083",
+    "title": "キーバリュー型データベース",
+    "body": "ビッグデータの基盤技術として利用されるNoSQLに分類されるデータベースはどれか。",
+    "category_id": "DM-A-09-01-01",
+    "origin": "ipa_past",
+    "source": "出典：平成30年度 春期 応用情報技術者試験 午前 問30（句読点を統一。解説は独自作成）",
+    "choices": [
+      {
+        "id": 1,
+        "body": "関係データモデルをオブジェクト指向データモデルに拡張し、操作の定義や型の継承関係の定義を可能としたデータベース",
+        "explanation": "関係モデルを拡張するオブジェクト関係データベースの説明である。"
+      },
+      {
+        "id": 2,
+        "body": "経営者の意思決定を支援するために、ある主題に基づくデータを現在の情報とともに過去の情報も蓄積したデータベース",
+        "explanation": "時系列の情報も蓄積して分析に使うデータウェアハウスの説明である。"
+      },
+      {
+        "id": 3,
+        "body": "様々な形式のデータを一つのキーに対応付けて管理するキーバリュー型データベース",
+        "explanation": "キーに対応する値を管理する方式はNoSQLの代表例である。"
+      },
+      {
+        "id": 4,
+        "body": "データ項目の名称や形式など、データそのものの特性を表すメタ情報を管理するデータベース",
+        "explanation": "データディクショナリなど、データの定義を管理する仕組みである。"
+      }
+    ],
+    "correct": 3,
+    "explanation": "キーに対応する値を管理する方式はNoSQLの代表例である。",
+    "asset_key": null,
+    "published": true,
+    "reference": {
+      "book": "2018h30h_ap_am",
+      "question_number": 30,
+      "pdf_page": 15,
+      "question_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000fabr-att/2018h30h_ap_am_qs.pdf",
+      "answer_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000fabr-att/2018h30h_ap_am_ans.pdf"
+    }
+  },
+  {
+    "id": "DMQ-0084",
+    "title": "剰余によるハッシュ値の衝突",
+    "body": "自然数を除数とした剰余を返すハッシュ関数がある。値がそれぞれ571、1168、1566である三つのレコードのキー値を入力値としてこのハッシュ関数を施したところ、全てのハッシュ値が衝突した。このとき使用した除数は幾つか。",
+    "category_id": "DM-A-17-01-01",
+    "origin": "ipa_past",
+    "source": "出典：平成30年度 秋期 応用情報技術者試験 午前 問27（句読点を統一。解説は独自作成）",
+    "choices": [
+      {
+        "id": 1,
+        "body": "193",
+        "explanation": "差597は193で割り切れない。"
+      },
+      {
+        "id": 2,
+        "body": "197",
+        "explanation": "差597は197で割り切れない。"
+      },
+      {
+        "id": 3,
+        "body": "199",
+        "explanation": "差597と398がともに199の倍数なので、三つのキーの余りが等しい。"
+      },
+      {
+        "id": 4,
+        "body": "211",
+        "explanation": "差398は211で割り切れない。"
+      }
+    ],
+    "correct": 3,
+    "explanation": "差597と398がともに199の倍数なので、三つのキーの余りが等しい。",
+    "asset_key": null,
+    "published": true,
+    "reference": {
+      "book": "2018h30a_ap_am",
+      "question_number": 27,
+      "pdf_page": 14,
+      "question_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000f01f-att/2018h30a_ap_am_qs.pdf",
+      "answer_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000f01f-att/2018h30a_ap_am_ans.pdf"
+    }
+  },
+  {
+    "id": "DMQ-0085",
+    "title": "B⁺木インデックスの範囲検索",
+    "body": "“部品”表のメーカコード列に対し、B⁺木インデックスを作成した。これによって、“部品”表の検索の性能改善が最も期待できる操作はどれか。ここで、部品及びメーカのデータ件数は十分に多く、“部品”表に存在するメーカコード列の値の種類は十分な数があり、かつ、均一に分散しているものとする。また、“部品”表のごく少数の行には、メーカコード列にNULLが設定されている。実線の下線は主キーを、破線の下線は外部キーを表す。",
+    "category_id": "DM-A-17-01-01",
+    "origin": "ipa_past",
+    "source": "出典：平成30年度 秋期 応用情報技術者試験 午前 問29（句読点を統一。解説は独自作成）",
+    "choices": [
+      {
+        "id": 1,
+        "body": "メーカコードの値が1001以外の部品を検索する。",
+        "explanation": "除外する値が一つだけなので、多数の行が検索対象になる。"
+      },
+      {
+        "id": 2,
+        "body": "メーカコードの値が1001でも4001でもない部品を検索する。",
+        "explanation": "二つの値を除外しても、検索対象は広い範囲に残る。"
+      },
+      {
+        "id": 3,
+        "body": "メーカコードの値が4001以上、4003以下の部品を検索する。",
+        "explanation": "狭い連続範囲を索引からたどり、読み取る行を大幅に絞れる。"
+      },
+      {
+        "id": 4,
+        "body": "メーカコードの値がNULL以外の部品を検索する。",
+        "explanation": "NULLが少数なので、検索対象は表の大部分になる。"
+      }
+    ],
+    "correct": 3,
+    "explanation": "狭い連続範囲を索引からたどり、読み取る行を大幅に絞れる。",
+    "asset_key": "ipa-original/DMQ-0085.png",
+    "published": true,
+    "reference": {
+      "book": "2018h30a_ap_am",
+      "question_number": 29,
+      "pdf_page": 15,
+      "question_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000f01f-att/2018h30a_ap_am_qs.pdf",
+      "answer_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000f01f-att/2018h30a_ap_am_ans.pdf"
+    }
+  },
+  {
+    "id": "DMQ-0086",
+    "title": "チャットボットの用途",
+    "body": "顧客との接点として注目される、チャットボットの説明はどれか。",
+    "category_id": "DM-A-10-03-01",
+    "origin": "ipa_past",
+    "source": "出典：平成30年度 秋期 応用情報技術者試験 午前 問72（句読点を統一。解説は独自作成）",
+    "choices": [
+      {
+        "id": 1,
+        "body": "インターネットオークションなどで、売り手と買い手の取引を安全に行うために、第三者の仲介業者が決済や商品の受渡しを行うサービスである。",
+        "explanation": "第三者が決済や受渡しを仲介するエスクローの説明である。"
+      },
+      {
+        "id": 2,
+        "body": "需要を予測してネットワーク設備やシステムリソースなどを計画的に調達し、需要の変動に応じて迅速にサービスを提供する考え方である。",
+        "explanation": "需要に応じて設備や処理能力を調整する考え方である。"
+      },
+      {
+        "id": 3,
+        "body": "商品提案から販売、アフターサービスまでの、企業と顧客との双方向の対話を、AIを活用した自動応答機能などによって実現するシステムである。",
+        "explanation": "チャットボットは会話の形式で顧客の問いに自動応答できる。"
+      },
+      {
+        "id": 4,
+        "body": "スマートフォンのカメラなどを通して、利用者の視界に有用な情報を重ね合わせ、現実世界での行動や認知を支援する技術である。",
+        "explanation": "現実の視界に情報を重ねる拡張現実の説明である。"
+      }
+    ],
+    "correct": 3,
+    "explanation": "チャットボットは会話の形式で顧客の問いに自動応答できる。",
+    "asset_key": null,
+    "published": true,
+    "reference": {
+      "book": "2018h30a_ap_am",
+      "question_number": 72,
+      "pdf_page": 36,
+      "question_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000f01f-att/2018h30a_ap_am_qs.pdf",
+      "answer_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000f01f-att/2018h30a_ap_am_ans.pdf"
+    }
+  },
+  {
+    "id": "DMQ-0087",
+    "title": "意味を連想できるコード",
+    "body": "コードの値からデータの対象物が連想できるものはどれか。",
+    "category_id": "DM-A-09-02-01",
+    "origin": "ipa_past",
+    "source": "出典：平成31年度 春期 応用情報技術者試験 午前 問24（句読点を統一。解説は独自作成）",
+    "choices": [
+      {
+        "id": 1,
+        "body": "シーケンスコード",
+        "explanation": "連番で割り当てる方式で、連番自体は対象を表さない。"
+      },
+      {
+        "id": 2,
+        "body": "デシマルコード",
+        "explanation": "十進数字で分類階層を表す方式である。"
+      },
+      {
+        "id": 3,
+        "body": "ニモニックコード",
+        "explanation": "名称の略記など、対象を連想しやすい値を割り当てる。"
+      },
+      {
+        "id": 4,
+        "body": "ブロックコード",
+        "explanation": "分類ごとに番号の範囲を割り当てる方式である。"
+      }
+    ],
+    "correct": 3,
+    "explanation": "名称の略記など、対象を連想しやすい値を割り当てる。",
+    "asset_key": null,
+    "published": true,
+    "reference": {
+      "book": "2019h31h_ap_am",
+      "question_number": 24,
+      "pdf_page": 14,
+      "question_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000ddiw-att/2019h31h_ap_am_qs.pdf",
+      "answer_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000ddiw-att/2019h31h_ap_am_ans.pdf"
+    }
+  },
+  {
+    "id": "DMQ-0088",
+    "title": "物理的な格納と内部スキーマ",
+    "body": "データベースを記録媒体にどのように格納するかを記述したものはどれか。",
+    "category_id": "DM-A-17-01-01",
+    "origin": "ipa_past",
+    "source": "出典：平成31年度 春期 応用情報技術者試験 午前 問26（句読点を統一。解説は独自作成）",
+    "choices": [
+      {
+        "id": 1,
+        "body": "概念スキーマ",
+        "explanation": "データベース全体の論理的な構造を表す。"
+      },
+      {
+        "id": 2,
+        "body": "外部スキーマ",
+        "explanation": "特定の利用者やアプリケーションから見た論理的な構造を表す。"
+      },
+      {
+        "id": 3,
+        "body": "サブスキーマ",
+        "explanation": "データベースのうち特定の利用者などが使用する部分の構造を表す。"
+      },
+      {
+        "id": 4,
+        "body": "内部スキーマ",
+        "explanation": "記録媒体上でのデータの物理的な格納方式を表す。"
+      }
+    ],
+    "correct": 4,
+    "explanation": "記録媒体上でのデータの物理的な格納方式を表す。",
+    "asset_key": null,
+    "published": true,
+    "reference": {
+      "book": "2019h31h_ap_am",
+      "question_number": 26,
+      "pdf_page": 14,
+      "question_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000ddiw-att/2019h31h_ap_am_qs.pdf",
+      "answer_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000ddiw-att/2019h31h_ap_am_ans.pdf"
+    }
+  },
+  {
+    "id": "DMQ-0089",
+    "title": "年度別の集計とHAVING",
+    "body": "過去3年分の記録を保存している“試験結果”表から、2018年度の平均点数が600点以上となったクラスのクラス名と平均点数の一覧を取得するSQL文はどれか。ここで、実線の下線は主キーを表す。\n\n試験結果（学̲生̲番̲号̲、受̲験̲年̲月̲日̲、点数、クラス名）",
+    "category_id": "DM-A-09-02-09",
+    "origin": "ipa_past",
+    "source": "出典：平成31年度 春期 応用情報技術者試験 午前 問28（句読点を統一。解説は独自作成）",
+    "choices": [
+      {
+        "id": 1,
+        "body": "SELECT クラス名,AVG(点数) FROM 試験結果\nGROUP BY クラス名 HAVING AVG(点数) >= 600",
+        "explanation": "年度の条件がないので、保存されている全期間の点数が集計対象になる。"
+      },
+      {
+        "id": 2,
+        "body": "SELECT クラス名,AVG(点数) FROM 試験結果\nWHERE 受験年月日 BETWEEN '2018-04-01' AND '2019-03-31'\nGROUP BY クラス名 HAVING AVG(点数) >= 600",
+        "explanation": "WHEREで対象年度の行を選び、クラスごとに集計し、HAVINGで平均点を絞り込む。"
+      },
+      {
+        "id": 3,
+        "body": "SELECT クラス名,AVG(点数) FROM 試験結果\nWHERE 受験年月日 BETWEEN '2018-04-01' AND '2019-03-31'\nGROUP BY クラス名 HAVING 点数 >= 600",
+        "explanation": "HAVINGの条件がクラスの平均点ではなく、個々の点数を参照している。"
+      },
+      {
+        "id": 4,
+        "body": "SELECT クラス名,AVG(点数) FROM 試験結果\nWHERE 点数 >= 600\nGROUP BY クラス名\nHAVING (MAX(受験年月日)\nBETWEEN '2018-04-01' AND '2019-03-31')",
+        "explanation": "600点未満の行を平均の計算前に除外するため、クラスの平均点を正しく求められない。"
+      }
+    ],
+    "correct": 2,
+    "explanation": "WHEREで対象年度の行を選び、クラスごとに集計し、HAVINGで平均点を絞り込む。",
+    "asset_key": null,
+    "published": true,
+    "reference": {
+      "book": "2019h31h_ap_am",
+      "question_number": 28,
+      "pdf_page": 15,
+      "question_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000ddiw-att/2019h31h_ap_am_qs.pdf",
+      "answer_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000ddiw-att/2019h31h_ap_am_ans.pdf"
+    }
+  },
+  {
+    "id": "DMQ-0090",
+    "title": "ACID特性の一貫性",
+    "body": "トランザクションのACID特性のうち、一貫性（consistency）の説明はどれか。",
+    "category_id": "DM-A-17-01-01",
+    "origin": "ipa_past",
+    "source": "出典：平成31年度 春期 応用情報技術者試験 午前 問30（句読点を統一。解説は独自作成）",
+    "choices": [
+      {
+        "id": 1,
+        "body": "整合性の取れたデータベースに対して、トランザクション実行後も整合性が取れている性質である。",
+        "explanation": "更新を行ってもデータの整合性制約が保たれることが一貫性である。"
+      },
+      {
+        "id": 2,
+        "body": "同時実行される複数のトランザクションは互いに干渉しないという性質である。",
+        "explanation": "同時実行処理の影響を分離する独立性の説明である。"
+      },
+      {
+        "id": 3,
+        "body": "トランザクションは、完全に実行が完了するか、全く実行されなかったかの状態しかとらない性質である。",
+        "explanation": "全て実行するか全て取り消すかを保証する原子性の説明である。"
+      },
+      {
+        "id": 4,
+        "body": "ひとたびコミットすれば、その後どのような障害が起こっても状態の変更が保たれるという性質である。",
+        "explanation": "確定した変更が保持される永続性の説明である。"
+      }
+    ],
+    "correct": 1,
+    "explanation": "更新を行ってもデータの整合性制約が保たれることが一貫性である。",
+    "asset_key": null,
+    "published": true,
+    "reference": {
+      "book": "2019h31h_ap_am",
+      "question_number": 30,
+      "pdf_page": 16,
+      "question_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000ddiw-att/2019h31h_ap_am_qs.pdf",
+      "answer_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000ddiw-att/2019h31h_ap_am_ans.pdf"
+    }
+  },
+  {
+    "id": "DMQ-0091",
+    "title": "製品データの一元管理",
+    "body": "PDM（Product Data Management）の目的はどれか。",
+    "category_id": "DM-A-08-01-02",
+    "origin": "ipa_past",
+    "source": "出典：平成31年度 春期 応用情報技術者試験 午前 問72（句読点を統一。解説は独自作成）",
+    "choices": [
+      {
+        "id": 1,
+        "body": "NC工作機械、自動搬送装置、倉庫などを有機的に結合し、コンピュータで集中管理することによって、多品種少量生産に対応できる生産の自動化を実現する。",
+        "explanation": "工作機械や搬送設備を統合して生産を自動化する仕組みである。"
+      },
+      {
+        "id": 2,
+        "body": "図面・部品構成データ、仕様書データなどの設計及び開発の段階で発生する情報を一元管理することによって、設計業務及び開発業務の効率を向上させる。",
+        "explanation": "製品に関する設計・開発データを一元管理し、業務で共有・活用できるようにする。"
+      },
+      {
+        "id": 3,
+        "body": "製品の生産計画に基づいてその生産に必要な資材の所要量を展開し、これを基準にして資材の需要とその発注時期を算出する。",
+        "explanation": "資材の必要量や時期を求める資材所要量計画の説明である。"
+      },
+      {
+        "id": 4,
+        "body": "部品の供給から製品の販売までの一連のプロセスの情報をリアルタイムで交換することによって、在庫の削減とリードタイムの短縮を実現する。",
+        "explanation": "供給から販売までを横断して管理するサプライチェーン管理の説明である。"
+      }
+    ],
+    "correct": 2,
+    "explanation": "製品に関する設計・開発データを一元管理し、業務で共有・活用できるようにする。",
+    "asset_key": null,
+    "published": true,
+    "reference": {
+      "book": "2019h31h_ap_am",
+      "question_number": 72,
+      "pdf_page": 36,
+      "question_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000ddiw-att/2019h31h_ap_am_qs.pdf",
+      "answer_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000ddiw-att/2019h31h_ap_am_ans.pdf"
+    }
+  },
+  {
+    "id": "DMQ-0092",
+    "title": "保守記録の集計単位",
+    "body": "設備ごとの故障傾向を分析する。設備台帳では設備IDは交換まで変わらず、同じ型式の設備が複数ある。設置場所が移ると設備名は変更される。故障記録の集計用として適切なキーはどれか。",
+    "category_id": "DM-A-08-01-01",
+    "origin": "ai_original",
+    "source": "AI生成オリジナル（IPA非公式）。学習範囲の根拠：IPA DMシラバス案Ver.0.1。",
+    "choices": [
+      {
+        "id": 1,
+        "body": "設備IDで点検と故障の各記録を結び付ける。",
+        "explanation": "名前や場所が変わっても、同じ設備の履歴を追える。"
+      },
+      {
+        "id": 2,
+        "body": "設備名で点検と故障の各記録を結び付ける。",
+        "explanation": "名前の変更前後で同じ設備の履歴が分かれる。"
+      },
+      {
+        "id": 3,
+        "body": "型式で点検と故障の各記録を結び付ける。",
+        "explanation": "同じ型式の複数設備が一つにまとめられる。"
+      },
+      {
+        "id": 4,
+        "body": "設置場所で点検と故障の各記録を結び付ける。",
+        "explanation": "移動前後で履歴が分かれ、同じ場所の別設備も混ざり得る。"
+      }
+    ],
+    "correct": 1,
+    "explanation": "名前や場所が変わっても、同じ設備の履歴を追える。",
+    "asset_key": null,
+    "published": true
+  },
+  {
+    "id": "DMQ-0093",
+    "title": "購買履歴のライフサイクル設計",
+    "body": "会員サービスで購買履歴を集計する。業務部門は分析用の複製を作る。社内規程では、利用目的に必要な項目だけを収集し、保管期限が来たデータは複製を含めて廃棄する。規程を満たす設計はどれか。",
+    "category_id": "DM-A-08-02-01",
+    "origin": "ai_original",
+    "source": "AI生成オリジナル（IPA非公式）。学習範囲の根拠：IPA DMシラバス案Ver.0.1。",
+    "choices": [
+      {
+        "id": 1,
+        "body": "必要な項目だけを収集し、原本と複製の保管先・管理責任を登録して、期限に従い両方を廃棄する。",
+        "explanation": "収集範囲の限定と、原本・複製の期限管理をともに満たす。"
+      },
+      {
+        "id": 2,
+        "body": "将来利用する可能性がある項目も収集し、原本と複製の保管先を登録して、期限に従い両方を廃棄する。",
+        "explanation": "廃棄の扱いは適切だが、必要な範囲を超えて収集している。"
+      },
+      {
+        "id": 3,
+        "body": "必要な項目だけを収集して原本を期限どおりに廃棄し、業務部門に渡した複製は集計用として保管を続ける。",
+        "explanation": "配布後の複製も規程上の廃棄対象である。"
+      },
+      {
+        "id": 4,
+        "body": "必要な項目だけを収集して原本と複製の管理責任を登録し、期限になったデータは参照権を外して保管を続ける。",
+        "explanation": "参照権の停止だけではデータ自体は残る。"
+      }
+    ],
+    "correct": 1,
+    "explanation": "収集範囲の限定と、原本・複製の期限管理をともに満たす。",
+    "asset_key": null,
+    "published": true
+  },
+  {
+    "id": "DMQ-0094",
+    "title": "データオーナーとスチュワードの役割",
+    "body": "商品マスターで重複が増えた。データオーナーが業務上の品質基準に責任を持ち、データスチュワードが日常の品質管理を行う体制とした。a〜cのうち、データオーナーの責務だけを全て挙げたものはどれか。\n\na 商品IDの付与基準と統合方針を承認する。\nb 承認済みのルールに従い、日々の重複候補の照合を行う。\nc 既存の統合方針で扱えない業務上の例外を承認する。",
+    "category_id": "DM-A-08-03-02",
+    "origin": "ai_original",
+    "source": "AI生成オリジナル（IPA非公式）。学習範囲の根拠：IPA DMシラバス案Ver.0.1。",
+    "choices": [
+      {
+        "id": 1,
+        "body": "a、b",
+        "explanation": "bは承認された方針を実施する日常業務である。"
+      },
+      {
+        "id": 2,
+        "body": "b、c",
+        "explanation": "bは日常業務であり、aの方針承認もオーナーの責務に含まれる。"
+      },
+      {
+        "id": 3,
+        "body": "a、c",
+        "explanation": "aとcはいずれも業務上の方針や例外の承認である。"
+      },
+      {
+        "id": 4,
+        "body": "a、b、c",
+        "explanation": "bはデータスチュワードが担当する。"
+      }
+    ],
+    "correct": 3,
+    "explanation": "aとcはいずれも業務上の方針や例外の承認である。",
+    "asset_key": null,
+    "published": true
+  },
+  {
+    "id": "DMQ-0095",
+    "title": "必須項目の完全性",
+    "body": "顧客データ1,000件について、必須の連絡先が入力されているかを確認した。80件が未入力であった。この項目の完全性は何％か。",
+    "category_id": "DM-A-08-04-01",
+    "origin": "ai_original",
+    "source": "AI生成オリジナル（IPA非公式）。学習範囲の根拠：IPA DMシラバス案Ver.0.1。",
+    "choices": [
+      {
+        "id": 1,
+        "body": "8％",
+        "explanation": "未入力の割合である。"
+      },
+      {
+        "id": 2,
+        "body": "80％",
+        "explanation": "未入力の件数を割合に置き換えている。"
+      },
+      {
+        "id": 3,
+        "body": "90％",
+        "explanation": "入力済み件数は900件ではなく920件である。"
+      },
+      {
+        "id": 4,
+        "body": "92％",
+        "explanation": "入力済み920件を全体1,000件で割ると92％になる。"
+      }
+    ],
+    "correct": 4,
+    "explanation": "入力済み920件を全体1,000件で割ると92％になる。",
+    "asset_key": null,
+    "published": true
+  },
+  {
+    "id": "DMQ-0096",
+    "title": "売上指標の来歴",
+    "body": "月次売上を集計する処理を変更した後、過去月の集計額も変わった。元データと集計処理のどちらの変更が影響したかを確認するために、最も適切な情報はどれか。",
+    "category_id": "DM-A-08-05-02",
+    "origin": "ai_original",
+    "source": "AI生成オリジナル（IPA非公式）。学習範囲の根拠：IPA DMシラバス案Ver.0.1。",
+    "choices": [
+      {
+        "id": 1,
+        "body": "売上額の業務上の定義と、その定義を承認した部門の記録",
+        "explanation": "指標の意味を確認できるが、実行時に使った版までは分からない。"
+      },
+      {
+        "id": 2,
+        "body": "集計に用いた入力データの版、変換処理の版及び各処理の実行記録",
+        "explanation": "入力と処理を当時の版まで追跡でき、どちらが変わったかを調査できる。"
+      },
+      {
+        "id": 3,
+        "body": "売上テーブルの列名、データ型及び主キーの定義",
+        "explanation": "構造の定義から、実行時に使ったデータや処理は特定できない。"
+      },
+      {
+        "id": 4,
+        "body": "集計結果の閲覧者、閲覧時刻及びダウンロードの記録",
+        "explanation": "利用状況を確認する記録であり、集計値の生成過程は分からない。"
+      }
+    ],
+    "correct": 2,
+    "explanation": "入力と処理を当時の版まで追跡でき、どちらが変わったかを調査できる。",
+    "asset_key": null,
+    "published": true
+  },
+  {
+    "id": "DMQ-0097",
+    "title": "外れ値と中央値",
+    "body": "注文の配送日数を5件測定したところ、2日、2日、3日、4日、29日であった。典型的な配送日数を示す値として、極端に遅い一件の影響を受けにくい中央値はどれか。",
+    "category_id": "DM-A-09-02-04",
+    "origin": "ai_original",
+    "source": "AI生成オリジナル（IPA非公式）。学習範囲の根拠：IPA DMシラバス案Ver.0.1。",
+    "choices": [
+      {
+        "id": 1,
+        "body": "2日",
+        "explanation": "最も頻出する最頻値である。"
+      },
+      {
+        "id": 2,
+        "body": "3日",
+        "explanation": "小さい順に並べた5件の中央は3日である。"
+      },
+      {
+        "id": 3,
+        "body": "8日",
+        "explanation": "5件の算術平均であり、29日の影響を受ける。"
+      },
+      {
+        "id": 4,
+        "body": "27日",
+        "explanation": "最大値と最小値の差である。"
+      }
+    ],
+    "correct": 2,
+    "explanation": "小さい順に並べた5件の中央は3日である。",
+    "asset_key": null,
+    "published": true
+  },
+  {
+    "id": "DMQ-0098",
+    "title": "仮説検定の第1種・第2種の誤り",
+    "body": "仮説検定における第1種の誤りと第2種の誤りに関する記述として、適切なものはどれか。",
+    "category_id": "DM-A-09-02-06",
+    "origin": "ai_original",
+    "source": "AI生成オリジナル（IPA非公式）。学習範囲の根拠：IPA DMシラバス案Ver.0.1。",
+    "choices": [
+      {
+        "id": 1,
+        "body": "第1種の誤りは、帰無仮説が誤りであるのに、帰無仮説を棄却しない誤りである。",
+        "explanation": "帰無仮説が誤りなのに棄却しないことは第2種の誤りである。"
+      },
+      {
+        "id": 2,
+        "body": "第1種の誤りが起こる確率が有意水準以下になるように、検定方法を定める。",
+        "explanation": "有意水準は、第1種の誤りの確率の上限として設定する。"
+      },
+      {
+        "id": 3,
+        "body": "有意水準を小さくすると、標本数などの条件が同じでも、第2種の誤りが起こる確率は必ず小さくなる。",
+        "explanation": "標本数などが同じなら、棄却しにくくなり、第2種の誤りの確率は一般に増える。"
+      },
+      {
+        "id": 4,
+        "body": "第2種の誤りは、帰無仮説が正しいのに、帰無仮説を棄却する誤りである。",
+        "explanation": "帰無仮説が正しいのに棄却するのは第1種の誤りである。"
+      }
+    ],
+    "correct": 2,
+    "explanation": "有意水準は、第1種の誤りの確率の上限として設定する。",
+    "asset_key": null,
+    "published": true
+  },
+  {
+    "id": "DMQ-0099",
+    "title": "アンケートの対象者選定の偏り",
+    "body": "全利用者の満足度を推定したい。現在の配信先リストには毎日利用する人だけが載っている。この配信先の偏りを直接改善する方法はどれか。",
+    "category_id": "DM-A-09-02-07",
+    "origin": "ai_original",
+    "source": "AI生成オリジナル（IPA非公式）。学習範囲の根拠：IPA DMシラバス案Ver.0.1。",
+    "choices": [
+      {
+        "id": 1,
+        "body": "現在のリストから抽出する人数を増やす。",
+        "explanation": "人数が増えても毎日利用しない人は対象外のままである。"
+      },
+      {
+        "id": 2,
+        "body": "現在のリストの未回答者に再通知する。",
+        "explanation": "回答率の改善にはなるが、誰が配信対象かは変わらない。"
+      },
+      {
+        "id": 3,
+        "body": "利用頻度で回答を重み付けするが、配信は現在のリストに限る。",
+        "explanation": "対象に含まれない層の回答は重み付けだけでは得られない。"
+      },
+      {
+        "id": 4,
+        "body": "全利用者を含む名簿を使い、利用頻度の異なる各層から無作為に抽出する。",
+        "explanation": "抽出枠を全利用者に広げることで、配信先の偏りを直接改善できる。"
+      }
+    ],
+    "correct": 4,
+    "explanation": "抽出枠を全利用者に広げることで、配信先の偏りを直接改善できる。",
+    "asset_key": null,
+    "published": true
+  },
+  {
+    "id": "DMQ-0100",
+    "title": "結合前のコード整形",
+    "body": "二つの表を品目コードで結合する。仕様上コードは5桁の数字からなる文字列で、一方の表だけ、数値として取り込んだため先頭のゼロが失われている。仕様の表現にそろえる前処理はどれか。",
+    "category_id": "DM-A-09-02-09",
+    "origin": "ai_original",
+    "source": "AI生成オリジナル（IPA非公式）。学習範囲の根拠：IPA DMシラバス案Ver.0.1。",
+    "choices": [
+      {
+        "id": 1,
+        "body": "数値で取り込んだ側のコードを、左側をゼロで補って5桁の文字列に変換する。",
+        "explanation": "例えば123を00123に戻すと、仕様の文字列で結合できる。"
+      },
+      {
+        "id": 2,
+        "body": "文字列で取り込んだ側のコードを数値に変換し、数値のまま管理する。",
+        "explanation": "数値で比較できても、5桁の文字列という仕様にはそろわない。"
+      },
+      {
+        "id": 3,
+        "body": "数値で取り込んだ側のコードの右側を、5桁になるまでゼロで補う。",
+        "explanation": "右側にゼロを足すと元のコードとは別の値になる。"
+      },
+      {
+        "id": 4,
+        "body": "両表のコードを品目名に置き換え、品目名の表記をそろえる。",
+        "explanation": "名称はコードによる識別を置き換える根拠にはならない。"
+      }
+    ],
+    "correct": 1,
+    "explanation": "例えば123を00123に戻すと、仕様の文字列で結合できる。",
+    "asset_key": null,
+    "published": true
+  },
+  {
+    "id": "DMQ-0101",
+    "title": "AIの提案と人間の事前承認",
+    "body": "設備の停止を生成AIが提案する。運用規程は、停止の影響が大きいため、すべての停止提案について担当者が根拠を確認し、承認してから実行することを求めている。この条件を満たす運用はどれか。",
+    "category_id": "DM-A-10-04-01",
+    "origin": "ai_original",
+    "source": "AI生成オリジナル（IPA非公式）。学習範囲の根拠：IPA DMシラバス案Ver.0.1。",
+    "choices": [
+      {
+        "id": 1,
+        "body": "すべての提案を自動実行し、担当者は翌日、根拠を確認する。",
+        "explanation": "確認が実行後になるため、事前承認を満たさない。"
+      },
+      {
+        "id": 2,
+        "body": "担当者が各提案の根拠と入力を点検し、承認した提案だけを実行する。",
+        "explanation": "全提案について、根拠確認と実行前の承認を満たしている。"
+      },
+      {
+        "id": 3,
+        "body": "AIが高い確信度を示す提案は自動実行し、低い場合だけ事前に承認を求める。",
+        "explanation": "高い確信度の提案に事前承認の例外が生じる。"
+      },
+      {
+        "id": 4,
+        "body": "一度担当者がモデルを承認した後は、個々の提案を自動実行する。",
+        "explanation": "モデル全体の承認は、個別の停止提案の承認とは異なる。"
+      }
+    ],
+    "correct": 2,
+    "explanation": "全提案について、根拠確認と実行前の承認を満たしている。",
+    "asset_key": null,
+    "published": true
+  }
+]

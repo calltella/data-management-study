@@ -123,6 +123,8 @@ export default {
           );
         return json({ ok: true });
       }
+      const diagramChoice = url.searchParams.get("choice");
+      const validDiagramChoice = diagramChoice === null || /^[1-4]$/.test(diagramChoice);
       if (url.pathname.startsWith("/api/images/") && request.method === "PUT") {
         if (!env.QUESTION_IMAGES)
           return json({ error: "画像ストレージが未設定です。" }, 503);
@@ -176,10 +178,15 @@ export default {
         const questionId = decodeURIComponent(
           url.pathname.slice("/api/images/".length),
         );
-        const key = `questions/${crypto.randomUUID()}`;
+        if (!validDiagramChoice || (diagramChoice && !/^DMQ-\d+$/.test(questionId)))
+          return json({ error: "選択肢を確認してください。" }, 400);
+        const key = diagramChoice
+          ? `explanations/${questionId}/${diagramChoice}/${crypto.randomUUID()}`
+          : `questions/${crypto.randomUUID()}`;
         await env.QUESTION_IMAGES.put(key, bytes, {
           httpMetadata: { contentType: mime },
         });
+        if (diagramChoice) return json({ ok: true, key });
         const saved = await db.rpc("dm_admin_set_asset", {
           question_id: questionId,
           object_key: key,
@@ -199,9 +206,13 @@ export default {
         const { data, error } = await db.rpc("dm_reveal_question", {
           question_id: id,
         });
-        if (error || !data?.asset_key)
+        const key = diagramChoice
+          ? data?.choices?.find((choice: { id: number }) => choice.id === Number(diagramChoice))?.diagram_key
+          : data?.asset_key;
+        if (error || !validDiagramChoice || typeof key !== "string" || !key ||
+            (diagramChoice && (!/^DMQ-\d+$/.test(id) || !key.startsWith(`explanations/${id}/${diagramChoice}/`))))
           return json({ error: "画像がありません。" }, 404);
-        const obj = await env.QUESTION_IMAGES.get(data.asset_key);
+        const obj = await env.QUESTION_IMAGES.get(key);
         if (!obj) return json({ error: "画像がありません。" }, 404);
         return new Response(obj.body, {
           headers: {

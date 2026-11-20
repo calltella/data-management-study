@@ -1,0 +1,422 @@
+[
+  {
+    "id": "DMQ-0072",
+    "title": "外部キーによる連鎖削除",
+    "body": "図のような関係データベースの“注文”表と“注文明細”表がある。“注文”表の行を削除すると、対応する“注文明細”表の行が、自動的に削除されるようにしたい。SQL文のON DELETE句に指定する語句はどれか。ここで、図中の実線の下線は主キーを、破線の下線は外部キーを表す。",
+    "category_id": "DM-A-17-02-01",
+    "origin": "ipa_past",
+    "source": "出典：令和元年度 秋期 応用情報技術者試験 午前 問27（句読点を統一。解説は独自作成）",
+    "choices": [
+      {
+        "id": 1,
+        "body": "CASCADE",
+        "explanation": "参照先の行を削除したとき、それを参照する行も連鎖して削除する。"
+      },
+      {
+        "id": 2,
+        "body": "INTERSECT",
+        "explanation": "二つの問合せ結果に共通する行を取り出す集合演算である。"
+      },
+      {
+        "id": 3,
+        "body": "RESTRICT",
+        "explanation": "参照している行が残っている場合、参照先の削除を制限する。"
+      },
+      {
+        "id": 4,
+        "body": "UNIQUE",
+        "explanation": "列又は列の組の値に一意性を要求する制約である。"
+      }
+    ],
+    "correct": 1,
+    "explanation": "外部キーにON DELETE CASCADEを指定すると、参照先の注文を削除したとき、その注文を参照する明細も削除される。",
+    "asset_key": "ipa-original/DMQ-0072.png",
+    "published": true,
+    "reference": {
+      "book": "2019r01a_ap_am",
+      "question_number": 27,
+      "pdf_page": 14,
+      "question_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000dict-att/2019r01a_ap_am_qs.pdf",
+      "answer_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000dict-att/2019r01a_ap_am_ans.pdf",
+      "scope_reason": "外部キーと参照整合性を理解する題材。"
+    }
+  },
+  {
+    "id": "DMQ-0073",
+    "title": "共有ロックと専有ロック",
+    "body": "RDBMSのロックに関する記述のうち、適切なものはどれか。ここで、X、Yはトランザクションとする。",
+    "category_id": "DM-A-17-01-01",
+    "origin": "ipa_past",
+    "source": "出典：令和元年度 秋期 応用情報技術者試験 午前 問28（句読点を統一。解説は独自作成）",
+    "choices": [
+      {
+        "id": 1,
+        "body": "XがA表内の特定行aに対して共有ロックを獲得しているときは、YはA表内の別の特定行bに対して専有ロックを獲得することができない。",
+        "explanation": "行aと行bは別の行なので、行aの共有ロックだけでは行bの専有ロックを妨げない。"
+      },
+      {
+        "id": 2,
+        "body": "XがA表内の特定行aに対して共有ロックを獲得しているときは、YはA表に対して専有ロックを獲得することができない。",
+        "explanation": "表全体に対する専有ロックは行aを含む。行aの共有ロックが保持されている間は競合する。"
+      },
+      {
+        "id": 3,
+        "body": "XがA表に対して共有ロックを獲得しているときでも、YはA表に対して専有ロックを獲得することができる。",
+        "explanation": "同じ表の共有ロックと専有ロックは競合する。"
+      },
+      {
+        "id": 4,
+        "body": "XがA表に対して専有ロックを獲得しているときでも、YはA表内の特定行aに対して専有ロックを獲得することができる。",
+        "explanation": "表全体の専有ロックには行aも含まれ、別トランザクションの専有ロックと競合する。"
+      }
+    ],
+    "correct": 2,
+    "explanation": "ロックの互換性は対象範囲でも決まる。表全体に対する専有ロックの範囲には、その表の各行が含まれる。",
+    "asset_key": null,
+    "published": true,
+    "reference": {
+      "book": "2019r01a_ap_am",
+      "question_number": 28,
+      "pdf_page": 14,
+      "question_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000dict-att/2019r01a_ap_am_qs.pdf",
+      "answer_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000dict-att/2019r01a_ap_am_ans.pdf",
+      "scope_reason": "同じデータに対する並行アクセスの制御を理解する題材。"
+    }
+  },
+  {
+    "id": "DMQ-0074",
+    "title": "媒体障害からのデータベース回復",
+    "body": "データベースに媒体障害が発生したときのデータベースの回復法はどれか。",
+    "category_id": "DM-A-24-01-01",
+    "origin": "ipa_past",
+    "source": "出典：令和元年度 秋期 応用情報技術者試験 午前 問29（句読点を統一。解説は独自作成）",
+    "choices": [
+      {
+        "id": 1,
+        "body": "障害発生時、異常終了したトランザクションをロールバックする。",
+        "explanation": "取り消しだけでは、記憶媒体から失われたデータを復元できない。"
+      },
+      {
+        "id": 2,
+        "body": "障害発生時点でコミットしていたがデータベースの実更新がされていないトランザクションをロールフォワードする。",
+        "explanation": "未反映の確定処理だけを再適用すると、媒体障害前に書込み済みだった更新を復元できない。"
+      },
+      {
+        "id": 3,
+        "body": "障害発生時点でまだコミットもアボートもしていなかった全てのトランザクションをロールバックする。",
+        "explanation": "未確定処理を取り消す手順であり、媒体から失われた確定データは戻らない。"
+      },
+      {
+        "id": 4,
+        "body": "バックアップコピーでデータベースを復元し、バックアップ取得以降にコミットした全てのトランザクションをロールフォワードする。",
+        "explanation": "バックアップを基点に確定済みの変更を積み直すことで、失われた更新を復元する。"
+      }
+    ],
+    "correct": 4,
+    "explanation": "媒体障害で失われたファイルをバックアップから復元し、バックアップ時点より後に確定した更新をログで再適用する。",
+    "asset_key": null,
+    "published": true,
+    "reference": {
+      "book": "2019r01a_ap_am",
+      "question_number": 29,
+      "pdf_page": 15,
+      "question_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000dict-att/2019r01a_ap_am_qs.pdf",
+      "answer_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000dict-att/2019r01a_ap_am_ans.pdf",
+      "scope_reason": "バックアップとログによるデータの可用性確保に関係する。"
+    }
+  },
+  {
+    "id": "DMQ-0075",
+    "title": "コンバージョン率",
+    "body": "インターネット広告の効果指標として用いられるコンバージョン率の説明はどれか。",
+    "category_id": "DM-A-09-01-02",
+    "origin": "ipa_past",
+    "source": "出典：令和元年度 秋期 応用情報技術者試験 午前 問73（句読点を統一。解説は独自作成）",
+    "choices": [
+      {
+        "id": 1,
+        "body": "Webサイト上で広告が表示された回数に対して、その広告がクリックされた回数の割合を示す指標である。",
+        "explanation": "広告表示からクリックに至った割合はクリック率である。"
+      },
+      {
+        "id": 2,
+        "body": "Webサイト上の広告から商品購入に至った顧客の1人当たりの広告コストを示す指標である。",
+        "explanation": "購入などの成果1件当たりに掛かった費用を示している。"
+      },
+      {
+        "id": 3,
+        "body": "Webサイト上の広告に掛けた費用の何倍の収益をその広告から得ることができたかを示す指標である。",
+        "explanation": "広告費を基準に収益の大きさを評価する指標を説明している。"
+      },
+      {
+        "id": 4,
+        "body": "Webサイト上の広告をクリックして訪れた人のうち会員登録や商品購入などに至った顧客数の割合を示す指標である。",
+        "explanation": "訪問者のうち設定した目標行動に至った人の割合を測っている。"
+      }
+    ],
+    "correct": 4,
+    "explanation": "会員登録や購入といった目標を達成した人の割合を測るのがコンバージョン率である。この問題では広告経由の訪問者が分母となる。",
+    "asset_key": null,
+    "published": true,
+    "reference": {
+      "book": "2019r01a_ap_am",
+      "question_number": 73,
+      "pdf_page": 34,
+      "question_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000dict-att/2019r01a_ap_am_qs.pdf",
+      "answer_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000dict-att/2019r01a_ap_am_ans.pdf",
+      "scope_reason": "データ利活用で、測定したい成果に合わせて指標を選ぶ題材。"
+    }
+  },
+  {
+    "id": "DMQ-0076",
+    "title": "ワークサンプリング法",
+    "body": "ワークサンプリング法の説明はどれか。",
+    "category_id": "DM-A-09-02-01",
+    "origin": "ipa_past",
+    "source": "出典：令和元年度 秋期 応用情報技術者試験 午前 問75（句読点を統一。解説は独自作成）",
+    "choices": [
+      {
+        "id": 1,
+        "body": "観測回数・観測時刻を設定し、実地観測によって観測された要素作業数の比率などから、統計的理論に基づいて作業時間を見積もる。",
+        "explanation": "観測した時点の作業の割合を標本として使っている。"
+      },
+      {
+        "id": 2,
+        "body": "作業動作を基本動作にまで分解して、基本動作の時間標準テーブルから、構成される基本動作の時間を合計して作業時間を求める。",
+        "explanation": "基本動作の既定時間を合算する方法である。"
+      },
+      {
+        "id": 3,
+        "body": "作業票や作業日報などから各作業の実績時間を集計し、作業ごとに平均して標準時間を求める。",
+        "explanation": "既存の実績記録を集計して平均する方法である。"
+      },
+      {
+        "id": 4,
+        "body": "実際の作業動作そのものをストップウォッチで数回反復測定して、作業時間を調査する。",
+        "explanation": "動作の所要時間を直接計測している。"
+      }
+    ],
+    "correct": 1,
+    "explanation": "ワークサンプリングでは個々の作業を連続計測せず、複数の時点で観測した作業の出現割合から時間配分を推定する。",
+    "asset_key": null,
+    "published": true,
+    "reference": {
+      "book": "2019r01a_ap_am",
+      "question_number": 75,
+      "pdf_page": 36,
+      "question_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000dict-att/2019r01a_ap_am_qs.pdf",
+      "answer_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000dict-att/2019r01a_ap_am_ans.pdf",
+      "scope_reason": "標本観測によって測定データを収集する方法を問う。"
+    }
+  },
+  {
+    "id": "DMQ-0077",
+    "title": "SQL GRANTによる権限付与",
+    "body": "表に対するSQLのGRANT文の説明として、適切なものはどれか。",
+    "category_id": "DM-A-24-02-02",
+    "origin": "ipa_past",
+    "source": "出典：令和2年度 10月 応用情報技術者試験 午前 問26（句読点を統一。解説は独自作成）",
+    "choices": [
+      {
+        "id": 1,
+        "body": "パスワードを設定してデータベースへの接続を制限する。",
+        "explanation": "パスワードによる接続時の認証を説明している。"
+      },
+      {
+        "id": 2,
+        "body": "ビューを作成して、ビューの基となる表のアクセスできる行や列を制限する。",
+        "explanation": "表示する行や列を絞ったビューを定義する操作を説明している。"
+      },
+      {
+        "id": 3,
+        "body": "表のデータを暗号化して、第三者がアクセスしてもデータの内容が分からないようにする。",
+        "explanation": "データの内容を鍵で保護する暗号化の説明である。"
+      },
+      {
+        "id": 4,
+        "body": "表の利用者に対し、表への問合せ、更新、追加、削除などの操作権限を付与する。",
+        "explanation": "SELECTやUPDATEなど、表に対して許可する操作を指定している。"
+      }
+    ],
+    "correct": 4,
+    "explanation": "GRANTは指定した利用者やロールに、指定したデータベースオブジェクトへの操作権限を付与する。",
+    "asset_key": null,
+    "published": true,
+    "reference": {
+      "book": "2020r02o_ap_am",
+      "question_number": 26,
+      "pdf_page": 15,
+      "question_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000d05l-att/2020r02o_ap_am_qs.pdf",
+      "answer_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000d05l-att/2020r02o_ap_am_ans.pdf",
+      "scope_reason": "データの操作権限を付与する仕組みを直接問う。"
+    }
+  },
+  {
+    "id": "DMQ-0078",
+    "title": "多対多の関連を表に変換",
+    "body": "UMLを用いて表した図のデータモデルから、“部品”表、“納入”表及び“メーカ”表を関係データベース上に定義するときの解釈のうち、適切なものはどれか。",
+    "category_id": "DM-A-17-02-02",
+    "origin": "ipa_past",
+    "source": "出典：令和2年度 10月 応用情報技術者試験 午前 問27（句読点を統一。解説は独自作成）",
+    "choices": [
+      {
+        "id": 1,
+        "body": "同一の部品を同一のメーカから複数回納入することは許されない。",
+        "explanation": "一つの部品と一つのメーカの組に、複数の納入の行が対応しても多重度を満たす。"
+      },
+      {
+        "id": 2,
+        "body": "“納入”表に外部キーは必要ない。",
+        "explanation": "納入の行がどの部品・メーカの行に対応するかを外部キーで表す。"
+      },
+      {
+        "id": 3,
+        "body": "部品番号とメーカ番号の組みを“納入”表の候補キーの一部にできる。",
+        "explanation": "納入番号などで同じ組の複数の納入を区別できるなら、両番号を含む組を候補キーとして設計できる。"
+      },
+      {
+        "id": 4,
+        "body": "“メーカ”表は、外部キーとして部品番号をもつことになる。",
+        "explanation": "部品とメーカの関連は納入を介するため、メーカ表そのものに部品番号を持たせる必要はない。"
+      }
+    ],
+    "correct": 3,
+    "explanation": "納入の各行は部品とメーカの各1行を参照する。部品番号とメーカ番号に納入を区別できる項目を組み合わせれば、候補キーを構成できる。",
+    "asset_key": "ipa-original/DMQ-0078.png",
+    "published": true,
+    "reference": {
+      "book": "2020r02o_ap_am",
+      "question_number": 27,
+      "pdf_page": 15,
+      "question_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000d05l-att/2020r02o_ap_am_qs.pdf",
+      "answer_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000d05l-att/2020r02o_ap_am_ans.pdf",
+      "scope_reason": "UMLの多重度を読み、関係データベースのキーに対応付ける題材。"
+    }
+  },
+  {
+    "id": "DMQ-0079",
+    "title": "関数従属と注文明細の正規化",
+    "body": "関係“注文記録”の属性間に①〜⑥の関数従属性があり、それに基づいて第3正規形まで正規化を行って、“商品”、“顧客”、“注文”、“注文明細”の各関係に分解した。関係“注文明細”として、適切なものはどれか。ここで、{X、Y}は、属性XとYの組みを表し、X→Yは、XがYを関数的に決定することを表す。また、実線の下線は主キーを表す。\n\n注文記録（注文番号、注文日、顧客番号、顧客名、商品番号、商品名、数量、販売単価）\n\n〔関数従属性〕\n① 注文番号 → 注文日\n② 注文番号 → 顧客番号\n③ 顧客番号 → 顧客名\n④ {注文番号、商品番号} → 数量\n⑤ {注文番号、商品番号} → 販売単価\n⑥ 商品番号 → 商品名",
+    "category_id": "DM-A-17-02-01",
+    "origin": "ipa_past",
+    "source": "出典：令和2年度 10月 応用情報技術者試験 午前 問28（句読点を統一。解説は独自作成）",
+    "choices": [
+      {
+        "id": 1,
+        "body": "注文明細（注̲文̲番̲号̲、顧̲客̲番̲号̲、商̲品̲番̲号̲、顧客名、数量、販売単価）",
+        "explanation": "顧客番号は注文番号だけで決まり、顧客名は顧客番号から決まる。両方を注文明細に残すと従属関係を適切に分けられない。"
+      },
+      {
+        "id": 2,
+        "body": "注文明細（注̲文̲番̲号̲、顧̲客̲番̲号̲、数量、販売単価）",
+        "explanation": "顧客番号を組み合わせても、同じ注文に含まれる別々の商品を区別できない。"
+      },
+      {
+        "id": 3,
+        "body": "注文明細（注̲文̲番̲号̲、商̲品̲番̲号̲、数量、販売単価）",
+        "explanation": "注文番号と商品番号の組が主キーになり、数量と販売単価を決定する。"
+      },
+      {
+        "id": 4,
+        "body": "注文明細（注̲文̲番̲号̲、数量、販売単価）",
+        "explanation": "一つの注文に複数の商品が含まれるため、注文番号だけでは明細を区別できない。"
+      }
+    ],
+    "correct": 3,
+    "explanation": "数量と販売単価は、注文番号と商品番号の組で決まる。注文番号だけで決まる顧客番号や、その顧客番号から決まる顧客名は別の関係へ分ける。",
+    "asset_key": null,
+    "published": true,
+    "reference": {
+      "book": "2020r02o_ap_am",
+      "question_number": 28,
+      "pdf_page": 16,
+      "question_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000d05l-att/2020r02o_ap_am_qs.pdf",
+      "answer_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000d05l-att/2020r02o_ap_am_ans.pdf",
+      "scope_reason": "関数従属を読み取り、明細表の主キーを決める題材。"
+    }
+  },
+  {
+    "id": "DMQ-0080",
+    "title": "バリューチェーン分析",
+    "body": "企業の事業活動を機能ごとに主活動と支援活動に分け、企業が顧客に提供する製品やサービスの利益が、どの活動で生み出されているかを分析する手法はどれか。",
+    "category_id": "DM-A-09-03-03",
+    "origin": "ipa_past",
+    "source": "出典：令和2年度 10月 応用情報技術者試験 午前 問67（句読点を統一。解説は独自作成）",
+    "choices": [
+      {
+        "id": 1,
+        "body": "3C分析",
+        "explanation": "顧客・競合・自社の三つの側面から事業環境を分析する。"
+      },
+      {
+        "id": 2,
+        "body": "SWOT分析",
+        "explanation": "内部の強み・弱みと外部の機会・脅威を整理する。"
+      },
+      {
+        "id": 3,
+        "body": "バリューチェーン分析",
+        "explanation": "活動を主活動と支援活動に分け、価値が生まれる過程を分析する。"
+      },
+      {
+        "id": 4,
+        "body": "ファイブフォース分析",
+        "explanation": "業界の競争環境に作用する五つの要因を分析する。"
+      }
+    ],
+    "correct": 3,
+    "explanation": "バリューチェーン分析では、自社の活動を主活動と支援活動に分け、各活動が製品やサービスの価値にどう寄与するかを見る。",
+    "asset_key": null,
+    "published": true,
+    "reference": {
+      "book": "2020r02o_ap_am",
+      "question_number": 67,
+      "pdf_page": 36,
+      "question_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000d05l-att/2020r02o_ap_am_qs.pdf",
+      "answer_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000d05l-att/2020r02o_ap_am_ans.pdf",
+      "scope_reason": "業務活動を分解し、価値や利益の発生源を分析する題材。"
+    }
+  },
+  {
+    "id": "DMQ-0081",
+    "title": "関数従属から求める候補キー",
+    "body": "関係Rは属性A、B、C、D、Eから成り、関数従属A→{B、C}、{C、D}→Eが成立するとき、Rの候補キーはどれか。",
+    "category_id": "DM-A-17-02-01",
+    "origin": "ipa_past",
+    "source": "出典：令和2年度 10月 データベーススペシャリスト試験 午前Ⅱ 問3（句読点を統一。解説は独自作成）",
+    "choices": [
+      {
+        "id": 1,
+        "body": "{A、C}",
+        "explanation": "AからBとCを求められるが、DがないためEまで求められない。"
+      },
+      {
+        "id": 2,
+        "body": "{A、C、D}",
+        "explanation": "全属性を決められるものの、CはAから導けるため最小ではない。"
+      },
+      {
+        "id": 3,
+        "body": "{A、D}",
+        "explanation": "AとDから全属性を決定でき、どちらか片方を取り除くと全属性を決定できない。"
+      },
+      {
+        "id": 4,
+        "body": "{C、D}",
+        "explanation": "CとDからEは求められるが、AとBを求められない。"
+      }
+    ],
+    "correct": 3,
+    "explanation": "AがBとCを決め、取得したCとDの組がEを決める。AとDはどちらも他の属性から導けず、両方が必要となる。",
+    "asset_key": null,
+    "published": true,
+    "reference": {
+      "book": "2020r02o_db_am2",
+      "question_number": 3,
+      "pdf_page": 4,
+      "question_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000d05l-att/2020r02o_db_am2_qs.pdf",
+      "answer_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000d05l-att/2020r02o_db_am2_ans.pdf",
+      "scope_reason": "候補キーの一意性と最小性を関数従属から判断する題材。"
+    }
+  }
+]

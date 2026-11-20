@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { demoCategories, demoQuestions } from "../../src/demo";
-test("画像のアップロードと保存後のプレビューに最新データを表示する", async ({
+test("管理画面と演習画面から問題・解説を編集できる", async ({
   page,
 }) => {
   const now = Math.floor(Date.now() / 1000);
@@ -47,17 +47,20 @@ test("画像のアップロードと保存後のプレビューに最新デー�
       },
     }),
   );
+  let administrator = true;
   await page.route("**/api/me", (r) =>
     r.fulfill({
-      json: { user: { id: user.id, email: user.email, admin: true } },
+      json: { user: { id: user.id, email: user.email, admin: administrator } },
     }),
   );
   let question = {
     ...demoQuestions[0],
     id: "DMQ-0011",
+    public_id: "834e9ce2-c58a-4a50-8aa2-21188cb3dc4a",
     asset_key: null as string | null,
     published: true,
   };
+  let refuseSave = false;
   await page.route("**/api/rpc", (r) => {
     const body = r.request().postDataJSON();
     if (body.name === "catalog")
@@ -68,7 +71,17 @@ test("画像のアップロードと保存後のプレビューに最新デー�
         },
       });
     if (body.name === "admin_questions") return r.fulfill({ json: [question] });
+    if (body.name === "start_exercise")
+      return r.fulfill({ json: { id: "exercise", requested: 1, available: 1, items: [
+        { id: "item", sequence: 1, question, choice_order: [2, 1, 3, 4] },
+      ] } });
+    if (body.name === "submit_answer")
+      return r.fulfill({ json: {
+        selected: body.args.selected_choice, correct: body.args.selected_choice === question.correct,
+        correct_choice: question.correct, explanation: question.explanation,
+      } });
     if (body.name === "admin_save_question") {
+      if (refuseSave) return r.fulfill({ status: 500, json: { error: "保存に失敗しました" } });
       question = { ...body.args.question, asset_key: question.asset_key };
       return r.fulfill({ json: null });
     }
@@ -77,6 +90,8 @@ test("画像のアップロードと保存後のプレビューに最新デー�
   let authorizedImageReads = 0;
   await page.route("**/api/images/**", (r) => {
     if (r.request().method() === "PUT") {
+      if (new URL(r.request().url()).searchParams.get("choice") === "1")
+        return r.fulfill({ json: { ok: true, key: "explanations/DMQ-0011/1/test" } });
       question.asset_key = "questions/uploaded";
       return r.fulfill({ json: { ok: true, key: question.asset_key } });
     }
@@ -88,6 +103,11 @@ test("画像のアップロードと保存後のプレビューに最新デー�
     });
   });
   await page.goto("/#admin");
+  const questionSearch = page.getByRole("textbox", { name: "問題を検索" });
+  await questionSearch.fill("00000000-0000-0000-0000-000000000000");
+  await expect(page.locator("#admin-no-results")).toBeVisible();
+  await questionSearch.fill(question.public_id.toUpperCase());
+  await expect(page.locator('[data-edit="DMQ-0011"]')).toBeVisible();
   await page.locator('[data-edit="DMQ-0011"]').click();
   await page
     .locator("#asset-file")
@@ -122,4 +142,53 @@ test("画像のアップロードと保存後のプレビューに最新デー�
   await expect(page.getByLabel("タイトル", { exact: true })).toHaveValue(
     "保存したタイトル",
   );
+
+  await page.getByLabel("公開する", { exact: true }).check();
+  await page.getByRole("button", { name: "保存する", exact: true }).click();
+  await expect(preview).toContainText("／ 公開");
+  await page.goto("/#practice");
+  await page.getByRole("button", { name: "最初から出題する", exact: true }).click();
+  await expect(page.getByRole("button", { name: "解説を編集" })).toHaveCount(0);
+  await expect(page.locator(".question-public-id")).toContainText(question.public_id);
+  const problemEdit = page.getByRole("button", { name: "問題を編集", exact: true });
+  await problemEdit.click();
+  const dialog = page.getByRole("dialog", { name: "出題内容を編集" });
+  const bodyInput = dialog.getByRole("textbox", { name: "問題文", exact: true });
+  await expect(bodyInput).toBeFocused();
+  await bodyInput.fill("演習画面から修正した問題文");
+  await dialog.getByRole("button", { name: "保存する" }).click();
+  await expect(dialog).toHaveCount(0);
+  await expect(page.locator(".question-body")).toHaveText("演習画面から修正した問題文");
+  await expect(page.locator(".explanation")).toHaveCount(0);
+
+  await page.locator('[data-choice="1"]').click();
+  await page.getByRole("button", { name: "解説を編集", exact: true }).click();
+  const explanationInput = dialog.getByRole("textbox", { name: "解説", exact: true });
+  await expect(explanationInput).toBeFocused();
+  await explanationInput.fill("演習中に更新した全体解説");
+  await dialog.getByRole("textbox", { name: "アの解説", exact: true }).fill("演習中に更新した個別解説");
+  await dialog.locator('input[name="choice-diagram-1"]').setInputFiles("public/ipa-original/DMQ-0068.png");
+  refuseSave = true;
+  await dialog.getByRole("button", { name: "保存する" }).click();
+  await expect(dialog.getByRole("alert")).toHaveText("保存に失敗しました");
+  await expect(explanationInput).toHaveValue("演習中に更新した全体解説");
+  refuseSave = false;
+  await dialog.getByRole("button", { name: "保存する" }).click();
+  await expect(dialog).toHaveCount(0);
+  await expect(page.locator(".explanation")).toContainText("演習中に更新した全体解説");
+  const editedChoice = page.locator(".choice-explanation").filter({ hasText: "演習中に更新した個別解説" });
+  await expect(editedChoice.locator(".choice-explanation-label")).toHaveText("イ");
+  const editedDiagram = editedChoice.locator("img");
+  await expect(editedDiagram).toHaveAttribute("src", /choice=1&v=explanations/);
+  await editedDiagram.evaluate((image: HTMLImageElement) => image.decode());
+  await expect(page.locator(".explanation h2")).toHaveText("正解です · 正解：イ");
+  await expect(page.locator('[data-choice="1"]')).toBeDisabled();
+
+  administrator = false;
+  await page.reload();
+  await page.getByRole("button", { name: "最初から出題する", exact: true }).click();
+  await expect(page.getByRole("button", { name: "問題を編集" })).toHaveCount(0);
+  await page.locator('[data-choice="1"]').click();
+  await expect(page.locator(".explanation")).toBeVisible();
+  await expect(page.getByRole("button", { name: "解説を編集" })).toHaveCount(0);
 });

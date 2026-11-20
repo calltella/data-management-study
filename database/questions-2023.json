@@ -1,0 +1,375 @@
+[
+  {
+    "id": "DMQ-0040",
+    "title": "項目が変動するJSONデータの格納",
+    "body": "JSON形式で表現される図1、図2のような商品データを複数のWebサービスから取得し、商品データベースとして蓄積する際のデータの格納方法に関する記述のうち、適切なものはどれか。ここで、商品データの取得元となるWebサービスは随時変更され、項目数や内容は予測できない。したがって、商品データベースの検索時に使用するキーにはあらかじめ制限を設けない。",
+    "category_id": "DM-A-09-01-01",
+    "origin": "ipa_past",
+    "source": "出典：令和5年度 春期 応用情報技術者試験 午前 問26（句読点を統一。解説は独自作成）",
+    "choices": [
+      {
+        "id": 1,
+        "body": "階層型データベースを使用し、項目名を上位階層とし、値を下位階層とした2階層でデータを格納する。"
+      },
+      {
+        "id": 2,
+        "body": "グラフデータベースを使用し、商品データの項目名の集合から成るノードと値の集合から成るノードを作り、二つのノードを関係付けたグラフとしてデータを格納する。"
+      },
+      {
+        "id": 3,
+        "body": "ドキュメントデータベースを使用し、項目構成の違いを区別せず、商品データ単位にデータを格納する。"
+      },
+      {
+        "id": 4,
+        "body": "関係データベースを使用し、商品データの各項目名を個別の列名とした表を定義してデータを格納する。"
+      }
+    ],
+    "correct": 3,
+    "explanation": "商品をドキュメント単位で保存すれば、取得先によってフィールドが違っていても元のまとまりを保てる。新たな項目を追加するたびに全商品の表定義を更新する必要もない。",
+    "published": true,
+    "reference": {
+      "book": "h_ap_am",
+      "question_number": 26,
+      "pdf_page": 15,
+      "question_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/ps6vr70000010d6y-att/2023r05h_ap_am_qs.pdf",
+      "answer_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/ps6vr70000010d6y-att/2023r05h_ap_am_ans.pdf",
+      "scope_reason": "構造が一定でない収集データに適した蓄積方式を選ぶ。"
+    },
+    "asset_key": "ipa-original/DMQ-0040.png"
+  },
+  {
+    "id": "DMQ-0041",
+    "title": "所属履歴の多重度",
+    "body": "UMLを用いて表した図のデータモデルのa、bに入れる多重度はどれか。\n\n〔条件〕\n(1) 部門には1人以上の社員が所属する。\n(2) 社員はいずれか一つの部門に所属する。\n(3) 社員が部門に所属した履歴を所属履歴として記録する。",
+    "category_id": "DM-A-17-02-02",
+    "origin": "ipa_past",
+    "source": "出典：令和5年度 春期 応用情報技術者試験 午前 問29（句読点を統一。解説は独自作成）",
+    "choices": [
+      {
+        "id": 1,
+        "body": "0..*　0..*"
+      },
+      {
+        "id": 2,
+        "body": "0..*　1..*"
+      },
+      {
+        "id": 3,
+        "body": "1..*　0..*"
+      },
+      {
+        "id": 4,
+        "body": "1..*　1..*"
+      }
+    ],
+    "correct": 4,
+    "explanation": "現在の所属も記録するので、部門ごとにも社員ごとにも少なくとも1件の履歴が必要になる。異動などで複数の履歴を持てるため、どちらも1..*となる。",
+    "published": true,
+    "reference": {
+      "book": "h_ap_am",
+      "question_number": 29,
+      "pdf_page": 17,
+      "question_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/ps6vr70000010d6y-att/2023r05h_ap_am_qs.pdf",
+      "answer_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/ps6vr70000010d6y-att/2023r05h_ap_am_ans.pdf",
+      "scope_reason": "所属履歴モデルを用いてUMLの多重度を解釈する。"
+    },
+    "asset_key": "ipa-original/DMQ-0041.png"
+  },
+  {
+    "id": "DMQ-0042",
+    "title": "センサー情報を使うデジタルツイン",
+    "body": "各種センサーを取り付けた航空機のエンジンから飛行中に収集したデータを分析し、仮想空間に構築したエンジンのモデルに反映してシミュレーションを行うことによって、各パーツの消耗状況や交換時期を正確に予測できるようになる。このように産業機器などにIoT技術を活用し、現実世界や物理的現象をリアルタイムに仮想空間で忠実に再現することを表したものはどれか。",
+    "category_id": "DM-A-09-02-01",
+    "origin": "ipa_past",
+    "source": "出典：令和5年度 春期 応用情報技術者試験 午前 問73（句読点を統一。解説は独自作成）",
+    "choices": [
+      {
+        "id": 1,
+        "body": "サーバ仮想化"
+      },
+      {
+        "id": 2,
+        "body": "スマートグリッド"
+      },
+      {
+        "id": 3,
+        "body": "スマートメーター"
+      },
+      {
+        "id": 4,
+        "body": "デジタルツイン"
+      }
+    ],
+    "correct": 4,
+    "explanation": "デジタルツインは、実物から得られるデータで仮想モデルを更新して、実物の状態や将来の挙動を調べる仕組みである。",
+    "published": true,
+    "reference": {
+      "book": "h_ap_am",
+      "question_number": 73,
+      "pdf_page": 36,
+      "question_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/ps6vr70000010d6y-att/2023r05h_ap_am_qs.pdf",
+      "answer_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/ps6vr70000010d6y-att/2023r05h_ap_am_ans.pdf",
+      "scope_reason": "観測データの収集とモデルを用いた活用を識別する。"
+    }
+  },
+  {
+    "id": "DMQ-0043",
+    "title": "決定木による施策の期待利益",
+    "body": "ビッグデータ分析の手法の一つであるデシジョンツリーを活用してマーケティング施策の判断に必要な事象を整理し、発生確率の精度を向上させた上で二つのマーケティング施策a、bの選択を行う。マーケティング施策を実行した場合の利益増加額（売上増加額－費用）の期待値が最大となる施策と、そのときの利益増加額の期待値の組合せはどれか。",
+    "category_id": "DM-A-09-03-02",
+    "origin": "ipa_past",
+    "source": "出典：令和5年度 春期 応用情報技術者試験 午前 問75（句読点を統一。解説は独自作成）",
+    "choices": [
+      {
+        "id": 1,
+        "body": "a　70"
+      },
+      {
+        "id": 2,
+        "body": "a　160"
+      },
+      {
+        "id": 3,
+        "body": "b　82"
+      },
+      {
+        "id": 4,
+        "body": "b　162"
+      }
+    ],
+    "correct": 3,
+    "explanation": "追加施策の期待純増はaで70億円、bで80億円なので、どちらも該当する分岐で追加する方が有利。初期費用まで引くと、aは0.4×70＋0.6×120−30＝70、bは0.3×80＋0.7×140−40＝82となる。",
+    "published": true,
+    "reference": {
+      "book": "h_ap_am",
+      "question_number": 75,
+      "pdf_page": 38,
+      "question_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/ps6vr70000010d6y-att/2023r05h_ap_am_qs.pdf",
+      "answer_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/ps6vr70000010d6y-att/2023r05h_ap_am_ans.pdf",
+      "scope_reason": "確率・費用を踏まえて決定木から期待値を比較する。"
+    },
+    "asset_key": "ipa-original/DMQ-0043.png"
+  },
+  {
+    "id": "DMQ-0044",
+    "title": "外部キーと候補キー",
+    "body": "関係モデルにおける外部キーの説明として、適切なものはどれか。",
+    "category_id": "DM-A-17-02-01",
+    "origin": "ipa_past",
+    "source": "出典：令和5年度 秋期 応用情報技術者試験 午前 問27（句読点を統一。解説は独自作成）",
+    "choices": [
+      {
+        "id": 1,
+        "body": "ある関係の候補キーを参照する属性、又は属性の組"
+      },
+      {
+        "id": 2,
+        "body": "主キー以外で、タプルを一意に識別できる属性、又は属性の組"
+      },
+      {
+        "id": 3,
+        "body": "タプルを一意に識別できる属性、又は属性の組の集合のうち極小のもの"
+      },
+      {
+        "id": 4,
+        "body": "タプルを一意に識別できる属性、又は属性の組を含む集合"
+      }
+    ],
+    "correct": 1,
+    "explanation": "外部キーは参照先の候補キーに対応付ける属性である。例えば注文表の顧客IDは顧客表の顧客IDを参照する。複数の注文が同じ顧客を参照できる。",
+    "published": true,
+    "reference": {
+      "book": "a_ap_am",
+      "question_number": 27,
+      "pdf_page": 16,
+      "question_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/ps6vr70000010d6y-att/2023r05a_ap_am_qs.pdf",
+      "answer_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/ps6vr70000010d6y-att/2023r05a_ap_am_ans.pdf",
+      "scope_reason": "関係モデルのキーの役割を見分ける。"
+    }
+  },
+  {
+    "id": "DMQ-0045",
+    "title": "顧客データの人口統計的変数",
+    "body": "市場を消費者特性でセグメント化する際に、基準となる変数を、地理的変数、人口統計的変数、心理的変数、行動的変数に分類するとき、人口統計的変数に分類されるものはどれか。",
+    "category_id": "DM-A-09-02-01",
+    "origin": "ipa_past",
+    "source": "出典：令和5年度 秋期 応用情報技術者試験 午前 問69（句読点を統一。解説は独自作成）",
+    "choices": [
+      {
+        "id": 1,
+        "body": "社交性などの性格"
+      },
+      {
+        "id": 2,
+        "body": "職業"
+      },
+      {
+        "id": 3,
+        "body": "人口密度"
+      },
+      {
+        "id": 4,
+        "body": "製品の使用割合"
+      }
+    ],
+    "correct": 2,
+    "explanation": "人口統計的変数には、年齢や職業のように個人・世帯の属性を表す分類軸が含まれる。",
+    "published": true,
+    "reference": {
+      "book": "a_ap_am",
+      "question_number": 69,
+      "pdf_page": 35,
+      "question_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/ps6vr70000010d6y-att/2023r05a_ap_am_qs.pdf",
+      "answer_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/ps6vr70000010d6y-att/2023r05a_ap_am_ans.pdf",
+      "scope_reason": "分析で使う顧客属性と行動データの意味を区別する。"
+    }
+  },
+  {
+    "id": "DMQ-0046",
+    "title": "故障件数の上位要因の可視化",
+    "body": "発生した故障について、発生要因ごとの件数の記録を基に、故障発生件数で上位を占める主な要因を明確に表現するのに適している図法はどれか。",
+    "category_id": "DM-A-09-02-08",
+    "origin": "ipa_past",
+    "source": "出典：令和5年度 秋期 応用情報技術者試験 午前 問76（句読点を統一。解説は独自作成）",
+    "choices": [
+      {
+        "id": 1,
+        "body": "特性要因図"
+      },
+      {
+        "id": 2,
+        "body": "パレート図"
+      },
+      {
+        "id": 3,
+        "body": "マトリックス図"
+      },
+      {
+        "id": 4,
+        "body": "連関図"
+      }
+    ],
+    "correct": 2,
+    "explanation": "原因別の件数を大きい順の棒で示し、累積割合を重ねると、少数の原因で故障全体のどの程度を説明できるか判断できる。",
+    "published": true,
+    "reference": {
+      "book": "a_ap_am",
+      "question_number": 76,
+      "pdf_page": 37,
+      "question_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/ps6vr70000010d6y-att/2023r05a_ap_am_qs.pdf",
+      "answer_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/ps6vr70000010d6y-att/2023r05a_ap_am_ans.pdf",
+      "scope_reason": "件数と累積比率に適した可視化を選ぶ。"
+    }
+  },
+  {
+    "id": "DMQ-0047",
+    "title": "匿名加工情報の第三者提供",
+    "body": "匿名加工情報取扱事業者が、適正な匿名加工を行った匿名加工情報を第三者提供する際の義務として、個人情報保護法に規定されているものはどれか。",
+    "category_id": "DM-A-29-01-02",
+    "origin": "ipa_past",
+    "source": "出典：令和5年度 秋期 応用情報技術者試験 午前 問79（句読点を統一。解説は独自作成）",
+    "choices": [
+      {
+        "id": 1,
+        "body": "第三者に提供される匿名加工情報に含まれる個人に関する情報の項目及び提供方法を公表しなければならない。"
+      },
+      {
+        "id": 2,
+        "body": "第三者へ提供した場合は、速やかに個人情報保護委員会へ提供した内容を報告しなければならない。"
+      },
+      {
+        "id": 3,
+        "body": "第三者への提供の手段は、ハードコピーなどの物理的な媒体を用いることに限られる。"
+      },
+      {
+        "id": 4,
+        "body": "匿名加工情報であっても、第三者提供を行う際には事前に本人の承諾が必要である。"
+      }
+    ],
+    "correct": 1,
+    "explanation": "第三者提供に当たっては、提供される情報の項目と提供方法をあらかじめ公表する。提供先に匿名加工情報であることを明示する義務もある。",
+    "published": true,
+    "reference": {
+      "book": "a_ap_am",
+      "question_number": 79,
+      "pdf_page": 38,
+      "question_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/ps6vr70000010d6y-att/2023r05a_ap_am_qs.pdf",
+      "answer_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/ps6vr70000010d6y-att/2023r05a_ap_am_ans.pdf",
+      "scope_reason": "匿名加工情報の適切な提供と事前公表を理解する。"
+    }
+  },
+  {
+    "id": "DMQ-0048",
+    "title": "シャーディングによるデータ分割",
+    "body": "大文字のアルファベットで始まる膨大な数のデータを、規則に従って複数のノードに割り当てる。このようにあらかじめ定めた規則に従って、複数のノードにデータを分散して割り当てる方法はどれか。\n\n〔規則〕\n・データの先頭文字がA〜Gの場合はノード1に格納する。\n・データの先頭文字がH〜Nの場合はノード2に格納する。\n・データの先頭文字がO〜Zの場合はノード3に格納する。",
+    "category_id": "DM-A-09-01-01",
+    "origin": "ipa_past",
+    "source": "出典：令和5年度 秋期 データベーススペシャリスト試験 午前Ⅱ 問2（句読点を統一。解説は独自作成）",
+    "choices": [
+      {
+        "id": 1,
+        "body": "2相コミットプロトコル"
+      },
+      {
+        "id": 2,
+        "body": "コンシステントハッシング"
+      },
+      {
+        "id": 3,
+        "body": "シャーディング"
+      },
+      {
+        "id": 4,
+        "body": "レプリケーション"
+      }
+    ],
+    "correct": 3,
+    "explanation": "シャーディングでは、キーの範囲などを使って一つのデータセットを分け、異なるノードに配置する。",
+    "published": true,
+    "reference": {
+      "book": "a_db_am2",
+      "question_number": 2,
+      "pdf_page": 3,
+      "question_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/ps6vr70000010d6y-att/2023r05a_db_am2_qs.pdf",
+      "answer_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/ps6vr70000010d6y-att/2023r05a_db_am2_ans.pdf",
+      "scope_reason": "分析データの分散格納と複製の違いを理解する。"
+    }
+  },
+  {
+    "id": "DMQ-0049",
+    "title": "複数の技能を表す複合主キー",
+    "body": "従業員番号と氏名と使用できるプログラム言語を管理するために、“従業員”表及び“プログラム言語”表を設計する。“プログラム言語を2種類以上使用できる従業員がいる。プログラム言語を全く使用できない従業員もいる。”という状況を管理する“プログラム言語”表の設計として、適切なものはどれか。ここで、実線の下線は主キーを表す。\n\n〔従業員表〕\n従業員（従̲業̲員̲番̲号̲、氏名）",
+    "category_id": "DM-A-17-02-01",
+    "origin": "ipa_past",
+    "source": "出典：令和5年度 秋期 データベーススペシャリスト試験 午前Ⅱ 問5（句読点を統一。解説は独自作成）",
+    "choices": [
+      {
+        "id": 1,
+        "body": "プログラム言語（氏̲名̲、プログラム言語）"
+      },
+      {
+        "id": 2,
+        "body": "プログラム言語（従業員番号、プ̲ロ̲グ̲ラ̲ム̲言̲語̲）"
+      },
+      {
+        "id": 3,
+        "body": "プログラム言語（従̲業̲員̲番̲号̲、プログラム言語）"
+      },
+      {
+        "id": 4,
+        "body": "プログラム言語（従̲業̲員̲番̲号̲、プ̲ロ̲グ̲ラ̲ム̲言̲語̲）"
+      }
+    ],
+    "correct": 4,
+    "explanation": "従業員番号と言語の組をキーにすれば、1人に複数言語を対応させ、同じ言語を別の社員にも登録できる。使える言語がない社員は従業員表だけに存在できる。",
+    "published": true,
+    "reference": {
+      "book": "a_db_am2",
+      "question_number": 5,
+      "pdf_page": 4,
+      "question_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/ps6vr70000010d6y-att/2023r05a_db_am2_qs.pdf",
+      "answer_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/ps6vr70000010d6y-att/2023r05a_db_am2_ans.pdf",
+      "scope_reason": "主キーと関連を使って多値の属性をモデル化する。"
+    }
+  }
+]

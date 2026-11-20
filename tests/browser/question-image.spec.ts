@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { demoCategories, demoQuestions } from "../../src/demo";
-test("大きな問題図を縮小表示し、拡大と閉じる操作ができる", async ({ page }) => {
+test("出題カードの幅を揃え、大きな問題図を読みやすく中央に表示する", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.route("**/api/config", (r) =>
     r.fulfill({ json: { configured: false } }),
@@ -21,37 +21,67 @@ test("大きな問題図を縮小表示し、拡大と閉じる操作ができ�
   );
   await page.goto("/#practice");
   await page.getByRole("combobox", { name: "出題数" }).selectOption("10");
-  await page.getByRole("button", { name: "勉強を始める", exact: true }).click();
+  await page.getByRole("button", { name: "最初から出題する", exact: true }).click();
+  const question = page.locator(".question");
+  expect((await question.boundingBox())!.width).toBe(1120);
+  await page.setViewportSize({ width: 1600, height: 900 });
+  expect((await question.boundingBox())!.width).toBe(1120);
   const image = page.locator(".question-image");
   await expect(image).toBeVisible();
   await image.evaluate((node: HTMLImageElement) => node.decode());
   const bounds = await image.boundingBox();
-  expect(bounds!.height).toBeLessThanOrEqual(180);
-  expect(bounds!.width).toBeLessThanOrEqual(420);
-  await expect(page.locator("[data-choice]").first()).toBeInViewport();
-  await page
-    .getByRole("button", { name: "問題の図表を拡大", exact: true })
-    .click();
-  const dialog = page.getByRole("dialog", {
-    name: "問題の図表（拡大）",
-    exact: true,
-  });
-  await expect(dialog).toBeVisible();
-  expect((await dialog.locator("img").boundingBox())!.height).toBeGreaterThan(
-    bounds!.height,
-  );
-  await page.getByRole("button", { name: "閉じる", exact: true }).click();
-  await expect(dialog).not.toBeVisible();
-  await page
-    .getByRole("button", { name: "問題の図表を拡大", exact: true })
-    .click();
-  await page.keyboard.press("Escape");
-  await expect(dialog).not.toBeVisible();
+  expect(bounds!.width).toBeCloseTo(760, 1);
+  expect(bounds!.height / bounds!.width).toBeCloseTo(1800 / 1400);
+  await expect(page.locator("[data-choice]").first()).toBeVisible();
+  const figure = (await page.locator(".question-figure").boundingBox())!;
+  expect(bounds!.x + bounds!.width / 2).toBeCloseTo(figure.x + figure.width / 2, 0);
+  await image.click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(image).toBeVisible();
+  expect((await image.boundingBox())!.width).toBeLessThan((await question.boundingBox())!.width);
   expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= innerWidth,
     ),
   ).toBe(true);
+});
+
+test("IPA過去問の公式図表を演習画面で読み込む", async ({ page }) => {
+  const question = {
+    ...demoQuestions[0],
+    id: "DMQ-0068",
+    asset_key: "ipa-original/DMQ-0068.png",
+  };
+  await page.route("**/api/config", (route) =>
+    route.fulfill({ json: { configured: false } }),
+  );
+  await page.route("**/api/demo", (route) =>
+    route.fulfill({ json: { categories: demoCategories, questions: [question] } }),
+  );
+  await page.goto("/#practice");
+  await page.getByRole("button", { name: "最初から出題する", exact: true }).click();
+
+  const image = page.getByRole("img", { name: "問題の図表" });
+  await expect(image).toHaveAttribute("src", "/ipa-original/DMQ-0068.png?v=2");
+  await image.evaluate((node: HTMLImageElement) => node.decode());
+  await expect(image).toBeVisible();
+});
+
+test("公式冊子を画像で表示する問題はシャッフル時も原順の記号だけで回答できる", async ({ page }) => {
+  const question = { ...demoQuestions[0], id: "DMQ-0079", correct: 3 };
+  await page.route("**/api/config", (route) =>
+    route.fulfill({ json: { configured: false } }),
+  );
+  await page.route("**/api/demo", (route) =>
+    route.fulfill({ json: { categories: demoCategories, questions: [question] } }),
+  );
+  await page.goto("/#practice");
+  await page.getByLabel("選択肢を並べ替える").check();
+  await page.getByRole("button", { name: "最初から出題する", exact: true }).click();
+  await page.getByRole("img", { name: "公式冊子の問28と選択肢" })
+    .evaluate((image: HTMLImageElement) => image.decode());
+  await expect(page.locator(".choices button")).toHaveText(["ア", "イ", "ウ", "エ"]);
+  await page.locator('[data-choice="3"]').click();
+  await expect(page.locator(".explanation h2")).toHaveText("正解です · 正解：ウ");
 });

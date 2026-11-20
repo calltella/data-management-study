@@ -1,0 +1,377 @@
+[
+  {
+    "id": "DMQ-0062",
+    "title": "グラフ指向データベース",
+    "body": "NoSQLの一種である、グラフ指向DBの特徴として、適切なものはどれか。",
+    "category_id": "DM-A-09-01-01",
+    "origin": "ipa_past",
+    "source": "出典：令和3年度 春期 応用情報技術者試験 午前 問28（句読点を統一。解説は独自作成）",
+    "choices": [
+      {
+        "id": 1,
+        "body": "データ項目の値として階層構造のデータをドキュメントとしてもつことができる。また、ドキュメントに対しインデックスを作成することもできる。"
+      },
+      {
+        "id": 2,
+        "body": "ノード、リレーション、プロパティで構成され、ノード間をリレーションでつないで構造化する。ノード及びリレーションはプロパティをもつことができる。"
+      },
+      {
+        "id": 3,
+        "body": "一つのキーに対して一つの値をとる形をしている。値の型は定義されていないので、様々な型の値を格納することができる。"
+      },
+      {
+        "id": 4,
+        "body": "一つのキーに対して複数の列をとる形をしている。関係データベースとは異なり、列の型は固定されていない。"
+      }
+    ],
+    "correct": 2,
+    "explanation": "グラフ指向データベースは、人物や商品などをノード、購入や友人関係などをノード間の関係として格納する。つながりをたどる問い合わせに向く。",
+    "published": true,
+    "reference": {
+      "book": "h_ap_am",
+      "question_number": 28,
+      "pdf_page": 15,
+      "question_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000d5ru-att/2021r03h_ap_am_qs.pdf",
+      "answer_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000d5ru-att/2021r03h_ap_am_ans.pdf",
+      "scope_reason": "データ構造に合う蓄積方式を選ぶ。"
+    }
+  },
+  {
+    "id": "DMQ-0063",
+    "title": "受注を記録するUMLモデル",
+    "body": "商品の注文を記録するクラス（顧客、商品、注文、注文明細）の構造を概念データモデルで表現する。a〜dに入れるべきクラス名の組合せはどれか。ここで、顧客は何度も注文を行い、一度に一つ以上の商品を注文でき、注文明細はそれぞれ1種類の商品に対応している。また、モデルの表記にはUMLを用いる。",
+    "category_id": "DM-A-17-02-02",
+    "origin": "ipa_past",
+    "source": "出典：令和3年度 春期 応用情報技術者試験 午前 問29（句読点を統一。解説は独自作成）",
+    "choices": [
+      {
+        "id": 1,
+        "body": "顧客　注文　注文明細　商品"
+      },
+      {
+        "id": 2,
+        "body": "商品　注文　注文明細　顧客"
+      },
+      {
+        "id": 3,
+        "body": "注文　注文明細　顧客　商品"
+      },
+      {
+        "id": 4,
+        "body": "注文明細　商品　注文　顧客"
+      }
+    ],
+    "correct": 1,
+    "explanation": "一人の顧客は複数の注文を持ち、一つの注文は複数の明細を持てる。各明細は一つの商品を指し、同じ商品を複数の明細で参照できる。",
+    "published": true,
+    "reference": {
+      "book": "h_ap_am",
+      "question_number": 29,
+      "pdf_page": 15,
+      "question_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000d5ru-att/2021r03h_ap_am_qs.pdf",
+      "answer_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000d5ru-att/2021r03h_ap_am_ans.pdf",
+      "scope_reason": "身近な受注データから実体の関係と多重度を読み取る。"
+    },
+    "asset_key": "ipa-original/DMQ-0063.png"
+  },
+  {
+    "id": "DMQ-0064",
+    "title": "データレイクの格納方法",
+    "body": "データレイクの特徴はどれか。",
+    "category_id": "DM-A-09-01-01",
+    "origin": "ipa_past",
+    "source": "出典：令和3年度 春期 応用情報技術者試験 午前 問31（句読点を統一。解説は独自作成）",
+    "choices": [
+      {
+        "id": 1,
+        "body": "大量のデータを分析し、単なる検索だけでは分からない隠れた規則や相関関係を見つけ出す。"
+      },
+      {
+        "id": 2,
+        "body": "データウェアハウスに格納されたデータから特定の用途に必要なデータだけを取り出し、構成する。"
+      },
+      {
+        "id": 3,
+        "body": "データウェアハウスやデータマートからデータを取り出し、多次元分析を行う。"
+      },
+      {
+        "id": 4,
+        "body": "必要に応じて加工するために、データを発生したままの形で格納する。"
+      }
+    ],
+    "correct": 4,
+    "explanation": "データレイクでは、さまざまな形式のデータを受け入れ、用途が決まってから必要な構造に変換できる。例えばセンサー記録と画像を受け取った形式のまま保存しておける。",
+    "published": true,
+    "reference": {
+      "book": "h_ap_am",
+      "question_number": 31,
+      "pdf_page": 16,
+      "question_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000d5ru-att/2021r03h_ap_am_qs.pdf",
+      "answer_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000d5ru-att/2021r03h_ap_am_ans.pdf",
+      "scope_reason": "データレイク・データマート・分析処理の役割を区別する。"
+    }
+  },
+  {
+    "id": "DMQ-0065",
+    "title": "協調フィルタリングによる推薦",
+    "body": "レコメンデーション（お勧め商品の提案）の例のうち、協調フィルタリングを用いたものはどれか。",
+    "category_id": "DM-A-09-02-10",
+    "origin": "ipa_past",
+    "source": "出典：令和3年度 春期 応用情報技術者試験 午前 問63（句読点を統一。解説は独自作成）",
+    "choices": [
+      {
+        "id": 1,
+        "body": "多くの顧客の購買行動の類似性を相関分析などによって求め、顧客Aに類似した顧客Bが購入している商品を顧客Aに勧める。"
+      },
+      {
+        "id": 2,
+        "body": "カテゴリ別に売れ筋商品のランキングを自動抽出し、リアルタイムで売れ筋情報を発信する。"
+      },
+      {
+        "id": 3,
+        "body": "顧客情報から、年齢、性別などの人口動態変数を用い、“20代男性”、“30代女性”などにセグメント化した上で、各セグメント向けの商品を提示する。"
+      },
+      {
+        "id": 4,
+        "body": "野球のバットを購入した人に野球のボールを勧めるなど商品間の関連に着目して、関連商品を提示する。"
+      }
+    ],
+    "correct": 1,
+    "explanation": "利用者ベースの協調フィルタリングは、購買や評価の履歴が似た人の行動から、対象者がまだ利用していない商品への関心を推定する。",
+    "published": true,
+    "reference": {
+      "book": "h_ap_am",
+      "question_number": 63,
+      "pdf_page": 34,
+      "question_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000d5ru-att/2021r03h_ap_am_qs.pdf",
+      "answer_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000d5ru-att/2021r03h_ap_am_ans.pdf",
+      "scope_reason": "購買データから関連性を見つけ、推薦に使う方法を比較する。"
+    }
+  },
+  {
+    "id": "DMQ-0066",
+    "title": "系統図法で目的と手段を整理する",
+    "body": "系統図法の活用例はどれか。",
+    "category_id": "DM-A-09-03-03",
+    "origin": "ipa_past",
+    "source": "出典：令和3年度 春期 応用情報技術者試験 午前 問76（句読点を統一。解説は独自作成）",
+    "choices": [
+      {
+        "id": 1,
+        "body": "解決すべき問題を端か中央に置き、関係する要因を因果関係に従って矢印でつないで周囲に並べ、問題発生に大きく影響している重要な原因を探る。"
+      },
+      {
+        "id": 2,
+        "body": "結果とそれに影響を及ぼすと思われる要因との関連を整理し、体系化して、魚の骨のような形にまとめる。"
+      },
+      {
+        "id": 3,
+        "body": "事実、意見、発想を小さなカードに書き込み、カード相互の親和性によってグループ化して、解決すべき問題を明確にする。"
+      },
+      {
+        "id": 4,
+        "body": "目的を達成するための手段を導き出し、更にその手段を実施するための幾つかの手段を考えることを繰り返し、細分化していく。"
+      }
+    ],
+    "correct": 4,
+    "explanation": "系統図法では目的を起点とし、「何をすれば達成できるか」を繰り返し考えて手段を枝分かれさせる。抽象的な目標を具体的な行動に落とし込める。",
+    "published": true,
+    "reference": {
+      "book": "h_ap_am",
+      "question_number": 76,
+      "pdf_page": 39,
+      "question_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000d5ru-att/2021r03h_ap_am_qs.pdf",
+      "answer_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000d5ru-att/2021r03h_ap_am_ans.pdf",
+      "scope_reason": "業務課題に対する整理手法を、目的・手段と原因分析の違いから選ぶ。"
+    }
+  },
+  {
+    "id": "DMQ-0067",
+    "title": "関係演算の和集合",
+    "body": "関係Rと関係Sに対して、関係Xを求める関係演算はどれか。",
+    "category_id": "DM-A-17-02-01",
+    "origin": "ipa_past",
+    "source": "出典：令和3年度 秋期 応用情報技術者試験 午前 問26（句読点を統一。解説は独自作成）",
+    "choices": [
+      {
+        "id": 1,
+        "body": "IDで結合"
+      },
+      {
+        "id": 2,
+        "body": "差"
+      },
+      {
+        "id": 3,
+        "body": "直積"
+      },
+      {
+        "id": 4,
+        "body": "和"
+      }
+    ],
+    "correct": 4,
+    "explanation": "和集合はどちらか一方にでもある行を集め、全項目が一致する重複は1行にする。IDが同じでも項目Aが異なる行は両方残る。",
+    "published": true,
+    "reference": {
+      "book": "a_ap_am",
+      "question_number": 26,
+      "pdf_page": 14,
+      "question_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000apad-att/2021r03a_ap_am_qs.pdf",
+      "answer_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000apad-att/2021r03a_ap_am_ans.pdf",
+      "scope_reason": "同じ構造のデータを統合するとき、行の重複と結合の違いを理解する。"
+    },
+    "asset_key": "ipa-original/DMQ-0067.png"
+  },
+  {
+    "id": "DMQ-0068",
+    "title": "受注明細と部分従属",
+    "body": "受注入力システムによって作成される次の表に関する記述のうち、適切なものはどれか。受注番号は受注ごとに新たに発行される番号であり、項番は1回の受注で商品コード別に連番で発行される番号である。\nなお、単価は商品コードによって一意に定まる。",
+    "category_id": "DM-A-17-02-01",
+    "origin": "ipa_past",
+    "source": "出典：令和3年度 秋期 応用情報技術者試験 午前 問28（句読点を統一。解説は独自作成）",
+    "choices": [
+      {
+        "id": 1,
+        "body": "第1正規形でない。"
+      },
+      {
+        "id": 2,
+        "body": "第1正規形であるが第2正規形でない。"
+      },
+      {
+        "id": 3,
+        "body": "第2正規形であるが第3正規形でない。"
+      },
+      {
+        "id": 4,
+        "body": "第3正規形である。"
+      }
+    ],
+    "correct": 2,
+    "explanation": "各欄には単一の値が入るので第1正規形を満たす。受注日と得意先コードは複合主キーの一部である受注番号だけで決まるので、部分従属が残っており第2正規形を満たさない。",
+    "published": true,
+    "reference": {
+      "book": "a_ap_am",
+      "question_number": 28,
+      "pdf_page": 15,
+      "question_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000apad-att/2021r03a_ap_am_qs.pdf",
+      "answer_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000apad-att/2021r03a_ap_am_ans.pdf",
+      "scope_reason": "具体的な業務データの項目から部分従属を見つける。"
+    },
+    "asset_key": "ipa-original/DMQ-0068.png"
+  },
+  {
+    "id": "DMQ-0069",
+    "title": "分散データベースの複製透過性",
+    "body": "分散データベースにおける“複製に対する透過性”の説明として、適切なものはどれか。",
+    "category_id": "DM-A-09-01-01",
+    "origin": "ipa_past",
+    "source": "出典：令和3年度 秋期 応用情報技術者試験 午前 問30（句読点を統一。解説は独自作成）",
+    "choices": [
+      {
+        "id": 1,
+        "body": "それぞれのサーバのDBMSが異種でも、プログラムはDBMSの相違を意識する必要がない。"
+      },
+      {
+        "id": 2,
+        "body": "一つの表が複数のサーバに分割されて配置されていても、プログラムは分割された配置を意識する必要がない。"
+      },
+      {
+        "id": 3,
+        "body": "表が別のサーバに移動されても、プログラムは表が配置されたサーバを意識する必要がない。"
+      },
+      {
+        "id": 4,
+        "body": "複数のサーバに一つの表が重複して存在しても、プログラムは表の重複を意識する必要がない。"
+      }
+    ],
+    "correct": 4,
+    "explanation": "複製透過性があると、同じ論理的な表を複数箇所に複製していても、利用するアプリケーションはコピーの数や読み取り先を指定せずに扱える。",
+    "published": true,
+    "reference": {
+      "book": "a_ap_am",
+      "question_number": 30,
+      "pdf_page": 17,
+      "question_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000apad-att/2021r03a_ap_am_qs.pdf",
+      "answer_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000apad-att/2021r03a_ap_am_ans.pdf",
+      "scope_reason": "データ分割・複製・配置場所の違いを学ぶ。"
+    }
+  },
+  {
+    "id": "DMQ-0070",
+    "title": "最悪時の値で比較するマクシミン原理",
+    "body": "いずれも時価100円の株式A〜Dのうち、一つの株式に投資したい。経済の成長を高、中、低の三つに区分したときのそれぞれの株式の予想値上がり幅は、表のとおりである。マクシミン原理に従うとき、どの株式に投資することになるか。",
+    "category_id": "DM-A-09-03-02",
+    "origin": "ipa_past",
+    "source": "出典：令和3年度 秋期 応用情報技術者試験 午前 問75（句読点を統一。解説は独自作成）",
+    "choices": [
+      {
+        "id": 1,
+        "body": "A"
+      },
+      {
+        "id": 2,
+        "body": "B"
+      },
+      {
+        "id": 3,
+        "body": "C"
+      },
+      {
+        "id": 4,
+        "body": "D"
+      }
+    ],
+    "correct": 1,
+    "explanation": "マクシミン原理では、各候補について最も不利な値を一つ取り出し、その値が最大の候補を選ぶ。最小値はAが10、BとCが5、Dが−10なので、Aを選ぶ。",
+    "published": true,
+    "reference": {
+      "book": "a_ap_am",
+      "question_number": 75,
+      "pdf_page": 40,
+      "question_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000apad-att/2021r03a_ap_am_qs.pdf",
+      "answer_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000apad-att/2021r03a_ap_am_ans.pdf",
+      "scope_reason": "複数のシナリオから最悪時の値を比較し、意思決定する。"
+    },
+    "asset_key": "ipa-original/DMQ-0070.png"
+  },
+  {
+    "id": "DMQ-0071",
+    "title": "外部キーからE-R図の多重度を読む",
+    "body": "四つの表の関係を表すE-R図として、適切なものはどれか。ここで、実線の下線は主キーを、破線の下線は外部キーを表す。",
+    "category_id": "DM-A-17-02-02",
+    "origin": "ipa_past",
+    "source": "出典：令和3年度 秋期 データベーススペシャリスト試験 午前Ⅱ 問4（句読点を統一。解説は独自作成）",
+    "choices": [
+      {
+        "id": 1,
+        "body": "医師 *──1 診療科 *──1 診察 1──* 患者"
+      },
+      {
+        "id": 2,
+        "body": "医師 *──1 診療科 1──* 診察 *──1 患者"
+      },
+      {
+        "id": 3,
+        "body": "医師 1──* 診療科 *──1 診察 1──* 患者"
+      },
+      {
+        "id": 4,
+        "body": "医師 1──* 診療科 1──* 診察 *──1 患者"
+      }
+    ],
+    "correct": 2,
+    "explanation": "医師と診察の各行が一つの診療科を参照し、診察の各行が一人の患者を参照する。同じ診療科や患者は、複数の行から参照できる。",
+    "published": true,
+    "reference": {
+      "book": "a_db_am2",
+      "question_number": 4,
+      "pdf_page": 5,
+      "question_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000apad-att/2021r03a_db_am2_qs.pdf",
+      "answer_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000apad-att/2021r03a_db_am2_ans.pdf",
+      "scope_reason": "表のキーからE-R図の各関連を判断する。"
+    },
+    "asset_key": "ipa-original/DMQ-0071.png"
+  }
+]

@@ -2,6 +2,9 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { PGlite } from "@electric-sql/pglite";
+import { demoQuestions } from "../src/demo.ts";
+import { questionLikelihood } from "../src/client/question-likelihood.ts";
+import { supplementalChoiceExplanations } from "../src/client/choice-explanations.ts";
 const user1 = "11111111-1111-4111-8111-111111111111",
   user2 = "22222222-2222-4222-8222-222222222222";
 test("RLS、重複回答、最新順序、リセット、削除後のJWTを検証", async () => {
@@ -10,18 +13,50 @@ test("RLS、重複回答、最新順序、リセット、削除後のJWTを検�
     `create schema auth;create role anon;create role authenticated;revoke all on schema auth from public;grant usage on schema auth to authenticated;create table auth.users(id uuid primary key,raw_app_meta_data jsonb default '{}');alter table auth.users enable row level security;create function auth.uid()returns uuid language sql stable as $$select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid$$;insert into auth.users(id)values('${user1}'),('${user2}');`,
   );
   await db.exec(await readFile("database/schema.sql", "utf8"));
+  await db.exec(await readFile("database/exercise-previous-answer.sql", "utf8"));
+  await db.exec(await readFile("database/exercise-answer-history.sql", "utf8"));
+  await db.exec(await readFile("database/exercise-answer-priority.sql", "utf8"));
   await db.exec(await readFile("database/seed.sql", "utf8"));
-  const additions = [...JSON.parse(await readFile("database/questions-2024.json", "utf8")), ...JSON.parse(await readFile("database/questions-ipa-sample.json", "utf8"))];
-  assert.equal(additions.length, 21);
-  assert.equal((await db.query("select count(*)::int as n from study.questions")).rows[0].n, 39);
+  const additions = [
+    ...JSON.parse(await readFile("database/questions-2024.json", "utf8")),
+    ...JSON.parse(await readFile("database/questions-ipa-sample.json", "utf8")),
+    ...JSON.parse(await readFile("database/questions-2023.json", "utf8")),
+    ...JSON.parse(await readFile("database/questions-2022-and-ai.json", "utf8")),
+    ...JSON.parse(await readFile("database/questions-2021.json", "utf8")),
+    ...JSON.parse(await readFile("database/questions-2019-2020.json", "utf8")),
+    ...JSON.parse(await readFile("database/questions-2018-2019-and-ai.json", "utf8")),
+  ];
+  assert.equal(additions.length, 83);
+  assert.equal((await db.query("select count(*)::int as n from study.questions")).rows[0].n, 101);
+  await db.exec(await readFile("database/questions-2023.sql", "utf8"));
+  await db.exec(await readFile("database/questions-2022-and-ai.sql", "utf8"));
+  await db.exec(await readFile("database/questions-2021.sql", "utf8"));
+  await db.exec(await readFile("database/questions-2019-2020.sql", "utf8"));
+  await db.exec(await readFile("database/questions-2018-2019-and-ai.sql", "utf8"));
+  assert.equal((await db.query("select count(*)::int as n from study.questions")).rows[0].n, 101);
+  const allQuestions = (await db.query("select id, choices from study.questions")).rows;
+  for (const question of [...allQuestions, ...demoQuestions]) {
+    const assessment = questionLikelihood[question.id];
+    assert.ok(assessment, `${question.id} に出題可能性の評価が必要です`);
+    assert.ok(Number.isInteger(assessment[0]) && assessment[0] >= 1 && assessment[0] <= 5);
+    assert.ok(assessment[1].trim());
+    for (const choice of question.choices) {
+      assert.ok(
+        choice.explanation?.trim() || supplementalChoiceExplanations[question.id]?.[choice.body]?.trim(),
+        `${question.id} の選択肢 ${choice.id} に個別解説が必要です`,
+      );
+    }
+  }
   for (const question of additions) {
     const saved = (await db.query("select * from study.questions where id=$1", [question.id])).rows[0];
     assert.equal(saved.correct, question.correct);
     assert.deepEqual(saved.choices, question.choices);
+    if ("asset_key" in question) assert.equal(saved.asset_key, question.asset_key);
     assert.equal(saved.body, question.body);
     assert.equal(saved.category_id, question.category_id);
     assert.equal(saved.published, true);
-    assert.equal(question.reference.question_pdf.startsWith("https://www.ipa.go.jp/"), true);
+    if (question.origin === "ipa_past" || question.origin === "ipa_sample")
+      assert.equal(question.reference.question_pdf.startsWith("https://www.ipa.go.jp/"), true);
     assert.equal(saved.body.includes("，") || saved.explanation.includes("，") || JSON.stringify(saved.choices).includes("，"), false);
   }
   // DB経由の今後の編集でも統一され、数値の桁区切りは変わらない。
@@ -74,6 +109,10 @@ test("RLS、重複回答、最新順序、リセット、削除後のJWTを検�
     ])
   )[0].a;
   assert.equal(a.correct, true);
+  assert.equal(freshItem.previous_correct, null);
+  assert.deepEqual(freshItem.answer_history, []);
+  assert.equal((await start()).items[0].previous_correct, true);
+  assert.equal((await select("select public.dm_active_exercise() as data"))[0].data.items[0].previous_correct, true);
   const category = (await select("select public.dm_reveal_question($1) as q", [freshItem.question.id]))[0].q.category_id;
   assert.equal((await select("select public.dm_history_by_category($1::text[]) as h", [[category]]))[0].h.answers.length, 1);
   assert.equal((await select("select public.dm_history_by_category($1::text[]) as h", [["nonexistent"]]))[0].h.answers.length, 0);
@@ -87,6 +126,7 @@ test("RLS、重複回答、最新順序、リセット、削除後のJWTを検�
   )[0].a;
   assert.equal(retry.selected, correct);
   await as(user2);
+  assert.deepEqual((await start()).items[0].answer_history, []);
   assert.equal((await select("select public.dm_history_by_category($1::text[]) as h", [[category]]))[0].h.answers.length, 0);
 
   await assert.rejects(
@@ -121,6 +161,13 @@ test("RLS、重複回答、最新順序、リセット、削除後のJWTを検�
   );
   assert.equal(Number(latest[0].sequence), freshItem.sequence);
   await as(user1);
+  const repeatedHistory = (await select("select public.dm_history_by_category($1::text[]) as h", [[category]]))[0].h.answers;
+  assert.deepEqual(repeatedHistory.map(({ correct, previous_results }) => [correct, previous_results]), [
+    [true, [false]], [false, []],
+  ]);
+  const nextExercise = await start();
+  assert.deepEqual(nextExercise.items[0].answer_history, [true, false]);
+  assert.deepEqual((await select("select public.dm_active_exercise() as data"))[0].data.items[0].answer_history, [true, false]);
   await select("select public.dm_rate_question($1,4)", [freshItem.question.id]);
   await select("select public.dm_rate_question($1,5)", [freshItem.question.id]);
   assert.equal((await select("select public.dm_reveal_question($1) as q", [freshItem.question.id]))[0].q.my_rating, 5);
@@ -152,21 +199,26 @@ test("RLS、重複回答、最新順序、リセット、削除後のJWTを検�
   const limited = (await select("select public.dm_start_exercise(question_count=>10,replace_existing=>true) as data"))[0].data;
   assert.equal(limited.items.length, 10);
   await assert.rejects(() => select("select public.dm_start_exercise(question_count=>0,wrong_only=>true,replace_existing=>true)"), /条件に合う問題/);
-  const answeredIds = new Set(all.items.slice(0,100).map(i => i.question.id));
-  await select("select public.dm_submit_answer((v->>'id')::uuid,2) from jsonb_array_elements($1::jsonb) v", [JSON.stringify(all.items.slice(0,100))]);
+  const answeredItems = all.items.slice(0, 100);
+  await select(
+    "select public.dm_submit_answer((v->>'id')::uuid, case when n <= 5 then 3 else 2 end) from jsonb_array_elements($1::jsonb) with ordinality as row(v,n)",
+    [JSON.stringify(answeredItems)],
+  );
+  const wrongIds = new Set(answeredItems.slice(0, 5).map(i => i.question.id));
+  const correctIds = new Set(answeredItems.slice(5).map(i => i.question.id));
+  const priorities = ({ items }) => items.map(({ question }) =>
+    wrongIds.has(question.id) ? 1 : correctIds.has(question.id) ? 2 : 0,
+  );
   const preferred = (await select("select public.dm_start_exercise(question_count=>10,replace_existing=>true) as data"))[0].data;
-  assert.equal(preferred.items.length, 10);
-  assert.equal(preferred.items.slice(0,2).every(i => !answeredIds.has(i.question.id)),true);
-  assert.equal(preferred.items.slice(2).every(i => answeredIds.has(i.question.id)),true);
+  assert.deepEqual(priorities(preferred), [0, 0, 1, 1, 1, 1, 1, 2, 2, 2]);
   const preferredAll = (await select("select public.dm_start_exercise(question_count=>0,replace_existing=>true) as data"))[0].data;
   assert.equal(preferredAll.items.length, 102);
-  assert.equal(preferredAll.items.slice(0,2).every(i => !answeredIds.has(i.question.id)),true);
-  await select("select public.dm_submit_answer((v->>'id')::uuid,2) from jsonb_array_elements($1::jsonb) v", [JSON.stringify(preferredAll.items.slice(0,2))]);
-  const fallback = (await select("select public.dm_start_exercise(question_count=>10,replace_existing=>true) as data"))[0].data;
-  assert.equal(fallback.items.length,10);
-  await select("select public.dm_submit_answer($1,3)", [fallback.items[0].id]);
+  assert.deepEqual(priorities(preferredAll), [0, 0, ...Array(5).fill(1), ...Array(95).fill(2)]);
+
+  await select("select public.dm_submit_answer($1,2)", [preferredAll.items[2].id]);
+  wrongIds.delete(preferredAll.items[2].question.id);
+  correctIds.add(preferredAll.items[2].question.id);
   const wrongOnly = (await select("select public.dm_start_exercise(question_count=>10,wrong_only=>true,replace_existing=>true) as data"))[0].data;
-  assert.equal(wrongOnly.items.length,1);
-  assert.equal(wrongOnly.items[0].question.id,fallback.items[0].question.id);
+  assert.deepEqual(priorities(wrongOnly), [1, 1, 1, 1]);
   await db.close();
 });
