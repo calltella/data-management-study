@@ -47,6 +47,12 @@ let selectedCategories: string[] = [],
   shuffle = false,
   wrong = false,
   page = 0;
+const questionOrigins = [
+  ["ai_original", "AIオリジナル問題"],
+  ["ipa_past", "IPA過去問"],
+  ["ipa_sample", "IPA公式サンプル"],
+] as const;
+let selectedOrigins: string[] = questionOrigins.map(([origin]) => origin);
 let historyCategory = "";
 const adminFilters = { major: "", middle: "", minor: "", term: "" };
 const ratingStates = new Map<
@@ -195,18 +201,19 @@ function login() {
       }
     });
 }
-function publishedQuestionCount(categoryId: string) {
-  return questions.filter((q) =>
+function publishedQuestionCount(categoryId: string, pool = questions) {
+  return pool.filter((q) =>
     includesCategory(q.category_id, [categoryId], categories),
   ).length;
 }
 
 function categoryOptions() {
+  const pool = questions.filter((q) => selectedOrigins.includes(q.origin));
   return categories
     .filter((c) => c.level === 1)
     .map((c) => {
-      const registered = publishedQuestionCount(c.id);
-      return `<label class="check level-1"><input type="checkbox" name="category" value="${esc(c.id)}" ${selectedCategories.includes(c.id) ? "checked" : ""}>${esc(c.name)} <span class="small muted">（${registered}問）</span></label>`;
+      const registered = publishedQuestionCount(c.id, pool);
+      return `<label class="check level-1"><input type="checkbox" name="category" value="${esc(c.id)}" ${selectedCategories.includes(c.id) ? "checked" : ""}>${esc(c.name)} <span class="small muted" data-category-count="${esc(c.id)}">（${registered}問）</span></label>`;
     })
     .join("");
 }
@@ -216,7 +223,7 @@ function practice() {
     return;
   }
   render(
-    `<div class="section-heading"><div><h1>今日の学習を始めましょう。</h1><p class="muted">分野を選んで、自分のペースで取り組めます。</p></div></div><form id="practice-form" class="card setup"><div class="setup-heading"><h2>出題条件</h2><span class="small muted">公開問題 ${questions.length}問</span></div><div class="categories">${categoryOptions()}<div class="category-controls"><div class="settings"><label class="count-setting">出題数<select name="count">${[10, 15, 20, 25, 30, 0].map((n) => `<option value="${n}" ${count === n ? "selected" : ""}>${n || "全部"}</option>`).join("")}</select></label><label class="check"><input name="shuffle" type="checkbox" ${shuffle ? "checked" : ""}>選択肢を並べ替える</label><label class="check"><input name="wrong" type="checkbox" ${wrong ? "checked" : ""} ${!session ? "disabled" : ""}>最後の回答が不正解の問題だけ</label></div><div class="category-actions"><button type="button" class="secondary" data-category-selection="all">全選択</button><button type="button" class="secondary" data-category-selection="none">全解除</button></div></div></div><section class="setup-guidance muted likelihood-guide" aria-labelledby="likelihood-guide-title"><p><strong id="likelihood-guide-title">AIの出題予想</strong>　IPAの科目Aシラバス案と公式サンプル問題をもとに、科目Aとの関連度を5段階で評価しています。</p>
+    `<div class="section-heading"><div><h1>今日の学習を始めましょう。</h1><p class="muted">分野を選んで、自分のペースで取り組めます。</p></div></div><form id="practice-form" class="card setup"><div class="setup-heading"><h2>出題条件</h2><span class="small muted">公開問題 ${questions.length}問</span></div><fieldset class="practice-origins"><legend>問題の種類</legend>${questionOrigins.map(([origin, label]) => `<label class="check"><input type="checkbox" name="origin" value="${origin}" ${selectedOrigins.includes(origin) ? "checked" : ""}>${label}</label>`).join("")}</fieldset><div class="categories">${categoryOptions()}<div class="category-controls"><div class="settings"><label class="count-setting">出題数<select name="count">${[10, 15, 20, 25, 30, 0].map((n) => `<option value="${n}" ${count === n ? "selected" : ""}>${n || "全部"}</option>`).join("")}</select></label><label class="check"><input name="shuffle" type="checkbox" ${shuffle ? "checked" : ""}>選択肢を並べ替える</label><label class="check"><input name="wrong" type="checkbox" ${wrong ? "checked" : ""} ${!session ? "disabled" : ""}>最後の回答が不正解の問題だけ</label></div><div class="category-actions"><button type="button" class="secondary" data-category-selection="all">全選択</button><button type="button" class="secondary" data-category-selection="none">全解除</button></div></div></div><section class="setup-guidance muted likelihood-guide" aria-labelledby="likelihood-guide-title"><p><strong id="likelihood-guide-title">AIの出題予想</strong>　IPAの科目Aシラバス案と公式サンプル問題をもとに、科目Aとの関連度を5段階で評価しています。</p>
     <details>
       <summary>5段階の意味を見る</summary>
       <dl>
@@ -231,6 +238,16 @@ function practice() {
   const categoryInputs = Array.from(
     document.querySelectorAll<HTMLInputElement>('input[name="category"]'),
   );
+  const originInputs = Array.from(
+    document.querySelectorAll<HTMLInputElement>('input[name="origin"]'),
+  );
+  originInputs.forEach((input) => input.addEventListener("change", () => {
+    selectedOrigins = originInputs.filter((choice) => choice.checked).map((choice) => choice.value);
+    const pool = questions.filter((q) => selectedOrigins.includes(q.origin));
+    document.querySelectorAll<HTMLElement>("[data-category-count]").forEach((label) => {
+      label.textContent = `（${publishedQuestionCount(label.dataset.categoryCount!, pool)}問）`;
+    });
+  }));
   const syncCategories = () => {
     selectedCategories = categoryInputs
       .filter((input) => input.checked)
@@ -257,11 +274,17 @@ function practice() {
       if (busy) return;
       const f = new FormData(e.target as HTMLFormElement);
       selectedCategories = f.getAll("category").map(String);
+      selectedOrigins = f.getAll("origin").map(String);
       count = Number(f.get("count"));
       shuffle = f.has("shuffle");
       wrong = f.has("wrong");
       if (!selectedCategories.length) {
         notice = "分類を1つ以上選択してください。";
+        practice();
+        return;
+      }
+      if (!selectedOrigins.length) {
+        notice = "問題の種類を1つ以上選択してください。";
         practice();
         return;
       }
@@ -274,6 +297,7 @@ async function start() {
     if (session)
       exercise = await request<Exercise>("start_exercise", {
         category_ids: selectedCategories,
+        question_origins: selectedOrigins,
         question_count: count,
         wrong_only: wrong,
         shuffle_choices: shuffle,
@@ -282,6 +306,7 @@ async function start() {
     else {
       const candidates = shuffled(
         questions.filter((q) =>
+          selectedOrigins.includes(q.origin) &&
           includesCategory(q.category_id, selectedCategories, categories),
         ),
       ).slice(0, count || undefined);
@@ -405,6 +430,22 @@ function choiceExplanationRows(
     .join("");
 }
 
+function officialQuestionPage(q: Question): string | undefined {
+  if (q.id === "DMQ-0079") return "/ipa-original/DMQ-0079.png?v=3";
+  if (["DMQ-0102", "DMQ-0110", "DMQ-0111", "DMQ-0119"].includes(q.id)
+      && q.asset_key === `ipa-original/${q.id}.png`) {
+    return `/${q.asset_key}?v=3`;
+  }
+}
+
+function questionBodyMarkup(q: Question, className: string, imageOnly: boolean) {
+  if (q.id === "DMQ-0079") {
+    const [body, dependencies] = q.body.split(/\n\s*(?=〔関数従属性〕)/u, 2);
+    return `<p class="${className}">${esc(breakSentences(body.trimEnd()))}</p>${dependencies ? `<p class="question-transcript">${esc(dependencies)}</p>` : ""}`;
+  }
+  return `<p class="${className}${imageOnly ? " question-transcript" : ""}">${esc(breakSentences(q.body))}</p>`;
+}
+
 function showQuestion() {
   const item = current();
   if (!item) {
@@ -445,7 +486,8 @@ function showQuestion() {
     .replace(/。表を項目一覧にテキスト化\s*$/u, "")
     .replace(/。\s*学習範囲の根拠[：:][^\r\n]*$/u, "")
     .trim();
-  const imageOnly = q.id === "DMQ-0079";
+  const officialPage = officialQuestionPage(q);
+  const imageOnly = Boolean(officialPage);
   const choiceOrder = imageOnly ? [1, 2, 3, 4] : item.choice_order;
   const history = item.answer_history ?? (item.previous_correct == null ? [] : [item.previous_correct]);
   const historyIcons = session && history.length
@@ -471,8 +513,8 @@ function showQuestion() {
           ? `<details class="question-likelihood"><summary>科目Aとの関連度（AI評価）｜<strong>${likelihoodLabels[assessment[0]]}</strong></summary><p>${esc(assessment[1])}</p></details>`
           : '<span class="question-likelihood">科目Aとの関連度（AI評価）｜未評価</span>'}
       </div>
-      <p class="question-body${imageOnly ? " question-transcript" : ""}">${esc(breakSentences(q.body))}</p>
-      ${imageOnly ? '<figure class="question-figure"><img class="question-image" src="/ipa-original/DMQ-0079.png" alt="公式冊子の問28と選択肢"></figure>' : q.asset_key ? `<figure class="question-figure"><img class="question-image" id="exercise-question-image" ${canEdit && q.published === false ? "hidden" : `src="${esc(questionImageUrl(q))}"`} alt="問題の図表"></figure>` : ""}
+      ${questionBodyMarkup(q, "question-body", imageOnly)}
+      ${imageOnly ? `<figure class="question-figure"><img class="question-image" src="${esc(officialPage)}" alt="${q.id === "DMQ-0079" ? "公式冊子の関数従属性と選択肢" : "公式冊子の問題と選択肢"}"></figure>` : q.asset_key ? `<figure class="question-figure"><img class="question-image" id="exercise-question-image" ${canEdit && q.published === false ? "hidden" : `src="${esc(questionImageUrl(q))}"`} alt="問題の図表"></figure>` : ""}
       <div class="choices ${choiceLayout(q, imageOnly)}">${choiceOrder
       .map((id, pos) => {
         const c = q.choices.find((v) => v.id === id)!;
@@ -1063,14 +1105,15 @@ async function loadAdminImageUrl(image: HTMLImageElement, src: string) {
 }
 function showQuestionPreview(editor: HTMLElement, q: Question, edit: () => void, afterSave: boolean) {
   releaseAdminImages();
-  const imageOnly = q.id === "DMQ-0079";
+  const officialPage = officialQuestionPage(q);
+  const imageOnly = Boolean(officialPage);
   const choices = q.choices;
   const details = choiceExplanationRows(q, choices.map(({ id }) => id), q.correct, imageOnly, true);
   editor.innerHTML = `<section id="saved-question-preview" class="saved-question-preview">
     <h2 tabindex="-1">${esc(q.id)} · ${esc(q.title)}</h2>
     <p class="small muted">${esc(categories.find((c) => c.id === q.category_id)?.name)} ／ ${q.published ? "公開" : "非公開"}</p>
-    <p class="preview-body${imageOnly ? " question-transcript" : ""}">${esc(breakSentences(q.body))}</p>
-    ${imageOnly ? '<figure class="question-figure"><img class="question-image" src="/ipa-original/DMQ-0079.png" alt="公式冊子の問28と選択肢"></figure>' : q.asset_key ? `<figure class="question-figure"><img id="admin-saved-image" class="question-image" alt="${afterSave ? "保存した問題の図表" : "問題の図表"}"></figure>` : ""}
+    ${questionBodyMarkup(q, "preview-body", imageOnly)}
+    ${imageOnly ? `<figure class="question-figure"><img class="question-image" src="${esc(officialPage)}" alt="${q.id === "DMQ-0079" ? "公式冊子の関数従属性と選択肢" : "公式冊子の問題と選択肢"}"></figure>` : q.asset_key ? `<figure class="question-figure"><img id="admin-saved-image" class="question-image" alt="${afterSave ? "保存した問題の図表" : "問題の図表"}"></figure>` : ""}
     <div class="choices ${choiceLayout(q, imageOnly)}">${choices.map((c, i) => `<div class="choice ${c.id === q.correct ? "correct" : ""}">
       <span class="choice-label"${imageOnly ? ` aria-label="${labels[i]}、${esc(c.body.replaceAll("\u0332", ""))}"` : ""}>${labels[i]}</span>
       ${imageOnly ? "" : `<span class="choice-text">${esc(c.body)}</span>`}

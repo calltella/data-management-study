@@ -1208,3 +1208,16 @@ textarea {
   color: #526961;
   overflow-wrap: anywhere;
 }
+
+
+.practice-origins {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin: 0 0 16px;
+  padding: 8px 0 0;
+  border: 0;
+}
+.practice-origins legend {
+  font-weight: 700;
+}

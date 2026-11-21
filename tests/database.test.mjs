@@ -16,6 +16,7 @@ test("RLS、重複回答、最新順序、リセット、削除後のJWTを検�
   await db.exec(await readFile("database/exercise-previous-answer.sql", "utf8"));
   await db.exec(await readFile("database/exercise-answer-history.sql", "utf8"));
   await db.exec(await readFile("database/exercise-answer-priority.sql", "utf8"));
+  await db.exec(await readFile("database/exercise-question-origins.sql", "utf8"));
   await db.exec(await readFile("database/seed.sql", "utf8"));
   const additions = [
     ...JSON.parse(await readFile("database/questions-2024.json", "utf8")),
@@ -202,6 +203,16 @@ test("RLS、重複回答、最新順序、リセット、削除後のJWTを検�
     select 'all-test-'||n,q.title,q.body,q.category_id,q.origin,q.source,q.choices,q.correct,q.explanation,true
     from study.questions q cross join generate_series(1,101) n where q.id='DMQ-0014'`);
   await as(user2);
+  const typeFiltered = (await select(
+    "select public.dm_start_exercise('{}',0,false,false,true,array['ai_original']) as data",
+  ))[0].data;
+  assert.equal(typeFiltered.items.length, 102);
+  assert.ok(typeFiltered.items.every(item => item.question.origin === "ai_original"));
+  await assert.rejects(
+    () => select("select public.dm_start_exercise('{}',0,false,false,true,array['ipa_sample'])"),
+    /条件に合う問題/,
+  );
+  assert.equal((await select("select public.dm_active_exercise() as data"))[0].data.id, typeFiltered.id);
   const all = (await select("select public.dm_start_exercise(question_count=>0,replace_existing=>true) as data"))[0].data;
   assert.equal(all.items.length, 102);
   assert.equal(all.requested, 102);

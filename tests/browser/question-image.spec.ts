@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { demoCategories, demoQuestions } from "../../src/demo";
+import pastQuestions from "../../database/questions-2019-2020.json" with { type: "json" };
 test("出題カードの幅を揃え、大きな問題図を読みやすく中央に表示する", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.route("**/api/config", (r) =>
@@ -69,7 +70,7 @@ test("IPA過去問の公式図表を演習画面で読み込む", async ({ page 
 });
 
 test("公式冊子を画像で表示する問題はシャッフル時も原順の記号だけで回答できる", async ({ page }) => {
-  const question = { ...demoQuestions[0], id: "DMQ-0079", correct: 3 };
+  const question = { ...pastQuestions.find(q => q.id === "DMQ-0079")!, category_id: demoQuestions[0].category_id };
   await page.route("**/api/config", (route) =>
     route.fulfill({ json: { configured: false } }),
   );
@@ -79,8 +80,12 @@ test("公式冊子を画像で表示する問題はシャッフル時も原順�
   await page.goto("/#practice");
   await page.getByLabel("選択肢を並べ替える").check();
   await page.getByRole("button", { name: "最初から出題する", exact: true }).click();
-  await page.getByRole("img", { name: "公式冊子の問28と選択肢" })
+  await page.getByRole("img", { name: "公式冊子の関数従属性と選択肢" })
     .evaluate((image: HTMLImageElement) => image.decode());
+  const body = page.locator(".question-body");
+  await expect(body).toBeVisible();
+  await expect(body).toContainText("注文記録（注文番号、注文日");
+  await expect(body).not.toContainText("〔関数従属性〕");
   await expect(page.locator(".choices button")).toHaveText(["ア", "イ", "ウ", "エ"]);
   await page.locator('[data-choice="3"]').click();
   await expect(page.locator(".explanation h2")).toHaveText("正解です · 正解：ウ");

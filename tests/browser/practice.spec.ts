@@ -307,8 +307,8 @@ test("科目Aとの関連度を言葉で表示し、根拠を確認できる", a
 
 test("問題文を文の区切りで改行して表示する", async ({ page }) => {
   const question = {
-    ...pastQuestions2023.find(({ id }) => id === "DMQ-0047")!,
-    category_id: demoQuestions[0].category_id,
+    ...demoQuestions[0],
+    body: "資料を参照する。適切な対応を選ぶ。",
   };
   await page.route("**/api/demo", (route) =>
     route.fulfill({ json: { categories: demoCategories, questions: [question] } }),
@@ -317,5 +317,51 @@ test("問題文を文の区切りで改行して表示する", async ({ page }) 
   await page.getByRole("button", { name: "最初から出題する" }).click();
   const body = page.locator(".question-body");
   await expect(body).toHaveCSS("white-space", "pre-wrap");
-  expect(await body.textContent()).toContain("第三者へ提供する。\n個人情報保護法");
+  expect(await body.textContent()).toContain("資料を参照する。\n適切な対応を選ぶ。");
+});
+
+test("問題の種類を複数選んでゲスト演習を始められる", async ({ page }) => {
+  await page.route("**/api/demo", (route) => route.fulfill({
+    json: {
+      categories: demoCategories,
+      questions: demoQuestions.map((question, index) => ({
+        ...question,
+        origin: ["ai_original", "ipa_past", "ipa_sample"][index],
+      })),
+    },
+  }));
+  await page.goto("/#practice");
+  const ai = page.getByRole("checkbox", { name: "AIオリジナル問題" });
+  const past = page.getByRole("checkbox", { name: "IPA過去問" });
+  const sample = page.getByRole("checkbox", { name: "IPA公式サンプル" });
+  const start = page.getByRole("button", { name: "最初から出題する", exact: true });
+  await expect(ai).toBeChecked();
+  await expect(past).toBeChecked();
+  await expect(sample).toBeChecked();
+  const dbCount = page.locator('[data-category-count="db"]');
+  const dataCount = page.locator('[data-category-count="data"]');
+  await expect(dbCount).toHaveText("（2問）");
+  await expect(dataCount).toHaveText("（1問）");
+  await ai.uncheck();
+  await expect(dbCount).toHaveText("（1問）");
+  await past.uncheck();
+  await sample.uncheck();
+  await expect(dbCount).toHaveText("（0問）");
+  await expect(dataCount).toHaveText("（0問）");
+  await start.click();
+  await expect(page.getByRole("status")).toContainText("問題の種類を1つ以上選択してください");
+  await past.check();
+  await sample.check();
+  await expect(dbCount).toHaveText("（1問）");
+  await expect(dataCount).toHaveText("（1問）");
+  await start.click();
+  await expect(page.getByRole("heading", { name: "問 1 ／ 2問" })).toBeVisible();
+  const bodies = [];
+  for (let i = 0; i < 2; i++) {
+    bodies.push(await page.locator(".question-body").innerText());
+    await page.locator("[data-choice]").first().click();
+    if (i === 0) await page.getByRole("link", { name: "次の問題へ" }).click();
+  }
+  const compact = (text: string) => text.replace(/\s/g, "");
+  expect(bodies.map(compact).sort()).toEqual(demoQuestions.slice(1).map(q => compact(q.body)).sort());
 });
