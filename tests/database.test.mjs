@@ -25,15 +25,25 @@ test("RLS、重複回答、最新順序、リセット、削除後のJWTを検�
     ...JSON.parse(await readFile("database/questions-2021.json", "utf8")),
     ...JSON.parse(await readFile("database/questions-2019-2020.json", "utf8")),
     ...JSON.parse(await readFile("database/questions-2018-2019-and-ai.json", "utf8")),
+    ...JSON.parse(await readFile("database/questions-2017.json", "utf8")),
+    ...JSON.parse(await readFile("database/questions-2016.json", "utf8")),
+    ...JSON.parse(await readFile("database/questions-dm-a-coverage.json", "utf8")),
+    ...JSON.parse(await readFile("database/questions-2009-2015.json", "utf8")),
+    ...JSON.parse(await readFile("database/questions-dm-a-priority.json", "utf8")),
   ];
-  assert.equal(additions.length, 83);
-  assert.equal((await db.query("select count(*)::int as n from study.questions")).rows[0].n, 101);
+  assert.equal(additions.length, 125);
+  assert.equal((await db.query("select count(*)::int as n from study.questions")).rows[0].n, 143);
   await db.exec(await readFile("database/questions-2023.sql", "utf8"));
   await db.exec(await readFile("database/questions-2022-and-ai.sql", "utf8"));
   await db.exec(await readFile("database/questions-2021.sql", "utf8"));
   await db.exec(await readFile("database/questions-2019-2020.sql", "utf8"));
   await db.exec(await readFile("database/questions-2018-2019-and-ai.sql", "utf8"));
-  assert.equal((await db.query("select count(*)::int as n from study.questions")).rows[0].n, 101);
+  await db.exec(await readFile("database/questions-2017.sql", "utf8"));
+  await db.exec(await readFile("database/questions-2016.sql", "utf8"));
+  await db.exec(await readFile("database/questions-dm-a-coverage.sql", "utf8"));
+  await db.exec(await readFile("database/questions-2009-2015.sql", "utf8"));
+  await db.exec(await readFile("database/questions-dm-a-priority.sql", "utf8"));
+  assert.equal((await db.query("select count(*)::int as n from study.questions")).rows[0].n, 143);
   const allQuestions = (await db.query("select id, choices from study.questions")).rows;
   for (const question of [...allQuestions, ...demoQuestions]) {
     const assessment = questionLikelihood[question.id];

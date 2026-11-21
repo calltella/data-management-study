@@ -55,6 +55,9 @@ test("管理画面と演習画面から問題・解説を編集できる", async
   );
   let question = {
     ...demoQuestions[0],
+    choices: demoQuestions[0].choices.map(choice => choice.id === 1
+      ? { ...choice, explanation: "プレビューで確認する個別解説", diagram_key: "explanations/DMQ-0011/1/original" }
+      : choice),
     id: "DMQ-0011",
     public_id: "834e9ce2-c58a-4a50-8aa2-21188cb3dc4a",
     asset_key: null as string | null,
@@ -108,7 +111,34 @@ test("管理画面と演習画面から問題・解説を編集できる", async
   await expect(page.locator("#admin-no-results")).toBeVisible();
   await questionSearch.fill(question.public_id.toUpperCase());
   await expect(page.locator('[data-edit="DMQ-0011"]')).toBeVisible();
+  const preview = page.locator("#saved-question-preview");
+  const previewButton = page.getByRole("button", { name: "プレビュー", exact: true });
+  await previewButton.click();
+  const adminDialog = page.locator("#admin-question-dialog");
+  await expect(page.getByRole("dialog", { name: "問題のプレビュー" })).toBeVisible();
+  await expect(preview).toContainText(question.title);
+  await expect(preview).toContainText(question.body);
+  await expect(preview).toContainText(question.explanation);
+  const firstChoice = preview.locator(".choices .choice").first();
+  const labelBounds = await firstChoice.locator(".choice-label").boundingBox();
+  const textBounds = await firstChoice.locator(".choice-text").boundingBox();
+  expect(textBounds!.x).toBeGreaterThan(labelBounds!.x + labelBounds!.width);
+  const detail = preview.locator(".choice-explanation").filter({ hasText: "プレビューで確認する個別解説" });
+  await expect(detail).toBeVisible();
+  await expect(detail.locator("img")).toHaveAttribute("src", /^blob:/);
+  await detail.locator("img").evaluate((image: HTMLImageElement) => image.decode());
+  await expect(preview.getByRole("heading", { level: 2 })).toBeFocused();
+  await page.keyboard.press("Escape");
+  await expect(adminDialog).not.toBeVisible();
+  await expect(previewButton).toBeFocused();
+  await expect(questionSearch).toHaveValue(question.public_id.toUpperCase());
   await page.locator('[data-edit="DMQ-0011"]').click();
+  await expect(page.getByRole("dialog", { name: "問題を編集" })).toBeVisible();
+  await adminDialog.getByRole("button", { name: "閉じる" }).click();
+  await expect(adminDialog).not.toBeVisible();
+  await previewButton.click();
+  await adminDialog.getByRole("button", { name: "問題を編集する", exact: true }).click();
+  await expect(page.getByRole("dialog", { name: "問題を編集" })).toBeVisible();
   await page
     .locator("#asset-file")
     .setInputFiles({
@@ -131,7 +161,7 @@ test("管理画面と演習画面から問題・解説を編集できる", async
   await page.locator('textarea[name="explanation"]').fill("保存した解説");
   await page.getByLabel("公開する", { exact: true }).uncheck();
   await page.getByRole("button", { name: "保存する", exact: true }).click();
-  const preview = page.locator("#saved-question-preview");
+  await expect(page.getByRole("dialog", { name: "保存後のプレビュー" })).toBeVisible();
   await expect(preview).toContainText("保存したタイトル");
   await expect(preview).toContainText("保存した問題文");
   await expect(preview).toContainText("保存した解説");
@@ -146,6 +176,9 @@ test("管理画面と演習画面から問題・解説を編集できる", async
   await page.getByLabel("公開する", { exact: true }).check();
   await page.getByRole("button", { name: "保存する", exact: true }).click();
   await expect(preview).toContainText("／ 公開");
+  await adminDialog.getByRole("button", { name: "閉じる" }).click();
+  await expect(adminDialog).not.toBeVisible();
+  await expect(questionSearch).toHaveValue(question.public_id.toUpperCase());
   await page.goto("/#practice");
   await page.getByRole("button", { name: "最初から出題する", exact: true }).click();
   await expect(page.getByRole("button", { name: "解説を編集" })).toHaveCount(0);

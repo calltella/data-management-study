@@ -1,0 +1,412 @@
+[
+  {
+    "id": "DMQ-0110",
+    "title": "関数従属と第3正規形",
+    "body": "属性a〜eについて a→b、a→c、a→d、b→c、(b,d)→e が成立する。第3正規形への分解として適切なものはどれか。",
+    "category_id": "DM-A-17-01-01",
+    "origin": "ipa_past",
+    "source": "出典：平成28年度 春期 応用情報技術者試験 午前 問27（問題文・選択肢を調整。解説は独自作成）",
+    "choices": [
+      {
+        "id": 1,
+        "body": "(a,b,c,d) ／ (b,d,e)",
+        "explanation": "最初の関係にb→cが残り、cはキーaに推移的に従属する。"
+      },
+      {
+        "id": 2,
+        "body": "(a,b,c,d) ／ (b,c) ／ (b,d,e)",
+        "explanation": "(b,c)を追加しても、(a,b,c,d)の推移的従属は解消されない。"
+      },
+      {
+        "id": 3,
+        "body": "(a,b,d) ／ (b,d,c,e)",
+        "explanation": "後者ではキー(b,d)の一部であるbだけでcが決まる。"
+      },
+      {
+        "id": 4,
+        "body": "(a,b,d) ／ (b,c) ／ (b,d,e)",
+        "explanation": "b→cと(b,d)→eをそれぞれ独立した関係にし、aで決まるb、dを最初の関係に保持する。"
+      }
+    ],
+    "correct": 4,
+    "explanation": "b→cと(b,d)→eをそれぞれ独立した関係にし、aで決まるb、dを最初の関係に保持する。",
+    "asset_key": null,
+    "published": true,
+    "reference": {
+      "book": "2016h28h_ap_am",
+      "question_number": 27,
+      "pdf_page": 14,
+      "question_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000gn5o-att/2016h28h_ap_am_qs.pdf",
+      "answer_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000gn5o-att/2016h28h_ap_am_ans.pdf"
+    }
+  },
+  {
+    "id": "DMQ-0111",
+    "title": "排他ロックの取得順序",
+    "body": "トランザクションAはA1、A2を、BはB1、B2を順に実行する。A1、B1、A2、B2の順に資源SまたはTの排他ロックを要求し、終了時に解除する。デッドロックになる資源の並びはどれか。",
+    "category_id": "DM-A-17-01-01",
+    "origin": "ipa_past",
+    "source": "出典：平成28年度 春期 応用情報技術者試験 午前 問28（問題文・選択肢を調整。解説は独自作成）",
+    "choices": [
+      {
+        "id": 1,
+        "body": "S、S、T、T",
+        "explanation": "B1はSを待つが、A2はTを取得できる。"
+      },
+      {
+        "id": 2,
+        "body": "S、T、T、S",
+        "explanation": "AがSを、BがTを保持したまま、互いの持つ資源を待つ。"
+      },
+      {
+        "id": 3,
+        "body": "T、S、T、S",
+        "explanation": "後半の処理では両者とも自分が既に保持している資源を使う。"
+      },
+      {
+        "id": 4,
+        "body": "T、T、S、S",
+        "explanation": "B1はTを待つが、A2はSを取得できる。"
+      }
+    ],
+    "correct": 2,
+    "explanation": "AがSを、BがTを保持したまま、互いの持つ資源を待つ。",
+    "asset_key": null,
+    "published": true,
+    "reference": {
+      "book": "2016h28h_ap_am",
+      "question_number": 28,
+      "pdf_page": 15,
+      "question_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000gn5o-att/2016h28h_ap_am_qs.pdf",
+      "answer_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000gn5o-att/2016h28h_ap_am_ans.pdf"
+    }
+  },
+  {
+    "id": "DMQ-0112",
+    "title": "外部キーと在庫データの追加",
+    "body": "在庫表の製品番号は、製品表の主キーである製品番号を参照する外部キーである。この外部キーの参照制約によって拒否される可能性がある操作はどれか。",
+    "category_id": "DM-A-17-01-01",
+    "origin": "ipa_past",
+    "source": "出典：平成28年度 春期 応用情報技術者試験 午前 問29（問題文・選択肢を調整。解説は独自作成）",
+    "choices": [
+      {
+        "id": 1,
+        "body": "在庫表から行を削除する。",
+        "explanation": "参照する側の行を削除しても、製品表への参照切れは発生しない。"
+      },
+      {
+        "id": 2,
+        "body": "在庫表そのものを削除する。",
+        "explanation": "在庫表は参照する側であり、この外部キーは在庫表の削除を妨げない。"
+      },
+      {
+        "id": 3,
+        "body": "在庫表に行を追加する。",
+        "explanation": "製品表に存在しない製品番号で在庫行を追加すると、参照制約に違反する。"
+      },
+      {
+        "id": 4,
+        "body": "製品表に行を追加する。",
+        "explanation": "参照先に新しい製品を追加しても、在庫表からの既存の参照は切れない。"
+      }
+    ],
+    "correct": 3,
+    "explanation": "製品表に存在しない製品番号で在庫行を追加すると、参照制約に違反する。",
+    "asset_key": null,
+    "published": true,
+    "reference": {
+      "book": "2016h28h_ap_am",
+      "question_number": 29,
+      "pdf_page": 15,
+      "question_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000gn5o-att/2016h28h_ap_am_qs.pdf",
+      "answer_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000gn5o-att/2016h28h_ap_am_ans.pdf"
+    }
+  },
+  {
+    "id": "DMQ-0113",
+    "title": "バックアップ復元後のログ適用",
+    "body": "媒体障害の後、最新のデータベースバックアップを復元した。次にトランザクションログを使って行う操作はどれか。",
+    "category_id": "DM-A-24-01-01",
+    "origin": "ipa_past",
+    "source": "出典：平成28年度 春期 応用情報技術者試験 午前 問30（問題文・選択肢を調整。解説は独自作成）",
+    "choices": [
+      {
+        "id": 1,
+        "body": "バックアップ取得後にコミットせず中断した処理をロールバックする。",
+        "explanation": "バックアップを復元した直後は、取得後の未確定の更新を取り消す必要はない。"
+      },
+      {
+        "id": 2,
+        "body": "バックアップ取得後にコミットせず中断した処理をロールフォワードする。",
+        "explanation": "確定していない更新を復元後の状態に反映してはいけない。"
+      },
+      {
+        "id": 3,
+        "body": "バックアップ取得後にコミットした処理をロールバックする。",
+        "explanation": "確定した更新は取り消す対象ではない。"
+      },
+      {
+        "id": 4,
+        "body": "バックアップ取得後にコミットした処理をロールフォワードする。",
+        "explanation": "バックアップ以降に確定した更新をログから再適用することで、失われた変更を復元できる。"
+      }
+    ],
+    "correct": 4,
+    "explanation": "バックアップ以降に確定した更新をログから再適用することで、失われた変更を復元できる。",
+    "asset_key": null,
+    "published": true,
+    "reference": {
+      "book": "2016h28h_ap_am",
+      "question_number": 30,
+      "pdf_page": 16,
+      "question_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000gn5o-att/2016h28h_ap_am_qs.pdf",
+      "answer_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000gn5o-att/2016h28h_ap_am_ans.pdf"
+    }
+  },
+  {
+    "id": "DMQ-0114",
+    "title": "スタースキーマのファクトテーブル",
+    "body": "顧客、商品、注文、販売店の四つの表を使って注文数量を分析する。スタースキーマのファクトテーブルに当たる表はどれか。",
+    "category_id": "DM-A-09-01-01",
+    "origin": "ipa_past",
+    "source": "出典：平成28年度 春期 応用情報技術者試験 午前 問31（問題文・選択肢を調整。解説は独自作成）",
+    "choices": [
+      {
+        "id": 1,
+        "body": "顧客（顧客コード、氏名、電話番号、住所）",
+        "explanation": "顧客は注文を分類するためのディメンションである。"
+      },
+      {
+        "id": 2,
+        "body": "商品（商品コード、商品名称、単価）",
+        "explanation": "商品は注文を分類するためのディメンションである。"
+      },
+      {
+        "id": 3,
+        "body": "注文（販売店コード、顧客コード、商品コード、注文年月日、数量）",
+        "explanation": "注文という業務上の事実を記録し、分析対象の数量と分析軸を参照するキーを持つ。"
+      },
+      {
+        "id": 4,
+        "body": "販売店（販売店コード、販売店名称、代表者氏名）",
+        "explanation": "販売店は注文を分類するためのディメンションである。"
+      }
+    ],
+    "correct": 3,
+    "explanation": "注文という業務上の事実を記録し、分析対象の数量と分析軸を参照するキーを持つ。",
+    "asset_key": null,
+    "published": true,
+    "reference": {
+      "book": "2016h28h_ap_am",
+      "question_number": 31,
+      "pdf_page": 16,
+      "question_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000gn5o-att/2016h28h_ap_am_qs.pdf",
+      "answer_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000gn5o-att/2016h28h_ap_am_ans.pdf"
+    }
+  },
+  {
+    "id": "DMQ-0115",
+    "title": "3層スキーマと利用者の視点",
+    "body": "データベースの3層スキーマ構造の説明として適切なものはどれか。",
+    "category_id": "DM-A-17-01-01",
+    "origin": "ipa_past",
+    "source": "出典：平成28年度 秋期 応用情報技術者試験 午前 問26（問題文・選択肢を調整。解説は独自作成）",
+    "choices": [
+      {
+        "id": 1,
+        "body": "概念スキーマはデータの物理的な関係を表す。",
+        "explanation": "概念スキーマはデータベース全体の論理構造を表す。"
+      },
+      {
+        "id": 2,
+        "body": "外部スキーマは利用者から見たデータの構造を表す。",
+        "explanation": "外部スキーマは利用者やアプリケーションの視点ごとのデータの見え方を定義する。"
+      },
+      {
+        "id": 3,
+        "body": "内部スキーマはデータの論理的な関係を表す。",
+        "explanation": "内部スキーマが表すのは、データの物理的な格納構造である。"
+      },
+      {
+        "id": 4,
+        "body": "物理スキーマが3層の一つとしてデータの物理的な関係を表す。",
+        "explanation": "3層で物理構造を表す層の名称は内部スキーマである。"
+      }
+    ],
+    "correct": 2,
+    "explanation": "外部スキーマは利用者やアプリケーションの視点ごとのデータの見え方を定義する。",
+    "asset_key": null,
+    "published": true,
+    "reference": {
+      "book": "2016h28a_ap_am",
+      "question_number": 26,
+      "pdf_page": 12,
+      "question_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000g6fw-att/2016h28a_ap_am_qs.pdf",
+      "answer_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000g6fw-att/2016h28a_ap_am_ans.pdf"
+    }
+  },
+  {
+    "id": "DMQ-0116",
+    "title": "B*木索引の探索量",
+    "body": "B*木索引が付いた候補キーで1件を検索する。データ件数をXとしたとき、索引ノードへのアクセス回数のオーダーはどれか。",
+    "category_id": "DM-A-17-01-01",
+    "origin": "ipa_past",
+    "source": "出典：平成28年度 秋期 応用情報技術者試験 午前 問27（問題文・選択肢を調整。解説は独自作成）",
+    "choices": [
+      {
+        "id": 1,
+        "body": "√X",
+        "explanation": "平方根ではなく、平衡木の高さに比例する。"
+      },
+      {
+        "id": 2,
+        "body": "log X",
+        "explanation": "木の各段で探索範囲を分岐数に応じて絞るので、根から葉までのノード数は対数オーダーになる。"
+      },
+      {
+        "id": 3,
+        "body": "X",
+        "explanation": "索引を使わず全件を調べる場合に相当する。"
+      },
+      {
+        "id": 4,
+        "body": "X!",
+        "explanation": "候補キーの組合せを総当たりする処理は不要である。"
+      }
+    ],
+    "correct": 2,
+    "explanation": "木の各段で探索範囲を分岐数に応じて絞るので、根から葉までのノード数は対数オーダーになる。",
+    "asset_key": null,
+    "published": true,
+    "reference": {
+      "book": "2016h28a_ap_am",
+      "question_number": 27,
+      "pdf_page": 13,
+      "question_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000g6fw-att/2016h28a_ap_am_qs.pdf",
+      "answer_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000g6fw-att/2016h28a_ap_am_ans.pdf"
+    }
+  },
+  {
+    "id": "DMQ-0117",
+    "title": "実表から得られる導出表",
+    "body": "関係データベースの実表と導出表について、適切な説明はどれか。",
+    "category_id": "DM-A-17-01-01",
+    "origin": "ipa_past",
+    "source": "出典：平成28年度 秋期 応用情報技術者試験 午前 問28（問題文・選択肢を調整。解説は独自作成）",
+    "choices": [
+      {
+        "id": 1,
+        "body": "実表に対する射影や結合で導出表が得られる。",
+        "explanation": "問い合わせで実表の列を選んだり、他の表と結合したりして得た結果は導出表である。"
+      },
+      {
+        "id": 2,
+        "body": "導出表はデータを参照するだけの場合に用いる。",
+        "explanation": "ビューなどは定義やDBMSによって更新が可能な場合もある。"
+      },
+      {
+        "id": 3,
+        "body": "導出表には実表が複数必要である。",
+        "explanation": "一つの実表を射影するだけでも導出表が得られる。"
+      },
+      {
+        "id": 4,
+        "body": "導出表に含められるのは元の実表にある列だけである。",
+        "explanation": "集計値や計算式で求めた列も含められる。"
+      }
+    ],
+    "correct": 1,
+    "explanation": "問い合わせで実表の列を選んだり、他の表と結合したりして得た結果は導出表である。",
+    "asset_key": null,
+    "published": true,
+    "reference": {
+      "book": "2016h28a_ap_am",
+      "question_number": 28,
+      "pdf_page": 13,
+      "question_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000g6fw-att/2016h28a_ap_am_qs.pdf",
+      "answer_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000g6fw-att/2016h28a_ap_am_ans.pdf"
+    }
+  },
+  {
+    "id": "DMQ-0118",
+    "title": "対戦表と審判の所属チーム",
+    "body": "チーム名を持つ表をAとB、審判の氏名と所属チーム名を持つ表をCとして結合する。A.チーム名 < B.チーム名に加え、審判がどちらの出場チームにも所属していないことを条件にするには、WHERE句にANDで何を加えるか。",
+    "category_id": "DM-A-09-02-09",
+    "origin": "ipa_past",
+    "source": "出典：平成28年度 秋期 応用情報技術者試験 午前 問29（問題文・選択肢を調整。解説は独自作成）",
+    "choices": [
+      {
+        "id": 1,
+        "body": "(A.チーム名 <> C.所属チーム名 OR B.チーム名 <> C.所属チーム名)",
+        "explanation": "ORでは片方と異なるだけで通るため、他方に所属する審判も残る。"
+      },
+      {
+        "id": 2,
+        "body": "C.所属チーム名 NOT IN (A.チーム名, B.チーム名)",
+        "explanation": "審判の所属チームがどちらの出場チームとも異なる行だけを残す。"
+      },
+      {
+        "id": 3,
+        "body": "EXISTS (SELECT * FROM 審判 AS D WHERE A.チーム名 <> D.所属チーム名 AND B.チーム名 <> D.所属チーム名)",
+        "explanation": "別名Dの審判の有無を調べるため、結果に含める審判Cを絞り込めない。"
+      },
+      {
+        "id": 4,
+        "body": "NOT EXISTS (SELECT * FROM 審判 AS D WHERE A.チーム名 = D.所属チーム名 OR B.チーム名 = D.所属チーム名)",
+        "explanation": "出場チームいずれかに所属する審判が存在するだけで、対戦自体が除外される。"
+      }
+    ],
+    "correct": 2,
+    "explanation": "審判の所属チームがどちらの出場チームとも異なる行だけを残す。",
+    "asset_key": null,
+    "published": true,
+    "reference": {
+      "book": "2016h28a_ap_am",
+      "question_number": 29,
+      "pdf_page": 14,
+      "question_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000g6fw-att/2016h28a_ap_am_qs.pdf",
+      "answer_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000g6fw-att/2016h28a_ap_am_ans.pdf"
+    }
+  },
+  {
+    "id": "DMQ-0119",
+    "title": "チェックポイント後の障害回復",
+    "body": "システム障害後にDBMSを再起動する。図に示す処理履歴を基に、ロールフォワードとロールバックの対象を選べ。",
+    "category_id": "DM-A-24-01-01",
+    "origin": "ipa_past",
+    "source": "出典：平成28年度 秋期 応用情報技術者試験 午前 問30（問題文・選択肢を調整。解説は独自作成）",
+    "choices": [
+      {
+        "id": 1,
+        "body": "ロールフォワード T2、T5 ／ ロールバック T6",
+        "explanation": "チェックポイント後に更新を確定したT2とT5を再適用し、障害時に未確定の更新があるT6を取り消す。"
+      },
+      {
+        "id": 2,
+        "body": "ロールフォワード T2、T5 ／ ロールバック T3、T6",
+        "explanation": "T3は読取り専用なので、取り消す更新がない。"
+      },
+      {
+        "id": 3,
+        "body": "ロールフォワード T1、T2、T5 ／ ロールバック T6",
+        "explanation": "T1はチェックポイント前に確定しており、再適用の対象外である。"
+      },
+      {
+        "id": 4,
+        "body": "ロールフォワード T1、T2、T5 ／ ロールバック T3、T6",
+        "explanation": "T1はチェックポイント前に確定済みで、T3は読取り専用である。"
+      }
+    ],
+    "correct": 1,
+    "explanation": "チェックポイント後に更新を確定したT2とT5を再適用し、障害時に未確定の更新があるT6を取り消す。",
+    "asset_key": "ipa-original/DMQ-0119.png",
+    "published": true,
+    "reference": {
+      "book": "2016h28a_ap_am",
+      "question_number": 30,
+      "pdf_page": 15,
+      "question_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000g6fw-att/2016h28a_ap_am_qs.pdf",
+      "answer_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/gmcbt8000000g6fw-att/2016h28a_ap_am_ans.pdf"
+    }
+  }
+]

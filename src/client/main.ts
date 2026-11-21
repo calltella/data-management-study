@@ -361,6 +361,50 @@ function questionImageUrl(q: Question): string {
     ?? `/api/images/${encodeURIComponent(q.id)}?v=${encodeURIComponent(q.asset_key ?? "")}`;
 }
 
+function breakSentences(text: string) {
+  return text.replace(/。[^\S\r\n]*(?=[^」』）\s])/gu, "。\n");
+}
+
+function choiceLayout(q: Question, imageOnly: boolean) {
+  if (imageOnly) return "choices-symbols";
+  return q.choices.some(({ body }) => {
+    const text = body.trim();
+    return text.length >= 40 || text.includes("\n");
+  }) ? "choices-stacked" : "";
+}
+
+function choiceExplanationRows(
+  q: Question, choiceOrder: number[], correct: number | undefined, imageOnly: boolean, adminPreview = false,
+) {
+  const formatExplanation = (text: string) =>
+    esc(breakSentences(relabelExplanation(text, choiceOrder)));
+  return correct == null ? "" : choiceOrder
+    .map((id, pos) => {
+      const choice = q.choices.find((c) => c.id === id)!;
+      const supplemental = supplementalChoiceExplanations[q.id];
+      const detail = choiceExplanation(q, choice);
+      const diagram = supplemental && Object.hasOwn(supplemental, choice.body)
+        ? (q.id === "DMQ-0029" ? affinityQuestionDiagrams : q.id === "DMQ-0020" ? relationQuestionDiagrams : undefined)?.[id]
+        : undefined;
+      const diagramUrl = choice.diagram_key
+        ? choiceDiagramUrl(q.id, id, choice.diagram_key)
+        : diagram && `/explanation-diagrams/${diagram.file}.svg`;
+      if (!detail && !diagramUrl) return "";
+      return `<li class="choice-explanation${id === correct ? " correct" : ""}">
+        <span class="choice-explanation-label">${labels[pos]}</span>
+        <div>
+        <div class="choice-explanation-header"><p class="choice-explanation-quote">${esc(imageOnly ? choice.body.replaceAll("\u0332", "") : choice.body)}</p>
+        ${id === correct ? '<strong class="choice-explanation-result">正解</strong>' : ""}</div>
+        <p class="choice-explanation-detail">${formatExplanation(detail)}</p>
+        ${diagramUrl ? `<figure class="choice-explanation-figure">
+          <img ${adminPreview && choice.diagram_key ? `data-diagram-url="${esc(diagramUrl)}" hidden` : `src="${esc(diagramUrl)}"`} alt="${esc(choice.diagram_key ? choice.body + "の解説図" : diagram?.alt)}">
+          <figcaption>${esc(choice.diagram_key ? choice.body + "の解説図" : diagram?.caption)}</figcaption>
+        </figure>` : ""}</div>
+      </li>`;
+    })
+    .join("");
+}
+
 function showQuestion() {
   const item = current();
   if (!item) {
@@ -403,10 +447,6 @@ function showQuestion() {
     .trim();
   const imageOnly = q.id === "DMQ-0079";
   const choiceOrder = imageOnly ? [1, 2, 3, 4] : item.choice_order;
-  const longChoices = q.choices.some(({ body }) => {
-    const text = body.trim();
-    return text.length >= 40 || text.includes("\n");
-  });
   const history = item.answer_history ?? (item.previous_correct == null ? [] : [item.previous_correct]);
   const historyIcons = session && history.length
     ? `<span class="answer-history" role="group" aria-label="過去の回答">${history.map((isCorrect, i) => {
@@ -414,35 +454,9 @@ function showQuestion() {
         return `<span class="previous-answer ${isCorrect ? "correct" : "incorrect"}" role="img" aria-label="${label}" title="${label}">${isCorrect ? "✓" : "×"}</span>`;
       }).join("")}</span>`
     : "";
-  const breakSentences = (text: string) =>
-    text.replace(/。[^\S\r\n]*(?=[^」』）\s])/gu, "。\n");
   const formatExplanation = (text: string) =>
     esc(breakSentences(relabelExplanation(text, choiceOrder)));
-  const choiceExplanations = correct == null ? "" : choiceOrder
-    .map((id, pos) => {
-      const choice = q.choices.find((c) => c.id === id)!;
-      const supplemental = supplementalChoiceExplanations[q.id];
-      const detail = choiceExplanation(q, choice);
-      const diagram = supplemental && Object.hasOwn(supplemental, choice.body)
-        ? (q.id === "DMQ-0029" ? affinityQuestionDiagrams : q.id === "DMQ-0020" ? relationQuestionDiagrams : undefined)?.[id]
-        : undefined;
-      const diagramUrl = choice.diagram_key
-        ? choiceDiagramUrl(q.id, id, choice.diagram_key)
-        : diagram && `/explanation-diagrams/${diagram.file}.svg`;
-      if (!detail && !diagramUrl) return "";
-      return `<li class="choice-explanation${id === correct ? " correct" : ""}">
-        <span class="choice-explanation-label">${labels[pos]}</span>
-        <div>
-        <div class="choice-explanation-header"><p class="choice-explanation-quote">${esc(imageOnly ? choice.body.replaceAll("\u0332", "") : choice.body)}</p>
-        ${id === correct ? '<strong class="choice-explanation-result">正解</strong>' : ""}</div>
-        <p class="choice-explanation-detail">${formatExplanation(detail)}</p>
-        ${diagramUrl ? `<figure class="choice-explanation-figure">
-          <img src="${esc(diagramUrl)}" alt="${esc(choice.diagram_key ? choice.body + "の解説図" : diagram?.alt)}">
-          <figcaption>${esc(choice.diagram_key ? choice.body + "の解説図" : diagram?.caption)}</figcaption>
-        </figure>` : ""}</div>
-      </li>`;
-    })
-    .join("");
+  const choiceExplanations = choiceExplanationRows(q, choiceOrder, correct, imageOnly);
   render(
     `<section class="card question">
       <div class="question-meta"><p class="question-breadcrumb" role="navigation" aria-label="パンくず"><a href="#practice" data-action="conditions">出題条件</a>${categoryPath.map(({ name }) => ` <span class="breadcrumb-separator">»</span> ${esc(name)}`).join("")}</p>
@@ -459,7 +473,7 @@ function showQuestion() {
       </div>
       <p class="question-body${imageOnly ? " question-transcript" : ""}">${esc(breakSentences(q.body))}</p>
       ${imageOnly ? '<figure class="question-figure"><img class="question-image" src="/ipa-original/DMQ-0079.png" alt="公式冊子の問28と選択肢"></figure>' : q.asset_key ? `<figure class="question-figure"><img class="question-image" id="exercise-question-image" ${canEdit && q.published === false ? "hidden" : `src="${esc(questionImageUrl(q))}"`} alt="問題の図表"></figure>` : ""}
-      <div class="choices${imageOnly ? " choices-symbols" : longChoices ? " choices-stacked" : ""}">${choiceOrder
+      <div class="choices ${choiceLayout(q, imageOnly)}">${choiceOrder
       .map((id, pos) => {
         const c = q.choices.find((v) => v.id === id)!;
         const excluded = eliminated.has(id);
@@ -672,7 +686,7 @@ async function adminView(previewId?: string) {
   }
   const list = await request<Question[]>("admin_questions");
   render(
-    `<div class="section-heading"><div><span class="eyebrow">WORKSPACE</span><h1>管理者メニュー</h1><p>問題の内容を確認し、公開状態を管理します。</p></div></div><section class="card"><div class="admin-category-filters"><label>大分類<select id="admin-major" aria-label="大分類"></select></label><label>中分類<select id="admin-middle" aria-label="中分類"></select></label><label>小分類<select id="admin-minor" aria-label="小分類"></select></label></div><label>問題を検索<input id="search" value="${esc(adminFilters.term)}" placeholder="問題文・問題ID（UUID）で検索"></label><p id="admin-result-count" class="small muted" role="status"></p><p id="admin-no-results" hidden>条件に合う問題がありません。</p><div id="admin-list">${list.map((q) => `<div class="history-row" data-question-id="${esc(q.id)}" data-search="${esc([q.id, q.public_id, q.title, q.body].join(" "))}"><span class="admin-question-details"><small>${esc(q.id)}${q.public_id ? ` · ${esc(q.public_id)}` : ""}</small><br>${esc(q.title)}<span class="admin-question-source small muted"><strong>${q.origin === "ipa_sample" ? "IPA公式サンプル" : q.origin === "ipa_past" ? "IPA過去問" : "AIオリジナル"}</strong><br>${esc(q.source || "出典未設定")}</span></span>${q.origin === "ai_original" ? `<span class="small">評価 ${q.rating_average == null ? "未評価" : Number(q.rating_average).toFixed(1)} / ${q.rating_count ?? 0}件</span>` : ""}<span class="badge">${q.published ? "公開" : "非公開"}</span><button data-edit="${esc(q.id)}" class="secondary">確認・編集</button></div>`).join("")}</div><div id="editor"></div></section>`,
+    `<div class="section-heading"><div><span class="eyebrow">WORKSPACE</span><h1>管理者メニュー</h1><p>問題の内容を確認し、公開状態を管理します。</p></div></div><section class="card"><div class="admin-category-filters"><label>大分類<select id="admin-major" aria-label="大分類"></select></label><label>中分類<select id="admin-middle" aria-label="中分類"></select></label><label>小分類<select id="admin-minor" aria-label="小分類"></select></label></div><label for="search">問題を検索</label><div class="admin-search"><input id="search" value="${esc(adminFilters.term)}" placeholder="問題文・問題ID（UUID）で検索"><button type="button" id="admin-search-clear" class="secondary" aria-label="検索をクリア" ${adminFilters.term ? "" : "hidden"}>×</button></div><p id="admin-result-count" class="small muted" role="status"></p><p id="admin-no-results" hidden>条件に合う問題がありません。</p><div id="admin-list">${list.map((q) => `<div class="history-row" data-question-id="${esc(q.id)}" data-search="${esc([q.id, q.public_id, q.title, q.body].join(" "))}"><span class="admin-question-details">${q.public_id ? `<small>${esc(q.public_id)}</small><br>` : ""}${esc(q.title)}<span class="admin-question-source small muted">${esc(q.source || "出典未設定")}</span></span>${q.origin === "ai_original" ? `<span class="small">評価 ${q.rating_average == null ? "未評価" : Number(q.rating_average).toFixed(1)} / ${q.rating_count ?? 0}件</span>` : ""}<span class="badge">${q.published ? "公開" : "非公開"}</span><div class="admin-question-actions"><button type="button" data-preview="${esc(q.id)}" class="secondary" aria-haspopup="dialog" aria-controls="admin-question-dialog">プレビュー</button><button type="button" data-edit="${esc(q.id)}" class="secondary" aria-haspopup="dialog" aria-controls="admin-question-dialog">確認・編集</button></div></div>`).join("")}</div></section><dialog id="admin-question-dialog" aria-labelledby="admin-question-dialog-title"><div class="question-edit-heading"><h2 id="admin-question-dialog-title" tabindex="-1"></h2><button type="button" class="secondary" data-close-admin-question>閉じる</button></div><div id="editor"></div></dialog>`,
   );
   const major = document.querySelector<HTMLSelectElement>("#admin-major")!;
   const middle = document.querySelector<HTMLSelectElement>("#admin-middle")!;
@@ -761,25 +775,79 @@ async function adminView(previewId?: string) {
     adminFilters.minor = minor.value;
     applyFilters();
   };
-  document.querySelector<HTMLInputElement>("#search")!.oninput = (e) => {
-    adminFilters.term = (e.target as HTMLInputElement).value;
+  const search = document.querySelector<HTMLInputElement>("#search")!;
+  const clearSearch = document.querySelector<HTMLButtonElement>("#admin-search-clear")!;
+  search.oninput = () => {
+    adminFilters.term = search.value;
+    clearSearch.hidden = !search.value;
     applyFilters();
+  };
+  clearSearch.onclick = () => {
+    search.value = "";
+    search.focus();
+    search.dispatchEvent(new Event("input", { bubbles: true }));
   };
   updateOptions();
   applyFilters();
+  const dialog = document.querySelector<HTMLDialogElement>("#admin-question-dialog")!;
+  const title = dialog.querySelector<HTMLElement>("#admin-question-dialog-title")!;
+  const editor = dialog.querySelector<HTMLElement>("#editor")!;
+  const isSaving = () => editor.querySelector("form")?.getAttribute("aria-busy") === "true";
+
+  dialog.querySelector<HTMLButtonElement>("[data-close-admin-question]")!.onclick = () => {
+    if (!isSaving()) dialog.close();
+  };
+  dialog.oncancel = (event) => {
+    if (isSaving()) event.preventDefault();
+  };
+  dialog.onclose = () => {
+    if (dialog.open || !dialog.isConnected) return;
+    releaseAdminImages();
+    editor.replaceChildren();
+  };
+
+  const showDialog = () => {
+    if (!dialog.open) dialog.showModal();
+    dialog.scrollTop = 0;
+  };
+  const edit = (question: Question) => {
+    releaseAdminImages();
+    title.textContent = "問題を編集";
+    showQuestionEditor(editor, question, async () => {
+      notice = "問題を保存しました。";
+      await load();
+      if (dialog.isConnected) await adminView(question.id);
+    });
+    showDialog();
+    editor.querySelector<HTMLInputElement>('input[name="title"]')?.focus();
+  };
+  const preview = (question: Question, afterSave = false) => {
+    title.textContent = afterSave ? "保存後のプレビュー" : "問題のプレビュー";
+    showQuestionPreview(editor, question, () => edit(question), afterSave);
+    showDialog();
+    editor.querySelector("h2")?.focus({ preventScroll: true });
+  };
+
   document.querySelectorAll<HTMLButtonElement>("[data-edit]").forEach((button) => {
     button.onclick = () => {
-      const question = byId.get(button.dataset.edit!)!;
-      showQuestionEditor(document.querySelector("#editor")!, question, async () => {
-        notice = "問題を保存しました。";
-        await load();
-        await adminView(question.id);
-      });
+      const question = byId.get(button.dataset.edit!);
+      if (question) edit(question);
+    };
+  });
+  document.querySelectorAll<HTMLButtonElement>("[data-preview]").forEach((button) => {
+    button.onclick = () => {
+      const question = byId.get(button.dataset.preview!);
+      if (question) preview(question);
     };
   });
   if (previewId) {
-    const saved = list.find((q) => q.id === previewId);
-    if (saved) showSavedPreview(saved);
+    const saved = byId.get(previewId);
+    if (saved) {
+      const row = document.querySelector<HTMLElement>(`#admin-list [data-question-id="${CSS.escape(saved.id)}"]`);
+      const returnTarget = row && !row.hidden ? row.querySelector("button") : document.querySelector("#search");
+      if (returnTarget instanceof HTMLElement) returnTarget.focus({ preventScroll: true });
+      preview(saved, true);
+    }
   }
 }
 async function openExerciseEditor(item: ExerciseItem, field: "body" | "explanation") {
@@ -859,10 +927,6 @@ function showQuestionEditor(
       ${diagram_key ? '<p class="small muted">登録済み。画像を選ぶと差し替えます。</p>' : ''}`).join("")}
     <label class="check"><input name="published" type="checkbox" ${q.published ? "checked" : ""}>公開する</label>
     <button type="submit">保存する</button><p class="editor-error" role="alert" hidden></p></form>`;
-  if (!editor.closest("dialog")) {
-    releaseAdminImages();
-    editor.scrollIntoView({ behavior: "smooth" });
-  }
   if (q.asset_key) void loadAdminImage(q, "#admin-editor-image");
 
   const form = editor.querySelector<HTMLFormElement>("#edit-form")!;
@@ -959,10 +1023,15 @@ async function loadAdminImage(q: Question, selector: string) {
     image.src = bundled;
     return;
   }
+  await loadAdminImageUrl(image, questionImageUrl(q));
+}
+
+async function loadAdminImageUrl(image: HTMLImageElement, src: string) {
+  const assetKey = image.dataset.assetKey;
   try {
     const { data } = await auth!.auth.getSession();
     const response = await fetch(
-      questionImageUrl(q),
+      src,
       {
         headers: data.session
           ? { Authorization: `Bearer ${data.session.access_token}` }
@@ -980,6 +1049,7 @@ async function loadAdminImage(q: Question, selector: string) {
     const url = URL.createObjectURL(blob);
     adminImageUrls.add(url);
     image.src = url;
+    image.hidden = false;
   } catch {
     if (image.isConnected) {
       image.hidden = true;
@@ -991,18 +1061,33 @@ async function loadAdminImage(q: Question, selector: string) {
     }
   }
 }
-function showSavedPreview(q: Question) {
+function showQuestionPreview(editor: HTMLElement, q: Question, edit: () => void, afterSave: boolean) {
   releaseAdminImages();
-  const editor = document.querySelector("#editor")!;
-  editor.innerHTML = `<section id="saved-question-preview" class="saved-question-preview"><span class="eyebrow">保存後のプレビュー</span><h2>${esc(q.id)} · ${esc(q.title)}</h2><p class="small muted">${esc(categories.find((c) => c.id === q.category_id)?.name)} ／ ${q.published ? "公開" : "非公開"}</p><p class="preview-body">${esc(q.body)}</p>${q.asset_key ? '<figure class="question-figure"><img id="admin-saved-image" class="question-image" alt="保存した問題の図表"></figure>' : ""}<div class="choices">${q.choices.map((c, i) => `<div class="choice ${c.id === q.correct ? "correct" : ""}"><span class="choice-label">${labels[i]}</span><span>${esc(c.body)}</span></div>`).join("")}</div><section class="explanation"><h3>正答：${labels[q.choices.findIndex((c) => c.id === q.correct)] ?? ""}</h3><p class="preview-body">${esc(q.explanation)}</p></section><p class="small muted">${esc(q.source)}</p><button type="button" id="preview-edit" class="secondary">もう一度編集する</button></section>`;
-  if (q.asset_key) void loadAdminImage(q, "#admin-saved-image");
-  document.querySelector<HTMLButtonElement>("#preview-edit")!.onclick = () => {
-    const button = Array.from(
-      document.querySelectorAll<HTMLButtonElement>("[data-edit]"),
-    ).find((b) => b.dataset.edit === q.id);
-    button?.click();
-  };
-  editor.scrollIntoView({ behavior: "smooth", block: "start" });
+  const imageOnly = q.id === "DMQ-0079";
+  const choices = q.choices;
+  const details = choiceExplanationRows(q, choices.map(({ id }) => id), q.correct, imageOnly, true);
+  editor.innerHTML = `<section id="saved-question-preview" class="saved-question-preview">
+    <h2 tabindex="-1">${esc(q.id)} · ${esc(q.title)}</h2>
+    <p class="small muted">${esc(categories.find((c) => c.id === q.category_id)?.name)} ／ ${q.published ? "公開" : "非公開"}</p>
+    <p class="preview-body${imageOnly ? " question-transcript" : ""}">${esc(breakSentences(q.body))}</p>
+    ${imageOnly ? '<figure class="question-figure"><img class="question-image" src="/ipa-original/DMQ-0079.png" alt="公式冊子の問28と選択肢"></figure>' : q.asset_key ? `<figure class="question-figure"><img id="admin-saved-image" class="question-image" alt="${afterSave ? "保存した問題の図表" : "問題の図表"}"></figure>` : ""}
+    <div class="choices ${choiceLayout(q, imageOnly)}">${choices.map((c, i) => `<div class="choice ${c.id === q.correct ? "correct" : ""}">
+      <span class="choice-label"${imageOnly ? ` aria-label="${labels[i]}、${esc(c.body.replaceAll("\u0332", ""))}"` : ""}>${labels[i]}</span>
+      ${imageOnly ? "" : `<span class="choice-text">${esc(c.body)}</span>`}
+    </div>`).join("")}</div>
+    <section class="explanation">
+      <h3>正答：${labels[choices.findIndex((c) => c.id === q.correct)] ?? ""}</h3>
+      <p class="preview-body">${esc(breakSentences(q.explanation ?? ""))}</p>
+      ${details ? `<h3 class="choice-explanations-title">選択肢ごとの解説</h3><ul class="choice-explanations">${details}</ul>` : ""}
+    </section>
+    <p class="small muted">${esc(q.source)}</p>
+    <button type="button" id="preview-edit" class="secondary">${afterSave ? "もう一度編集する" : "問題を編集する"}</button>
+  </section>`;
+  if (q.asset_key && !imageOnly) void loadAdminImage(q, "#admin-saved-image");
+  editor.querySelectorAll<HTMLImageElement>("[data-diagram-url]").forEach((image) => {
+    void loadAdminImageUrl(image, image.dataset.diagramUrl!);
+  });
+  editor.querySelector<HTMLButtonElement>("#preview-edit")!.onclick = edit;
 }
 function account() {
   if (!session) {

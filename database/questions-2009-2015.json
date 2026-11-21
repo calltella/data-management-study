@@ -1,0 +1,289 @@
+[
+  {
+    "id": "DMQ-0127",
+    "title": "データウェアハウス投入前のデータ整備",
+    "body": "業務系のデータベースから抽出したデータをデータウェアハウスに格納するために、整合されたデータ属性やコード体系などに合うように変換及び修正を行う処理はどれか。",
+    "category_id": "DM-A-08-04-02",
+    "origin": "ipa_past",
+    "source": "出典：平成27年度 春期 データベーススペシャリスト試験 午前Ⅱ 問19（句読点を統一。解説は独自作成）",
+    "choices": [
+      {
+        "id": 1,
+        "body": "クラスタリング",
+        "explanation": "データの特徴に応じてグループ分けする手法である。"
+      },
+      {
+        "id": 2,
+        "body": "スライシング",
+        "explanation": "多次元データから、ある分析軸について特定の値に固定した断面を取り出す操作である。"
+      },
+      {
+        "id": 3,
+        "body": "ダイシング",
+        "explanation": "多次元データに条件を設定し、分析対象となる部分を取り出す操作である。"
+      },
+      {
+        "id": 4,
+        "body": "データクレンジング",
+        "explanation": "表記やコード、形式の不一致などを整えて、統合後のデータを一貫して扱えるようにする。"
+      }
+    ],
+    "correct": 4,
+    "explanation": "表記やコード、形式の不一致などを整えて、統合後のデータを一貫して扱えるようにする。",
+    "asset_key": null,
+    "published": true,
+    "reference": {
+      "book": "2015h27h_db_am2",
+      "question_number": 19,
+      "pdf_page": 15,
+      "question_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/ug65p90000000f52-att/2015h27h_db_am2_qs.pdf",
+      "answer_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/ug65p90000000f52-att/2015h27h_db_am2_ans.pdf"
+    }
+  },
+  {
+    "id": "DMQ-0128",
+    "title": "秘密管理性を確認する監査",
+    "body": "経済産業省の“営業秘密管理指針”に基づく営業秘密データの管理状況について監査を行うとき、秘密管理性のチェックポイントはどれか。",
+    "category_id": "DM-A-28-01-02",
+    "origin": "ipa_past",
+    "source": "出典：平成26年度 春期 システム監査技術者試験 午前Ⅱ 問4（句読点を統一。解説は独自作成）",
+    "choices": [
+      {
+        "id": 1,
+        "body": "当該データが経営効率の改善に役立っているかどうかを分析していること",
+        "explanation": "データの業務上の有用性に関する観点である。"
+      },
+      {
+        "id": 2,
+        "body": "当該データの記録媒体に秘密を意味する表示をしていること",
+        "explanation": "表示は、データに接する人が秘密として管理されていることを認識できるようにする措置である。"
+      },
+      {
+        "id": 3,
+        "body": "当該データの内容が刊行物に掲載されていないかを定期的に確認していること",
+        "explanation": "公に知られていないかの確認は、非公知性に関する観点である。"
+      },
+      {
+        "id": 4,
+        "body": "当該データの内容が公序良俗に反していないかを確認していること",
+        "explanation": "公序良俗に関する確認では、組織がそのデータを秘密として扱っているかは分からない。"
+      }
+    ],
+    "correct": 2,
+    "explanation": "表示は、データに接する人が秘密として管理されていることを認識できるようにする措置である。",
+    "asset_key": null,
+    "published": true,
+    "reference": {
+      "book": "2014h26h_au_am2",
+      "question_number": 4,
+      "pdf_page": 4,
+      "question_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/ug65p90000001dzu-att/2014h26h_au_am2_qs.pdf",
+      "answer_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/ug65p90000001dzu-att/2014h26h_au_am2_ans.pdf"
+    }
+  },
+  {
+    "id": "DMQ-0129",
+    "title": "情報セキュリティ基本方針の役割",
+    "body": "ISMSにおいて定義することが求められている情報セキュリティ基本方針に関する記述のうち、適切なものはどれか。",
+    "category_id": "DM-A-24-02-01",
+    "origin": "ipa_past",
+    "source": "出典：平成25年度 秋期 高度試験共通 午前Ⅰ 問14（句読点を統一。解説は独自作成）",
+    "choices": [
+      {
+        "id": 1,
+        "body": "重要な基本方針を定めた機密文書であり、社内の関係者以外の目に触れないようにする。",
+        "explanation": "基本方針は、組織内に周知し、必要に応じて関係する利害関係者も参照できるようにする。"
+      },
+      {
+        "id": 2,
+        "body": "情報セキュリティの基本方針を述べたものであり、ビジネス環境や技術が変化しても変更してはならない。",
+        "explanation": "事業環境やリスクが変われば、基本方針も見直す。"
+      },
+      {
+        "id": 3,
+        "body": "情報セキュリティのための経営陣の方向性及び支持を規定する。",
+        "explanation": "基本方針は、経営陣が組織として何を目指し、情報セキュリティをどう支えるかを示す。"
+      },
+      {
+        "id": 4,
+        "body": "特定のシステムについてリスク分析を行い、そのセキュリティ対策とシステム運用の詳細を記述する。",
+        "explanation": "個別システムの対策や手順は、組織の基本方針を具体化する文書で扱う。"
+      }
+    ],
+    "correct": 3,
+    "explanation": "基本方針は、経営陣が組織として何を目指し、情報セキュリティをどう支えるかを示す。",
+    "asset_key": null,
+    "published": true,
+    "reference": {
+      "book": "2013h25a_koudo_am1",
+      "question_number": 14,
+      "pdf_page": 7,
+      "question_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/ug65p900000027za-att/2013h25a_koudo_am1_qs.pdf",
+      "answer_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/ug65p900000027za-att/2013h25a_koudo_am1_ans.pdf"
+    }
+  },
+  {
+    "id": "DMQ-0130",
+    "title": "制約と目的から選ぶ最適化手法",
+    "body": "“1次式で表現される制約条件の下にある資源を、どのように配分したら1次式で表される効果の最大が得られるか”という問題を解く手法はどれか。",
+    "category_id": "DM-A-09-03-02",
+    "origin": "ipa_past",
+    "source": "出典：平成24年度 春期 応用情報技術者試験 午前 問76（句読点を統一。解説は独自作成）",
+    "choices": [
+      {
+        "id": 1,
+        "body": "因子分析法",
+        "explanation": "複数の観測変数に共通する潜在的な因子を調べる手法である。"
+      },
+      {
+        "id": 2,
+        "body": "回帰分析法",
+        "explanation": "変数の関係をモデル化し、目的変数の説明や予測に用いる。"
+      },
+      {
+        "id": 3,
+        "body": "実験計画法",
+        "explanation": "実験の条件を計画し、要因やその組合せの効果を評価する。"
+      },
+      {
+        "id": 4,
+        "body": "線形計画法",
+        "explanation": "一次式で表される制約の下で、一次式で表される目的を最大化または最小化する。"
+      }
+    ],
+    "correct": 4,
+    "explanation": "一次式で表される制約の下で、一次式で表される目的を最大化または最小化する。",
+    "asset_key": null,
+    "published": true,
+    "reference": {
+      "book": "2012h24h_ap_am",
+      "question_number": 76,
+      "pdf_page": 35,
+      "question_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/ug65p900000038er-att/2012h24h_ap_am_qs.pdf",
+      "answer_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/ug65p900000038er-att/2012h24h_ap_am_ans.pdf"
+    }
+  },
+  {
+    "id": "DMQ-0131",
+    "title": "相関係数が示す関係",
+    "body": "相関係数に関する記述のうち、適切なものはどれか。",
+    "category_id": "DM-A-09-02-05",
+    "origin": "ipa_past",
+    "source": "出典：平成23年度 特別 高度試験共通 午前Ⅰ 問1（句読点を統一。解説は独自作成）",
+    "choices": [
+      {
+        "id": 1,
+        "body": "すべての標本点が正の傾きをもつ直線上にあるときは、相関係数が＋1になる。",
+        "explanation": "変量が完全に正の線形関係にあると、相関係数は＋1になる。"
+      },
+      {
+        "id": 2,
+        "body": "変量間の関係が線形のときは、相関係数が0になる。",
+        "explanation": "点が直線上に並ぶ場合、傾きの向きに応じて相関係数は＋1または−1となる。"
+      },
+      {
+        "id": 3,
+        "body": "変量間の関係が非線形のときは、相関係数が負になる。",
+        "explanation": "非線形であることから符号は決まらない。相関係数は線形な関係の強さと向きを測る値である。"
+      },
+      {
+        "id": 4,
+        "body": "無相関のときは、相関係数が－1になる。",
+        "explanation": "無相関の場合は0である。−1は完全な負の線形関係を表す。"
+      }
+    ],
+    "correct": 1,
+    "explanation": "変量が完全に正の線形関係にあると、相関係数は＋1になる。",
+    "asset_key": null,
+    "published": true,
+    "reference": {
+      "book": "2011h23tokubetsu_koudo_am1",
+      "question_number": 1,
+      "pdf_page": 3,
+      "question_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/ug65p90000003ya2-att/2011h23tokubetsu_koudo_am1_qs.pdf",
+      "answer_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/ug65p90000003ya2-att/2011h23tokubetsu_koudo_am1_ans.pdf"
+    }
+  },
+  {
+    "id": "DMQ-0132",
+    "title": "Apacheを改変して頒布するときの表示",
+    "body": "Webサーバ用のソフトウェアであるApacheを変更して、新しい製品を作って頒布するとき、実行しなければならないものはどれか。",
+    "category_id": "DM-A-28-01-04",
+    "origin": "ipa_past",
+    "source": "出典：平成22年度 春期 応用情報技術者試験 午前 問22（句読点を統一。解説は独自作成）",
+    "choices": [
+      {
+        "id": 1,
+        "body": "Apacheの名称を製品名に使う。",
+        "explanation": "製品名にApacheを使う義務はない。名称や商標の使用にはライセンス上の制約がある。"
+      },
+      {
+        "id": 2,
+        "body": "変更したファイルに自社の著作権表示を追加する。",
+        "explanation": "自社の著作権表示は付けられる場合があるが、追加自体は必須ではない。"
+      },
+      {
+        "id": 3,
+        "body": "変更したファイルには変更した旨の告知を入れる。",
+        "explanation": "Apache License 2.0の第4条は、変更したファイルに変更を示す明瞭な告知を求める。"
+      },
+      {
+        "id": 4,
+        "body": "ライセンス文を改変し、添付する。",
+        "explanation": "ライセンスの写しを頒布先に渡す必要がある。原ライセンス文を改変する義務はない。"
+      }
+    ],
+    "correct": 3,
+    "explanation": "Apache License 2.0の第4条は、変更したファイルに変更を示す明瞭な告知を求める。",
+    "asset_key": null,
+    "published": true,
+    "reference": {
+      "book": "2010h22h_ap_am",
+      "question_number": 22,
+      "pdf_page": 13,
+      "question_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/ug65p90000004n2z-att/2010h22h_ap_am_qs.pdf",
+      "answer_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/ug65p90000004n2z-att/2010h22h_ap_am_ans.pdf"
+    }
+  },
+  {
+    "id": "DMQ-0133",
+    "title": "退職者のアクセス権削除の確認",
+    "body": "アクセス権限を管理しているシステムの利用者IDリストから、退職による権限喪失者が削除されていることを検証する手続として、最も適切なものはどれか。",
+    "category_id": "DM-A-24-02-02",
+    "origin": "ipa_past",
+    "source": "出典：平成21年度 春期 システム監査技術者試験 午前Ⅱ 問1（句読点を統一。解説は独自作成）",
+    "choices": [
+      {
+        "id": 1,
+        "body": "アクセス権限削除申請書の全件について、利用者IDリストから削除されていることを確認する。",
+        "explanation": "申請が漏れている退職者は、申請書を起点にすると見つけられない。"
+      },
+      {
+        "id": 2,
+        "body": "最新の利用者IDリストの全件について、対応するアクセス権限削除申請書が存在しないことを確認する。",
+        "explanation": "申請が出ていなければ、一覧に残っている退職者も確認を通過してしまう。"
+      },
+      {
+        "id": 3,
+        "body": "人事発令簿の退職者の全件について、利用者IDリストから削除されていることを確認する。",
+        "explanation": "削除が必要な人を人事記録で把握すると、申請や削除処理の漏れも確認できる。"
+      },
+      {
+        "id": 4,
+        "body": "利用者IDリストの更新履歴の全件について、対応するアクセス権限削除申請書の存在を確認する。",
+        "explanation": "更新記録を起点にすると、削除処理が行われず履歴に現れない退職者は検証できない。"
+      }
+    ],
+    "correct": 3,
+    "explanation": "削除が必要な人を人事記録で把握すると、申請や削除処理の漏れも確認できる。",
+    "asset_key": null,
+    "published": true,
+    "reference": {
+      "book": "2009h21h_au_am2",
+      "question_number": 1,
+      "pdf_page": 3,
+      "question_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/ug65p90000009bhl-att/2009h21h_au_am2_qs.pdf",
+      "answer_pdf": "https://www.ipa.go.jp/shiken/mondai-kaiotu/ug65p90000009bhl-att/2009h21h_au_am2_ans.pdf"
+    }
+  }
+]

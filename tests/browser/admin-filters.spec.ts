@@ -71,17 +71,8 @@ test("管理者の分類が親子で連動し、問題ID・本文検索と組み
   await page.goto("/#admin");
   const rows = page.locator("#admin-list .history-row:visible");
   await expect(rows).toHaveCount(3);
-  await expect(
-    rows.filter({ hasText: "正規化の目的" }).locator(".admin-question-source"),
-  ).toContainText("AIオリジナル");
-  await expect(
-    rows
-      .filter({ hasText: "データ品質の改善" })
-      .locator(".admin-question-source"),
-  ).toContainText("IPA公式サンプル");
-  await expect(
-    rows.filter({ hasText: "関数従属性" }).locator(".admin-question-source"),
-  ).toContainText("IPA過去問");
+  await expect(rows.locator(".admin-question-source strong")).toHaveCount(0);
+  await expect(rows.first()).not.toContainText(demoQuestions[0].id);
   await expect(rows.first().locator(".admin-question-source")).toContainText(
     demoQuestions[0].source,
   );
@@ -106,7 +97,14 @@ test("管理者の分類が親子で連動し、問題ID・本文検索と組み
   await expect(
     page.getByText("条件に合う問題がありません。", { exact: true }),
   ).toBeVisible();
-  await page.getByLabel("問題を検索", { exact: true }).fill("");
+  const search = page.getByLabel("問題を検索", { exact: true });
+  const clear = page.getByRole("button", { name: "検索をクリア" });
+  await clear.click();
+  await expect(search).toHaveValue("");
+  await expect(search).toBeFocused();
+  await expect(clear).toBeHidden();
+  await expect(page.getByLabel("小分類", { exact: true })).toHaveValue("normal");
+  await expect(rows).toHaveCount(2);
   await page.getByLabel("大分類", { exact: true }).selectOption("data");
   await expect(page.getByLabel("中分類", { exact: true })).toHaveValue("");
   await expect(page.getByLabel("小分類", { exact: true })).toHaveValue("");

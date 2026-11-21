@@ -573,7 +573,7 @@ textarea {
 #editor form {
   display: grid;
   gap: 18px;
-  margin-top: 40px;
+  margin-top: 16px;
 }
 .account {
   max-width: 720px;
@@ -714,6 +714,27 @@ textarea {
   text-underline-offset: 3px;
 }
 
+.admin-search {
+  position: relative;
+}
+.admin-search input {
+  padding-inline-end: 48px;
+}
+.admin-search button {
+  position: absolute;
+  inset-inline-end: 6px;
+  top: 50%;
+  translate: 0 -50%;
+  min-height: 0;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  font-size: 20px;
+  line-height: 1;
+}
+.admin-search button[hidden] {
+  display: none;
+}
 .admin-category-filters {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -734,17 +755,17 @@ textarea {
   max-height: none;
   margin-inline: auto;
 }
-.question .choices {
+:is(.question, .saved-question-preview) .choices {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 6px 16px;
   padding: 12px;
   background: var(--answer-background);
   border-radius: 3px;
 }
-.question .choices-stacked {
+:is(.question, .saved-question-preview) .choices-stacked {
   grid-template-columns: minmax(0, 1fr);
 }
-.question .choice {
+:is(.question, .saved-question-preview) .choice {
   display: flex;
   align-items: flex-start;
   gap: 6px;
@@ -755,7 +776,7 @@ textarea {
   color: inherit;
   font-size: inherit;
 }
-.question .choice-label {
+:is(.question, .saved-question-preview) .choice-label {
   flex: none;
   min-width: 36px;
   min-height: 30px;
@@ -766,18 +787,18 @@ textarea {
   background: #fff;
   color: inherit;
 }
-.question .choice-label:disabled {
+:is(.question, .saved-question-preview) .choice-label:disabled {
   opacity: 1;
   color: #68737d;
   cursor: default;
 }
-.question .choice.selected .choice-label {
+:is(.question, .saved-question-preview) .choice.selected .choice-label {
   background: #fff;
   border-color: currentColor;
   color: inherit;
   opacity: 1;
 }
-.question .choice-text {
+:is(.question, .saved-question-preview) .choice-text {
   display: block;
   min-width: 0;
   min-height: 30px;
@@ -789,16 +810,22 @@ textarea {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
-.question .choice-text:disabled {
+:is(.question, .saved-question-preview) .choice-text:disabled {
   opacity: 1;
 }
-.question .choice-text[aria-pressed="true"] {
+:is(.question, .saved-question-preview) .choice-text[aria-pressed="true"] {
   text-decoration: line-through;
 }
 @media (max-width: 640px) {
-  .question .choices {
+  :is(.question, .saved-question-preview) .choices {
     grid-template-columns: 1fr;
   }
+}
+
+.admin-question-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
 .saved-question-preview {
@@ -893,21 +920,21 @@ textarea {
   color: #9b4444;
 }
 
-.question .choice.correct {
+:is(.question, .saved-question-preview) .choice.correct {
   background: var(--answer-background);
   color: #22583e;
 }
 
-.question .choice.correct .choice-label {
+:is(.question, .saved-question-preview) .choice.correct .choice-label {
   color: #22583e;
   border-color: currentColor;
 }
 
-.question .choice.selected:not(.correct) {
+:is(.question, .saved-question-preview) .choice.selected:not(.correct) {
   color: #842d25;
 }
 
-.question .choice-result {
+:is(.question, .saved-question-preview) .choice-result {
   order: 1;
   flex: none;
   margin-inline-start: auto;
@@ -1039,7 +1066,8 @@ textarea {
   text-underline-offset: 3px;
 }
 
-#exercise-editor {
+#exercise-editor,
+#admin-question-dialog {
   width: min(680px, calc(100% - 32px));
   max-height: calc(100dvh - 32px);
   padding: 20px;
@@ -1048,11 +1076,13 @@ textarea {
   color: #292929;
 }
 
-#exercise-editor::backdrop {
+#exercise-editor::backdrop,
+#admin-question-dialog::backdrop {
   background: rgb(22 38 48 / 45%);
 }
 
-#exercise-editor [data-close-exercise-editor] {
+#exercise-editor [data-close-exercise-editor],
+#admin-question-dialog [data-close-admin-question] {
   min-height: 32px;
   padding: 4px 12px;
 }
@@ -1111,12 +1141,12 @@ textarea {
   clip-path: inset(50%);
 }
 
-.question .choices-symbols {
+:is(.question, .saved-question-preview) .choices-symbols {
   display: flex;
   flex-wrap: wrap;
 }
 
-.question .choices-symbols .choice {
+:is(.question, .saved-question-preview) .choices-symbols .choice {
   width: auto;
 }
 
