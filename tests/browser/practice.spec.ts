@@ -12,6 +12,29 @@ test.beforeEach(async ({ page }) => {
     }),
   );
 });
+test("起動中はサンプルモードの帯を隠して画面中央にスピナーを表示する", async ({ page }) => {
+  const config = Promise.withResolvers<void>();
+  await page.route("**/api/config", async (route) => {
+    await config.promise;
+    await route.fulfill({ json: { configured: false, url: null, key: null } });
+  });
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  const loading = page.locator(".startup-loading");
+  try {
+    await expect(page.getByRole("heading", { name: "学習の準備をしています…" })).toBeVisible();
+    await expect(page.locator(".banner")).toHaveCount(0);
+    await expect(loading).toHaveCSS("position", "fixed");
+    await expect(loading).toHaveCSS("place-items", "center");
+    const animation = await loading.evaluate((element) => getComputedStyle(element, "::before").animationName);
+    expect(animation).toBe("answer-loading-spin");
+  } finally {
+    config.resolve();
+  }
+  await expect(page.getByRole("heading", { name: "おかえりなさい" })).toBeVisible();
+  await expect(loading).toHaveCount(0);
+  await expect(page.locator(".banner")).toContainText("サンプルモード");
+});
+
 test("ログイン案内・ゲスト回答・正答を先に見る・変更禁止", async ({ page }) => {
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
@@ -364,4 +387,83 @@ test("問題の種類を複数選んでゲスト演習を始められる", async
   }
   const compact = (text: string) => text.replace(/\s/g, "");
   expect(bodies.map(compact).sort()).toEqual(demoQuestions.slice(1).map(q => compact(q.body)).sort());
+});
+
+test("鉛筆モードで選んだ語句に下線を引き、回答後に個別に消せる", async ({ page }) => {
+  await page.goto("/#practice");
+  await page.getByRole("button", { name: "最初から出題する" }).click();
+  const body = page.locator(".question-body");
+  const pencil = page.locator(".question-heading").getByRole("button", { name: "下線", exact: true });
+  await expect(pencil).toHaveText("✎");
+  await expect(pencil).toHaveCSS("color", "rgb(102, 94, 82)");
+  const marks = body.locator(".question-underline");
+  const drag = async (from: number, to: number) => {
+    const [start, end] = await body.evaluate((element, offsets) => {
+      return offsets.map((offset) => {
+        const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+        let node: Node | null;
+        while ((node = walker.nextNode())) {
+          const size = node.textContent!.length;
+          if (offset <= size) {
+            const range = document.createRange();
+            range.setStart(node, offset);
+            range.collapse(true);
+            const rect = range.getBoundingClientRect();
+            return { x: rect.x, y: rect.y + rect.height / 2 };
+          }
+          offset -= size;
+        }
+        throw new Error("指定位置の文字がありません");
+      });
+    }, [from, to]);
+    await page.mouse.move(start.x, start.y);
+    await page.mouse.down();
+    await page.mouse.move(end.x, end.y, { steps: 10 });
+    await page.mouse.up();
+  };
+  await page.evaluate(() => document.fonts.ready);
+  const original = (await body.textContent())!;
+  await drag(1, 4);
+  await expect(marks).toHaveCount(0);
+  await pencil.click();
+  await expect(pencil).toHaveCSS("color", "rgb(163, 77, 83)");
+  await expect(page.locator(".underline-apply")).toBeHidden();
+  await drag(1, 4);
+  await expect(marks).toHaveText([original.slice(1, 4)]);
+  await expect(marks.first()).toHaveCSS("text-decoration-color", "rgb(163, 77, 83)");
+  await drag(8, 12);
+  await expect(marks).toHaveText([original.slice(1, 4), original.slice(8, 12)]);
+  await pencil.click();
+  await page.locator("[data-choice]").first().click();
+  await expect(marks).toHaveCount(2);
+  await marks.first().click();
+  await expect(marks).toHaveText([original.slice(8, 12)]);
+  await expect(body).toHaveText(original);
+  await page.getByRole("link", { name: "次の問題へ" }).click();
+  await expect(marks).toHaveCount(0);
+  await expect(pencil).toHaveAttribute("aria-pressed", "false");
+});
+
+test.describe("タッチでの下線", () => {
+  test.use({ hasTouch: true, isMobile: true, viewport: { width: 390, height: 844 } });
+  test("選択範囲を調整して確定し、タップで消せる", async ({ page }) => {
+    await page.goto("/#practice");
+    await page.getByRole("button", { name: "最初から出題する" }).tap();
+    await page.locator(".underline-toggle").tap();
+    const body = page.locator(".question-body");
+    const selected = await body.evaluate((element) => {
+      const range = document.createRange();
+      range.setStart(element.firstChild!, 1);
+      range.setEnd(element.firstChild!, 6);
+      const selection = getSelection()!;
+      selection.removeAllRanges();
+      selection.addRange(range);
+      return selection.toString();
+    });
+    await page.getByRole("button", { name: "選択範囲に下線を引く" }).tap();
+    const mark = body.locator(".question-underline");
+    await expect(mark).toHaveText(selected);
+    await mark.tap();
+    await expect(mark).toHaveCount(0);
+  });
 });

@@ -16,6 +16,8 @@ import {
 import "@fontsource/noto-sans-jp/400.css";
 import "@fontsource/noto-sans-jp/700.css";
 import "./style.css";
+import { bindQuestionUnderlines, underlineToggle, underlineApply } from "./question-underline.ts";
+import { bindWhiteboard, whiteboardToggle } from "./whiteboard.ts";
 import { supplementalChoiceExplanations } from "./choice-explanations.ts";
 import { likelihoodLabels, questionLikelihood } from "./question-likelihood.ts";
 const app = document.querySelector<HTMLDivElement>("#app")!;
@@ -31,6 +33,7 @@ let auth: SupabaseClient | null = null,
   session: Session | null = null,
   admin = false,
   configured = false;
+let startup: "loading" | "ready" | "failed" = "loading";
 let categories: Category[] = [],
   questions: Question[] = [],
   exercise: Exercise | null = null,
@@ -73,7 +76,7 @@ function render(content: string) {
   releaseAdminImages();
   app.innerHTML =
     header() +
-    `<main>${!configured ? '<div class="banner">サンプルモード · 動作確認用の問題を出題します。回答履歴は保存しません。</div>' : ""}${notice ? `<div role="status" class="notice">${esc(notice)}</div>` : ""}${content}</main><footer>DM STUDY · 科目Aの非公式学習支援アプリ</footer>`;
+    `<main>${startup === "ready" && !configured ? '<div class="banner">サンプルモード · 動作確認用の問題を出題します。回答履歴は保存しません。</div>' : ""}${notice ? `<div role="status" class="notice">${esc(notice)}</div>` : ""}${content}</main><footer>DM STUDY · 科目Aの非公式学習支援アプリ</footer>`;
   bind();
 }
 async function request<T>(
@@ -422,7 +425,7 @@ function choiceExplanationRows(
         ${id === correct ? '<strong class="choice-explanation-result">正解</strong>' : ""}</div>
         <p class="choice-explanation-detail">${formatExplanation(detail)}</p>
         ${diagramUrl ? `<figure class="choice-explanation-figure">
-          <img ${adminPreview && choice.diagram_key ? `data-diagram-url="${esc(diagramUrl)}" hidden` : `src="${esc(diagramUrl)}"`} alt="${esc(choice.diagram_key ? choice.body + "の解説図" : diagram?.alt)}">
+          <img ${choice.diagram_key ? `data-diagram-url="${esc(diagramUrl)}" hidden` : `src="${esc(diagramUrl)}"`} alt="${esc(choice.diagram_key ? choice.body + "の解説図" : diagram?.alt)}">
           <figcaption>${esc(choice.diagram_key ? choice.body + "の解説図" : diagram?.caption)}</figcaption>
         </figure>` : ""}</div>
       </li>`;
@@ -509,10 +512,15 @@ function showQuestion() {
         ${canEdit ? '<button type="button" class="question-edit-control" data-edit-exercise="body">問題を編集</button>' : ""}
       </div>
       <div class="question-heading"><h2 class="question-number">問 ${index + 1} <span>／ ${exercise!.items.length}問</span></h2>${historyIcons}
-        ${assessment
-          ? `<details class="question-likelihood"><summary>科目Aとの関連度（AI評価）｜<strong>${likelihoodLabels[assessment[0]]}</strong></summary><p>${esc(assessment[1])}</p></details>`
-          : '<span class="question-likelihood">科目Aとの関連度（AI評価）｜未評価</span>'}
+        <div class="question-heading-tools">
+          ${underlineToggle}
+          ${whiteboardToggle}
+          ${assessment
+            ? `<details class="question-likelihood"><summary>科目Aとの関連度（AI評価）｜<strong>${likelihoodLabels[assessment[0]]}</strong></summary><p>${esc(assessment[1])}</p></details>`
+            : '<span class="question-likelihood">科目Aとの関連度（AI評価）｜未評価</span>'}
+        </div>
       </div>
+      ${underlineApply}
       ${questionBodyMarkup(q, "question-body", imageOnly)}
       ${imageOnly ? `<figure class="question-figure"><img class="question-image" src="${esc(officialPage)}" alt="${q.id === "DMQ-0079" ? "公式冊子の関数従属性と選択肢" : "公式冊子の問題と選択肢"}"></figure>` : q.asset_key ? `<figure class="question-figure"><img class="question-image" id="exercise-question-image" ${canEdit && q.published === false ? "hidden" : `src="${esc(questionImageUrl(q))}"`} alt="問題の図表"></figure>` : ""}
       <div class="choices ${choiceLayout(q, imageOnly)}">${choiceOrder
@@ -534,6 +542,12 @@ function showQuestion() {
         : ""
     }${session && q.origin === "ai_original" && explanation ? `<div class="rating" data-rating-question="${esc(q.id)}"><span id="rating-label">このAI問題を評価</span><div class="rating-stars" role="group" aria-labelledby="rating-label">${[1, 2, 3, 4, 5].map((n) => `<button type="button" class="rating-star" data-rating="${n}" aria-label="${n}点" aria-pressed="false">☆</button>`).join("")}</div><span class="small" id="rating-status" role="status" aria-live="polite"></span></div>` : ""}<div class="actions question-actions">${!answer && !revealed ? button("先に正答・解説を見る", "reveal", true) : ""}${answer || revealed ? `<a href="#practice" data-action="next">${index === exercise!.items.length - 1 ? "演習を終了" : "次の問題へ"}</a>` : ""}<div class="question-exit-actions">${button(session ? "中断して保存" : "演習を終了", "suspend", true)}</div></div>${canEdit ? '<dialog id="exercise-editor" aria-labelledby="exercise-editor-title"><div class="question-edit-heading"><h2 id="exercise-editor-title">出題内容を編集</h2><button type="button" class="secondary" data-close-exercise-editor>閉じる</button></div><div class="exercise-editor-content"></div></dialog>' : ""}</section>`,
   );
+  const questionPanel = document.querySelector<HTMLElement>(".question")!;
+  bindQuestionUnderlines(questionPanel, item);
+  bindWhiteboard(questionPanel);
+  document.querySelectorAll<HTMLImageElement>("[data-diagram-url]").forEach((image) => {
+    void loadAdminImageUrl(image, image.dataset.diagramUrl!);
+  });
   if (canEdit) {
     if (q.asset_key && q.published === false) void loadAdminImage(q, "#exercise-question-image");
     document.querySelectorAll<HTMLButtonElement>("[data-edit-exercise]").forEach((control) => {
@@ -626,6 +640,11 @@ async function submit(selected: number) {
   busy = true;
   pending = { item: item.id, selected };
   const questionPanel = document.querySelector(".question");
+  const loading = document.createElement("div");
+  loading.className = "answer-loading";
+  loading.setAttribute("role", "status");
+  loading.setAttribute("aria-label", "回答を処理中");
+  questionPanel?.append(loading);
   try {
     if (session)
       item.answer = await request<NonNullable<ExerciseItem["answer"]>>(
@@ -651,6 +670,7 @@ async function submit(selected: number) {
     notice = message(error);
   } finally {
     busy = false;
+    loading.remove();
     if (questionPanel?.isConnected && current() === item) showQuestion();
   }
 }
@@ -1367,7 +1387,9 @@ async function syncUser() {
   }
 }
 async function init() {
-  render('<section class="card"><h1>学習の準備をしています…</h1></section>');
+  render(
+    '<section class="card" role="status"><h1>学習の準備をしています…</h1><div class="startup-loading" aria-hidden="true"></div></section>',
+  );
   try {
     const config = (await (await fetch("/api/config")).json()) as {
       configured: boolean;
@@ -1403,8 +1425,10 @@ async function init() {
       });
     }
     await load();
+    startup = "ready";
     await route();
   } catch (error) {
+    startup = "failed";
     notice = message(error);
     render(
       `<section class="card"><h1>接続を確認してください</h1><p>${esc(notice)}</p><p>Supabaseの設定とスキーマの適用状況を確認してください。</p></section>`,
@@ -1416,5 +1440,7 @@ function historyReplace() {
   u.searchParams.delete("code");
   window.history.replaceState(null, "", u.toString());
 }
-window.addEventListener("hashchange", () => void route());
+window.addEventListener("hashchange", () => {
+  if (startup !== "loading") void route();
+});
 void init();

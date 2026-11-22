@@ -31,9 +31,18 @@ test("RLS、重複回答、最新順序、リセット、削除後のJWTを検�
     ...JSON.parse(await readFile("database/questions-dm-a-coverage.json", "utf8")),
     ...JSON.parse(await readFile("database/questions-2009-2015.json", "utf8")),
     ...JSON.parse(await readFile("database/questions-dm-a-priority.json", "utf8")),
+    ...JSON.parse(await readFile("database/questions-dm-a-db-and-law.json", "utf8")),
+    ...JSON.parse(await readFile("database/questions-dm-a-trial.json", "utf8")),
+    ...JSON.parse(await readFile("database/questions-dm-a-ethics.json", "utf8")),
+    ...JSON.parse(await readFile("database/questions-dm-a-privacy.json", "utf8")),
+    ...JSON.parse(await readFile("database/questions-dm-a-data-management.json", "utf8")),
+    ...JSON.parse(await readFile("database/questions-dm-a-security.json", "utf8")),
+    ...JSON.parse(await readFile("database/questions-dm-a-analysis-and-ai.json", "utf8")),
+    ...JSON.parse(await readFile("database/questions-dm-a-mixed-02.json", "utf8")),
+    ...JSON.parse(await readFile("database/questions-dm-a-database-models.json", "utf8")),
   ];
-  assert.equal(additions.length, 125);
-  assert.equal((await db.query("select count(*)::int as n from study.questions")).rows[0].n, 143);
+  assert.equal(additions.length, 187);
+  assert.equal((await db.query("select count(*)::int as n from study.questions")).rows[0].n, 205);
   await db.exec(await readFile("database/questions-2023.sql", "utf8"));
   await db.exec(await readFile("database/questions-2022-and-ai.sql", "utf8"));
   await db.exec(await readFile("database/questions-2021.sql", "utf8"));
@@ -44,7 +53,16 @@ test("RLS、重複回答、最新順序、リセット、削除後のJWTを検�
   await db.exec(await readFile("database/questions-dm-a-coverage.sql", "utf8"));
   await db.exec(await readFile("database/questions-2009-2015.sql", "utf8"));
   await db.exec(await readFile("database/questions-dm-a-priority.sql", "utf8"));
-  assert.equal((await db.query("select count(*)::int as n from study.questions")).rows[0].n, 143);
+  await db.exec(await readFile("database/questions-dm-a-db-and-law.sql", "utf8"));
+  await db.exec(await readFile("database/questions-dm-a-trial.sql", "utf8"));
+  await db.exec(await readFile("database/questions-dm-a-ethics.sql", "utf8"));
+  await db.exec(await readFile("database/questions-dm-a-privacy.sql", "utf8"));
+  await db.exec(await readFile("database/questions-dm-a-data-management.sql", "utf8"));
+  await db.exec(await readFile("database/questions-dm-a-security.sql", "utf8"));
+  await db.exec(await readFile("database/questions-dm-a-analysis-and-ai.sql", "utf8"));
+  await db.exec(await readFile("database/questions-dm-a-mixed-02.sql", "utf8"));
+  await db.exec(await readFile("database/questions-dm-a-database-models.sql", "utf8"));
+  assert.equal((await db.query("select count(*)::int as n from study.questions")).rows[0].n, 205);
   const allQuestions = (await db.query("select id, choices from study.questions")).rows;
   for (const question of [...allQuestions, ...demoQuestions]) {
     const assessment = questionLikelihood[question.id];
@@ -86,6 +104,15 @@ test("RLS、重複回答、最新順序、リセット、削除後のJWTを検�
     await db.query("select set_config('request.jwt.claim.sub',$1,false)", [id]);
     await db.exec("set role authenticated");
   };
+  await db.exec("set role anon");
+  const catalog = (await select("select public.dm_catalog() as data"))[0].data;
+  for (const [prefix, pattern] of [["DM-A-17-", /^DMQ-014[4-8]$/], ["DM-A-28-", /^DMQ-01(?:49|5[0-3])$/]]) {
+    const published = catalog.questions.filter(question =>
+      pattern.test(question.id) && question.category_id.startsWith(prefix) && question.origin === "ai_original"
+    );
+    assert.equal(published.length, 5);
+  }
+  await db.exec("reset role");
   await db.exec(
     `update study.questions set published=(id = 'DMQ-0014');`,
   );
