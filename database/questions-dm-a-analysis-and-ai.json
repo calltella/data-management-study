@@ -5,7 +5,7 @@
     "body": "本部は各店舗の販売明細を取り出し、項目名も単位も店舗の形式のまま分析基盤に格納する。その後、基盤内で列名をそろえ、金額を円単位に変換する。この一連の処理を表す用語はどれか。",
     "category_id": "DM-A-09-01-01",
     "origin": "ai_original",
-    "source": "オリジナル演習問題（IPA非公式）。出典：https://docs.google.com/document/d/1fFGccVWAlSAYQTl0DtoJefCZPaAPflUHeu8fVqsyTtY/edit",
+    "source": "オリジナル演習問題（AI作成）",
     "choices": [
       {
         "id": 1,
@@ -39,7 +39,7 @@
     "body": "全社の販売・在庫・仕入データは、統一した形式でデータウェアハウスに蓄積済みである。仕入部門は、必要な項目だけを取り出し、仕入先別・週別に集計して、自部門専用の分析用データ集合を作ることにした。この集合に最も適した名称はどれか。",
     "category_id": "DM-A-09-01-01",
     "origin": "ai_original",
-    "source": "オリジナル演習問題（IPA非公式）。出典：https://docs.google.com/document/d/1fFGccVWAlSAYQTl0DtoJefCZPaAPflUHeu8fVqsyTtY/edit",
+    "source": "オリジナル演習問題（AI作成）",
     "choices": [
       {
         "id": 1,
@@ -73,7 +73,7 @@
     "body": "ある店の会計1,000件のうち、パンを含む会計は200件、スープを含む会計は100件、両方を含む会計は40件であった。「パンを買った会計はスープも含みやすいか」を調べるリフト値はどれか。ここで、リフト値は、パンを含む会計でのスープ購入率を、全会計でのスープ購入率で割った値とする。",
     "category_id": "DM-A-09-02-10",
     "origin": "ai_original",
-    "source": "オリジナル演習問題（IPA非公式）。出典：https://docs.google.com/document/d/1fFGccVWAlSAYQTl0DtoJefCZPaAPflUHeu8fVqsyTtY/edit",
+    "source": "オリジナル演習問題（AI作成）",
     "choices": [
       {
         "id": 1,
@@ -107,7 +107,7 @@
     "body": "海辺の店では、気温が高くなる予報の日ほど冷たい飲料の広告配信を増やしている。昨年のデータを見ると、広告配信が多い日ほど飲料が多く売れた。広告の効果を検討する際に、最も適切な説明はどれか。",
     "category_id": "DM-A-09-02-05",
     "origin": "ai_original",
-    "source": "オリジナル演習問題（IPA非公式）。出典：https://docs.google.com/document/d/1fFGccVWAlSAYQTl0DtoJefCZPaAPflUHeu8fVqsyTtY/edit",
+    "source": "オリジナル演習問題（AI作成）",
     "choices": [
       {
         "id": 1,
@@ -141,7 +141,7 @@
     "body": "四つの倉庫で各200件の出荷時間を計測した。倉庫ごとの中央値と中央50％のばらつきを一つの図で見比べたい。最も適した方法はどれか。",
     "category_id": "DM-A-09-02-08",
     "origin": "ai_original",
-    "source": "オリジナル演習問題（IPA非公式）。出典：https://docs.google.com/document/d/1fFGccVWAlSAYQTl0DtoJefCZPaAPflUHeu8fVqsyTtY/edit",
+    "source": "オリジナル演習問題（AI作成）",
     "choices": [
       {
         "id": 1,
@@ -175,7 +175,7 @@
     "body": "製品Aは1個当たり組立2時間・包装1時間で利益3千円、製品Bは組立1時間・包装1時間で利益2千円である。1日の上限は組立16時間、包装10時間。製造した製品は全て売れる。次の計画のうち、両方の上限を守り、利益が最大となるものはどれか。",
     "category_id": "DM-A-09-03-02",
     "origin": "ai_original",
-    "source": "オリジナル演習問題（IPA非公式）。出典：https://docs.google.com/document/d/1fFGccVWAlSAYQTl0DtoJefCZPaAPflUHeu8fVqsyTtY/edit",
+    "source": "オリジナル演習問題（AI作成）",
     "choices": [
       {
         "id": 1,
@@ -209,7 +209,7 @@
     "body": "機械の修理依頼を受け付けた時点で、作業に何分かかるかを予測したい。過去の完了案件には、受付時の情報と修理後の記録がそろっている。実運用で使える教師あり学習の設計はどれか。",
     "category_id": "DM-A-10-02-03",
     "origin": "ai_original",
-    "source": "オリジナル演習問題（IPA非公式）。出典：https://docs.google.com/document/d/1fFGccVWAlSAYQTl0DtoJefCZPaAPflUHeu8fVqsyTtY/edit",
+    "source": "オリジナル演習問題（AI作成）",
     "choices": [
       {
         "id": 1,
@@ -243,7 +243,7 @@
     "body": "チェーン店では、店舗ごとに時間帯別の売上割合や客単価を記録している。各店舗がどのタイプに属するかを示す記録はない。担当者は、購買傾向が似た店舗のまとまりを見つけたい。最も適した方法はどれか。",
     "category_id": "DM-A-10-02-03",
     "origin": "ai_original",
-    "source": "オリジナル演習問題（IPA非公式）。出典：https://docs.google.com/document/d/1fFGccVWAlSAYQTl0DtoJefCZPaAPflUHeu8fVqsyTtY/edit",
+    "source": "オリジナル演習問題（AI作成）",
     "choices": [
       {
         "id": 1,
@@ -277,7 +277,7 @@
     "body": "旅費規程は毎月改定される。社内の生成AIに、質問のたびに有効な版の該当条文を参照させ、回答に根拠を添えたい。モデルを再学習せずにこの要件を満たす構成はどれか。",
     "category_id": "DM-A-10-03-02",
     "origin": "ai_original",
-    "source": "オリジナル演習問題（IPA非公式）。出典：https://docs.google.com/document/d/1fFGccVWAlSAYQTl0DtoJefCZPaAPflUHeu8fVqsyTtY/edit",
+    "source": "オリジナル演習問題（AI作成）",
     "choices": [
       {
         "id": 1,
@@ -311,7 +311,7 @@
     "body": "発注エージェントに対し「10万円以下は自動発注可、10万円を超える注文は送信前に人が承認する」と決めた。承認がない高額注文を実行させない仕組みとして最も適切なものはどれか。",
     "category_id": "DM-A-10-04-02",
     "origin": "ai_original",
-    "source": "オリジナル演習問題（IPA非公式）。出典：https://docs.google.com/document/d/1fFGccVWAlSAYQTl0DtoJefCZPaAPflUHeu8fVqsyTtY/edit",
+    "source": "オリジナル演習問題（AI作成）",
     "choices": [
       {
         "id": 1,

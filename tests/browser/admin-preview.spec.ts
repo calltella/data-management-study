@@ -62,6 +62,14 @@ test("管理画面と演習画面から問題・解説を編集できる", async
     public_id: "834e9ce2-c58a-4a50-8aa2-21188cb3dc4a",
     asset_key: null as string | null,
     published: true,
+    difficulty_assessment: {
+      level: 2,
+      status: "needs_review",
+      reason: "集計の順序を確認する。",
+      model: "gpt-6.2-astra",
+      rubric_version: "v1",
+      assessed_at: "2026-11-22T07:33:12Z",
+    },
   };
   let refuseSave = false;
   await page.route("**/api/rpc", (r) => {
@@ -111,6 +119,7 @@ test("管理画面と演習画面から問題・解説を編集できる", async
   await expect(page.locator("#admin-no-results")).toBeVisible();
   await questionSearch.fill(question.public_id.toUpperCase());
   await expect(page.locator('[data-edit="DMQ-0011"]')).toBeVisible();
+  await expect(page.getByText("AI難易度 標準（要レビュー）")).toBeVisible();
   const preview = page.locator("#saved-question-preview");
   const previewButton = page.getByRole("button", { name: "プレビュー", exact: true });
   await previewButton.click();
@@ -119,6 +128,11 @@ test("管理画面と演習画面から問題・解説を編集できる", async
   await expect(preview).toContainText(question.title);
   await expect(preview).toContainText(question.body);
   await expect(preview).toContainText(question.explanation);
+  const difficulty = preview.locator(".admin-difficulty");
+  await expect(difficulty).toContainText("標準（要レビュー）");
+  await expect(difficulty).toContainText("集計の順序を確認する。");
+  await expect(difficulty).toContainText("gpt-6.2-astra");
+  await expect(difficulty.locator("time")).toHaveAttribute("datetime", "2026-11-22T07:33:12Z");
   const firstChoice = preview.locator(".choices .choice").first();
   const labelBounds = await firstChoice.locator(".choice-label").boundingBox();
   const textBounds = await firstChoice.locator(".choice-text").boundingBox();
@@ -212,7 +226,8 @@ test("管理画面と演習画面から問題・解説を編集できる", async
   const editedChoice = page.locator(".choice-explanation").filter({ hasText: "演習中に更新した個別解説" });
   await expect(editedChoice.locator(".choice-explanation-label")).toHaveText("イ");
   const editedDiagram = editedChoice.locator("img");
-  await expect(editedDiagram).toHaveAttribute("src", /choice=1&v=explanations/);
+  await expect(editedDiagram).toHaveAttribute("data-diagram-url", /choice=1&v=explanations/);
+  await expect(editedDiagram).toHaveAttribute("src", /^blob:/);
   await editedDiagram.evaluate((image: HTMLImageElement) => image.decode());
   await expect(page.locator(".explanation h2")).toHaveText("正解です · 正解：イ");
   await expect(page.locator('[data-choice="1"]')).toBeDisabled();

@@ -5,7 +5,7 @@
     "body": "小売業者が、会員ごとの購買履歴を分析するため、氏名を会員コードに置き換えた。分析画面には氏名を表示しないが、同社は通常の業務で使う会員台帳とコードを容易に照合でき、個々の会員を識別できる。この購買履歴について、最も適切な説明はどれか。",
     "category_id": "DM-A-29-01-02",
     "origin": "ai_original",
-    "source": "オリジナル演習問題（IPA非公式）。出典：https://docs.google.com/document/d/1zMCnesVXU4GlgnAow-uuD_QD6J464rkTGvsCeyycWh0/edit",
+    "source": "オリジナル演習問題（AI作成）",
     "choices": [
       {
         "id": 1,
@@ -39,7 +39,7 @@
     "body": "会員サービスを運営する会社が、自社で取得した会員の個人データを、国内の提携先が自社商品の販売に使えるように提供したい。個人情報保護法のオプトアウトによる第三者提供について、適切な記述だけを全て挙げた組合せはどれか。\na　提供開始前に、法定の事項を本人に通知するか、本人が容易に知り得る状態に置き、併せて個人情報保護委員会に届け出る必要がある。\nb　提供の停止を申し出る窓口を設ければ、本人の病歴を含む個人データにも、この制度を利用できる。\nc　本人から提供停止の求めを受けたときは、その本人が識別される個人データの第三者への提供を停止する。",
     "category_id": "DM-A-29-01-01",
     "origin": "ai_original",
-    "source": "オリジナル演習問題（IPA非公式）。出典：https://docs.google.com/document/d/1zMCnesVXU4GlgnAow-uuD_QD6J464rkTGvsCeyycWh0/edit",
+    "source": "オリジナル演習問題（AI作成）",
     "choices": [
       {
         "id": 1,
@@ -73,7 +73,7 @@
     "body": "ある小売業者の人事担当者が、人事データベースから取り出した従業員1人の氏名と病歴を、社外の別人に誤送信した。受信者は本文を読み、その後に削除したと連絡してきた。従業員本人には直接連絡できる。個人情報保護法に基づく対応として、最も適切なものはどれか。",
     "category_id": "DM-A-29-01-03",
     "origin": "ai_original",
-    "source": "オリジナル演習問題（IPA非公式）。出典：https://docs.google.com/document/d/1zMCnesVXU4GlgnAow-uuD_QD6J464rkTGvsCeyycWh0/edit",
+    "source": "オリジナル演習問題（AI作成）",
     "choices": [
       {
         "id": 1,

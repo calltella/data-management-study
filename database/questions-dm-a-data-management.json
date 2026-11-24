@@ -5,7 +5,7 @@
     "body": "ある小売会社では、同じ商品でも店舗や販売日によって価格が異なる。返品時には、当該取引で客が実際に支払った単価を確認したい。商品マスターには現在の標準単価を保持し、レシート番号と明細番号の組で販売明細を一意に特定できる。記録方法として最も適切なものはどれか。",
     "category_id": "DM-A-08-01-02",
     "origin": "ai_original",
-    "source": "オリジナル演習問題（IPA非公式）。出典：https://docs.google.com/document/d/15gF3FUzPzD2OBPmKvTCRAyQj6AldfEu32zcqESYn0xE/edit",
+    "source": "オリジナル演習問題（AI作成）",
     "choices": [
       {
         "id": 1,
@@ -39,7 +39,7 @@
     "body": "本部が受け取った販売明細は200件である。店舗コードの品質指標を「全明細のうち、共通店舗マスターに登録されたコードが設定されている明細の割合」と定めた。検査結果は次のとおりで、各明細は一つの区分にだけ該当する。\n・180件　共通店舗マスターに登録されたコードが入っている。\n・12件　旧店舗コードが入っている。共通店舗マスターには未登録だが、承認済みの対応表で全て変換できる。\n・8件　コードが空欄であり、どの店舗かは確認できていない。\n旧店舗コード12件だけを対応表で変換した。変換前と変換後の指標の組合せはどれか。",
     "category_id": "DM-A-08-04-01",
     "origin": "ai_original",
-    "source": "オリジナル演習問題（IPA非公式）。出典：https://docs.google.com/document/d/15gF3FUzPzD2OBPmKvTCRAyQj6AldfEu32zcqESYn0xE/edit",
+    "source": "オリジナル演習問題（AI作成）",
     "choices": [
       {
         "id": 1,
@@ -73,7 +73,7 @@
     "body": "販売システムでは、注文額から値引額を引いて「純売上額」を算出している。値引額の記録方法を変えることになり、どの経路でどの帳票の数値に影響するかを、改修前に調べたい。最初に確認する資料として最も適切なものはどれか。",
     "category_id": "DM-A-08-05-02",
     "origin": "ai_original",
-    "source": "オリジナル演習問題（IPA非公式）。出典：https://docs.google.com/document/d/15gF3FUzPzD2OBPmKvTCRAyQj6AldfEu32zcqESYn0xE/edit",
+    "source": "オリジナル演習問題（AI作成）",
     "choices": [
       {
         "id": 1,

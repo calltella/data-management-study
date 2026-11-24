@@ -5,7 +5,7 @@
     "body": "公式サイト、配送システム、店頭アプリで、同じ店舗の営業時間が食い違っている。各システムは応答速度のためにデータの複製を必要とする。SSOT（信頼できる唯一の情報源）の考え方に最も合う運用はどれか。",
     "category_id": "DM-A-08-01-02",
     "origin": "ai_original",
-    "source": "オリジナル演習問題（IPA非公式）。出典：https://docs.google.com/document/d/1hxw_T3NXKM3KpDbbc6OEuN6o-gkBCqZn_CSy-H3OkYA/edit",
+    "source": "オリジナル演習問題（AI作成）",
     "choices": [
       {
         "id": 1,
@@ -39,7 +39,7 @@
     "body": "商品改良用の自由記述には連絡先が書かれていることがある。社内規程では、利用終了時に原本と分析用コピーを廃棄し、個人を識別できない集計結果は継続保管できる。担当者用フォルダにも原本のコピーがある。利用終了時の対応として最も適切なものはどれか。",
     "category_id": "DM-A-08-02-01",
     "origin": "ai_original",
-    "source": "オリジナル演習問題（IPA非公式）。出典：https://docs.google.com/document/d/1hxw_T3NXKM3KpDbbc6OEuN6o-gkBCqZn_CSy-H3OkYA/edit",
+    "source": "オリジナル演習問題（AI作成）",
     "choices": [
       {
         "id": 1,
@@ -73,7 +73,7 @@
     "body": "全社共通の商品コードや品質指標は本部と事業部が合意して定め、各事業部はその共通ルールの下で、自部門固有の属性の定義と日々の品質改善を担う。この方針に最も適した権限配分はどれか。",
     "category_id": "DM-A-08-03-02",
     "origin": "ai_original",
-    "source": "オリジナル演習問題（IPA非公式）。出典：https://docs.google.com/document/d/1hxw_T3NXKM3KpDbbc6OEuN6o-gkBCqZn_CSy-H3OkYA/edit",
+    "source": "オリジナル演習問題（AI作成）",
     "choices": [
       {
         "id": 1,
@@ -107,7 +107,7 @@
     "body": "旧システムから取引先データを移す。担当者は「どの列に、どのような問題がどれだけあるか」を把握してから補正ルールを決めたい。この段階で実施するデータプロファイリングに該当するものはどれか。",
     "category_id": "DM-A-08-04-02",
     "origin": "ai_original",
-    "source": "オリジナル演習問題（IPA非公式）。出典：https://docs.google.com/document/d/1hxw_T3NXKM3KpDbbc6OEuN6o-gkBCqZn_CSy-H3OkYA/edit",
+    "source": "オリジナル演習問題（AI作成）",
     "choices": [
       {
         "id": 1,
@@ -141,7 +141,7 @@
     "body": "用語集には「日次在庫は毎朝6時までに更新」とある。担当者が確かめたいのは、今日のレポートに昨夜分のデータが実際に取り込まれたかどうかである。最も直接的な確認材料はどれか。",
     "category_id": "DM-A-08-05-01",
     "origin": "ai_original",
-    "source": "オリジナル演習問題（IPA非公式）。出典：https://docs.google.com/document/d/1hxw_T3NXKM3KpDbbc6OEuN6o-gkBCqZn_CSy-H3OkYA/edit",
+    "source": "オリジナル演習問題（AI作成）",
     "choices": [
       {
         "id": 1,
@@ -175,7 +175,7 @@
     "body": "月曜から金曜までの日販個数は順に18、24、30、12、21であった。当日を含む直近3営業日の単純移動平均を使う。木曜日と金曜日の値の組合せはどれか。",
     "category_id": "DM-A-09-03-04",
     "origin": "ai_original",
-    "source": "オリジナル演習問題（IPA非公式）。出典：https://docs.google.com/document/d/1hxw_T3NXKM3KpDbbc6OEuN6o-gkBCqZn_CSy-H3OkYA/edit",
+    "source": "オリジナル演習問題（AI作成）",
     "choices": [
       {
         "id": 1,
@@ -209,7 +209,7 @@
     "body": "返品100件を、一件につき一つの主因に分類した。内訳はサイズ違い38件、色の印象違い27件、配送遅延18件、破損10件、その他7件である。件数の多い順に改善対象を選び、累計で全件の75％以上をカバーしたい。必要な最少の分類数はどれか。",
     "category_id": "DM-A-09-03-03",
     "origin": "ai_original",
-    "source": "オリジナル演習問題（IPA非公式）。出典：https://docs.google.com/document/d/1hxw_T3NXKM3KpDbbc6OEuN6o-gkBCqZn_CSy-H3OkYA/edit",
+    "source": "オリジナル演習問題（AI作成）",
     "choices": [
       {
         "id": 1,
@@ -243,7 +243,7 @@
     "body": "窓口の待ち時間を7人分計測すると、短い順に3、4、4、5、6、7、41分だった。報告書には「観測値を人数で二分する中央の値」を載せる。この値と名称の組合せはどれか。",
     "category_id": "DM-A-09-02-04",
     "origin": "ai_original",
-    "source": "オリジナル演習問題（IPA非公式）。出典：https://docs.google.com/document/d/1hxw_T3NXKM3KpDbbc6OEuN6o-gkBCqZn_CSy-H3OkYA/edit",
+    "source": "オリジナル演習問題（AI作成）",
     "choices": [
       {
         "id": 1,
@@ -277,7 +277,7 @@
     "body": "会員全体のサービス満足度を調べたい。試験的に、アプリを毎日使う会員だけに調査し、回答率は100％だった。アプリ利用頻度によって満足度が違う可能性がある。本調査の設計として最も適切なものはどれか。",
     "category_id": "DM-A-09-02-07",
     "origin": "ai_original",
-    "source": "オリジナル演習問題（IPA非公式）。出典：https://docs.google.com/document/d/1hxw_T3NXKM3KpDbbc6OEuN6o-gkBCqZn_CSy-H3OkYA/edit",
+    "source": "オリジナル演習問題（AI作成）",
     "choices": [
       {
         "id": 1,
@@ -311,7 +311,7 @@
     "body": "注文表は注文1件につき1行で、注文Aの配送費は500円、注文Bの配送費も500円である。明細表にはAの商品が3行、Bの商品が2行ある。商品別の分析用に両表を注文番号で結合した。2注文の配送費合計を正しく求められる方法はどれか。",
     "category_id": "DM-A-09-02-09",
     "origin": "ai_original",
-    "source": "オリジナル演習問題（IPA非公式）。出典：https://docs.google.com/document/d/1hxw_T3NXKM3KpDbbc6OEuN6o-gkBCqZn_CSy-H3OkYA/edit",
+    "source": "オリジナル演習問題（AI作成）",
     "choices": [
       {
         "id": 1,

@@ -24,10 +24,14 @@ const allowed = new Set([
   "submit_answer",
   "history",
   "history_by_category",
+  "question_history",
+  "start_single_question",
   "rate_question",
   "reset_history",
   "admin_questions",
   "admin_save_question",
+  "admin_question_difficulty",
+  "admin_save_question_difficulty",
   "prepare_account_deletion",
 ]);
 export default {

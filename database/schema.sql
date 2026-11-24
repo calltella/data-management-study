@@ -97,22 +97,31 @@ declare eid uuid;ids text[];qid text;ord int[];pos int:=0;begin
  perform pg_advisory_xact_lock(hashtextextended(study.request_user_id()::text,0));
  if exists(select 1 from study.exercises where user_id=study.request_user_id() and status='active') and not replace_existing then raise exception '中断中の演習があります。再開するか、置き換えを選択してください。';end if;
  with recursive selected as(select id from study.categories where id=any(category_ids) union all select c.id from study.categories c join selected s on c.parent_id=s.id)
- select array_agg(candidate.id order by candidate.priority, candidate.draw)
+ select array_agg(candidate.id order by candidate.priority, candidate.answered_at_order asc nulls last, candidate.draw)
  into ids
  from (
    select q.id,
      case when last_answer.correct is null then 0
           when last_answer.correct = false then 1
           else 2 end as priority,
+     case when last_answer.correct is true then ans.answered_at else null end as answered_at_order,
      random() as draw
    from study.questions q
    left join study.latest last_answer
      on last_answer.question_id = q.id and last_answer.user_id = study.request_user_id()
+   left join lateral (
+     select a.answered_at
+     from study.answers a
+     where a.user_id = study.request_user_id()
+       and a.question_id = q.id
+     order by a.sequence desc
+     limit 1
+   ) ans on last_answer.correct is true
    where q.published
      and q.origin = any(question_origins)
      and (cardinality(category_ids) = 0 or q.category_id in (select id from selected))
      and (not wrong_only or last_answer.correct is false)
-   order by priority, draw
+   order by priority, answered_at_order asc nulls last, draw
    limit case when question_count = 0 then null else question_count end
  ) candidate;
  if ids is null then raise exception '条件に合う問題がありません。';end if;
@@ -177,9 +186,57 @@ create function public.dm_admin_save_question(question jsonb) returns void langu
  if not found then raise exception '問題が見つかりません。';end if;
 end $$;
 -- 関数の所有者はBYPASSRLSを持たない専用ロール。private helperにも匿名実行権を付けない。
+create or replace function public.dm_question_history(category_ids text[] default '{}'::text[])
+returns jsonb language sql stable security definer set search_path='' as $$
+  with recursive selected as (
+    select id from study.categories where id = any(category_ids)
+    union all
+    select c.id from study.categories c join selected s on c.parent_id = s.id
+  )
+  select coalesce(jsonb_agg(row_data order by row_data->>'latest_answered_at' desc), '[]'::jsonb)
+  from (
+    select jsonb_build_object(
+      'question_id', a.question_id,
+      'title', q.title,
+      'category_id', q.category_id,
+      'published', true,
+      'answered_count', count(*),
+      'correct_count', count(*) filter (where a.correct),
+      'latest_correct', (array_agg(a.correct order by a.sequence desc))[1],
+      'latest_answered_at', max(a.answered_at),
+      'results', jsonb_agg(a.correct order by a.sequence asc)
+    ) as row_data
+    from study.answers a
+    join study.questions q on q.id = a.question_id
+    where a.user_id = study.request_user_id()
+      and q.published = true
+      and (cardinality(category_ids) = 0 or q.category_id in (select id from selected))
+    group by a.question_id, q.title, q.category_id
+  ) t;
+$$;
+create or replace function public.dm_start_single_question(target_question_id text, shuffle_choices boolean default false, replace_existing boolean default true)
+returns jsonb language plpgsql security definer set search_path='' as $$
+declare eid uuid; ord int[];
+begin
+  if not study.is_active() then raise exception 'ログインが必要です。'; end if;
+  if not exists(select 1 from study.questions q where q.id = target_question_id and q.published) then raise exception 'この問題は現在公開されていないため出題できません。'; end if;
+  perform pg_advisory_xact_lock(hashtextextended(study.request_user_id()::text, 0));
+  if exists(select 1 from study.exercises where user_id = study.request_user_id() and status = 'active') and not replace_existing then raise exception '中断中の演習があります。再開するか、置き換えを選択してください。'; end if;
+  update study.exercises set status = 'replaced' where user_id = study.request_user_id() and status = 'active';
+  insert into study.exercises(user_id, requested) values(study.request_user_id(), 1) returning id into eid;
+  if shuffle_choices then select array_agg(n order by random()) into ord from generate_series(1, 4) n; else ord := array[1, 2, 3, 4]; end if;
+  insert into study.items(exercise_id, question_id, position, choice_order) values(eid, target_question_id, 1, ord);
+  return study.exercise_json(eid);
+end $$;
 grant execute on all functions in schema study to study_executor;
 revoke execute on all functions in schema study from public, anon, authenticated;
 grant create on schema public to study_executor;
+alter function public.dm_question_history(text[]) owner to study_executor;
+revoke all on function public.dm_question_history(text[]) from public, anon, authenticated;
+grant execute on function public.dm_question_history(text[]) to authenticated;
+alter function public.dm_start_single_question(text,boolean,boolean) owner to study_executor;
+revoke all on function public.dm_start_single_question(text,boolean,boolean) from public, anon, authenticated;
+grant execute on function public.dm_start_single_question(text,boolean,boolean) to authenticated;
 alter function public.dm_catalog() owner to study_executor;
 revoke all on function public.dm_catalog() from public, anon, authenticated;
 grant execute on function public.dm_catalog() to authenticated, anon;

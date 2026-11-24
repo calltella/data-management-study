@@ -64,27 +64,47 @@ test("管理者の分類が親子で連動し、問題ID・本文検索と組み
           ...q,
           published: i !== 1,
           origin: i === 2 ? "ipa_past" : i === 1 ? "ipa_sample" : "ai_original",
+          difficulty_assessment:
+            i === 0
+              ? {
+                  level: 1,
+                  status: "needs_review",
+                  reason: "要レビュー確認用",
+                  model: "gemini-4-neon",
+                  rubric_version: "v1",
+                  assessed_at: "2026-11-23T03:56:00Z",
+                }
+              : undefined,
         })),
       });
     return r.fulfill({ json: null });
   });
   await page.goto("/#admin");
-  const rows = page.locator("#admin-list .history-row:visible");
-  await expect(rows).toHaveCount(3);
+  const adminList = page.locator("#admin-list");
+  const summary = page.locator("#admin-category-summary");
+  const rows = page.locator("#admin-list tbody tr:visible");
+  await expect(page.getByText("WORKSPACE", { exact: true })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "分類別一覧に戻る" })).toBeHidden();
+  await expect(adminList).toBeHidden();
+  await expect(summary).toBeVisible();
+  await expect(summary.locator("tbody tr")).toHaveCount(2);
+  await expect(page.getByLabel("中分類", { exact: true })).toBeDisabled();
+  await expect(page.getByLabel("小分類", { exact: true })).toBeDisabled();
+
+  await summary.getByRole("button", { name: "データベース" }).click();
+  await expect(adminList).toBeVisible();
+  await expect(summary).toBeHidden();
+  await expect(rows).toHaveCount(2);
   await expect(rows.locator(".admin-question-source strong")).toHaveCount(0);
   await expect(rows.first()).not.toContainText(demoQuestions[0].id);
   await expect(rows.first().locator(".admin-question-source")).toContainText(
     demoQuestions[0].source,
   );
-
   await expect(rows.filter({ hasText: "関数従属性" })).not.toContainText(
     "評価",
   );
   await expect(rows.filter({ hasText: "正規化の目的" })).toContainText("評価");
-  await expect(page.getByLabel("中分類", { exact: true })).toBeDisabled();
-  await expect(page.getByLabel("小分類", { exact: true })).toBeDisabled();
-  await page.getByLabel("大分類", { exact: true }).selectOption("db");
-  await expect(rows).toHaveCount(2);
+
   await page.getByLabel("中分類", { exact: true }).selectOption("design");
   await page.getByLabel("小分類", { exact: true }).selectOption("normal");
   await expect(rows).toHaveCount(2);
@@ -111,5 +131,24 @@ test("管理者の分類が親子で連動し、問題ID・本文検索と組み
   await expect(page.getByLabel("小分類", { exact: true })).toBeDisabled();
   await expect(rows).toHaveCount(1);
   await page.getByLabel("大分類", { exact: true }).selectOption("");
+  await expect(adminList).toBeHidden();
+  await expect(summary).toBeVisible();
+  await page.getByRole("button", { name: "すべて表示" }).click();
+  await expect(adminList).toBeVisible();
   await expect(rows).toHaveCount(3);
+  await page.getByLabel("非公開を除く", { exact: true }).check();
+  await expect(rows).toHaveCount(2);
+  await page.getByLabel("要レビューのみ", { exact: true }).check();
+  await expect(rows).toHaveCount(1);
+  await page.getByRole("button", { name: "分類別一覧に戻る" }).click();
+  await expect(adminList).toBeHidden();
+  await expect(summary).toBeVisible();
+  await expect(page.getByLabel("AI問題のみ", { exact: true })).not.toBeChecked();
+  await expect(page.getByLabel("非公開を除く", { exact: true })).not.toBeChecked();
+  await expect(page.getByLabel("要レビューのみ", { exact: true })).not.toBeChecked();
+  await page.getByLabel("AI問題のみ", { exact: true }).check();
+  await expect(adminList).toBeVisible();
+  await expect(rows).toHaveCount(1);
+  await page.getByRole("button", { name: "分類別一覧に戻る" }).click();
+  await expect(page.getByLabel("AI問題のみ", { exact: true })).not.toBeChecked();
 });

@@ -40,9 +40,12 @@ test("RLS、重複回答、最新順序、リセット、削除後のJWTを検�
     ...JSON.parse(await readFile("database/questions-dm-a-analysis-and-ai.json", "utf8")),
     ...JSON.parse(await readFile("database/questions-dm-a-mixed-02.json", "utf8")),
     ...JSON.parse(await readFile("database/questions-dm-a-database-models.json", "utf8")),
+    ...JSON.parse(await readFile("database/questions-dm-a-catalog-governance.json", "utf8")),
+    ...JSON.parse(await readFile("database/questions-dm-a-pipelines-and-warehouses.json", "utf8")),
+    ...JSON.parse(await readFile("database/questions-dm-a-impact-rca-observability.json", "utf8")),
   ];
-  assert.equal(additions.length, 187);
-  assert.equal((await db.query("select count(*)::int as n from study.questions")).rows[0].n, 205);
+  assert.equal(additions.length, 205);
+  assert.equal((await db.query("select count(*)::int as n from study.questions")).rows[0].n, 223);
   await db.exec(await readFile("database/questions-2023.sql", "utf8"));
   await db.exec(await readFile("database/questions-2022-and-ai.sql", "utf8"));
   await db.exec(await readFile("database/questions-2021.sql", "utf8"));
@@ -62,7 +65,10 @@ test("RLS、重複回答、最新順序、リセット、削除後のJWTを検�
   await db.exec(await readFile("database/questions-dm-a-analysis-and-ai.sql", "utf8"));
   await db.exec(await readFile("database/questions-dm-a-mixed-02.sql", "utf8"));
   await db.exec(await readFile("database/questions-dm-a-database-models.sql", "utf8"));
-  assert.equal((await db.query("select count(*)::int as n from study.questions")).rows[0].n, 205);
+  await db.exec(await readFile("database/questions-dm-a-catalog-governance.sql", "utf8"));
+  await db.exec(await readFile("database/questions-dm-a-pipelines-and-warehouses.sql", "utf8"));
+  await db.exec(await readFile("database/questions-dm-a-impact-rca-observability.sql", "utf8"));
+  assert.equal((await db.query("select count(*)::int as n from study.questions")).rows[0].n, 223);
   const allQuestions = (await db.query("select id, choices from study.questions")).rows;
   for (const question of [...allQuestions, ...demoQuestions]) {
     const assessment = questionLikelihood[question.id];
@@ -104,6 +110,77 @@ test("RLS、重複回答、最新順序、リセット、削除後のJWTを検�
     await db.query("select set_config('request.jwt.claim.sub',$1,false)", [id]);
     await db.exec("set role authenticated");
   };
+  await db.exec(await readFile("database/question-difficulty-assessments.sql", "utf8"));
+  await db.exec(await readFile("database/admin-question-difficulty-display.sql", "utf8"));
+  const admin = "33333333-3333-4333-8333-333333333333";
+  await select("insert into auth.users(id,raw_app_meta_data) values ($1, $2::jsonb)", [
+    admin, JSON.stringify({ dm_study_admin: true }),
+  ]);
+  const getDifficulty = async (id = "DMQ-0212") =>
+    (await select("select public.dm_admin_question_difficulty($1) as data", [id]))[0].data;
+  const saveDifficulty = (revision, level, status = "ready", timestamp = "2026-11-22T00:00:00Z", id = "DMQ-0212") =>
+    select("select public.dm_admin_save_question_difficulty($1,$2,$3,$4,$5,$6,$7,$8)", [
+      id, revision, level, status, "集計の順序を判断する", "model", "v1", timestamp,
+    ]);
+
+  await as(user1);
+  await assert.rejects(() => getDifficulty(), /管理者権限/);
+  await assert.rejects(() => saveDifficulty(1, 2), /管理者権限/);
+  await assert.rejects(() => select("select * from study.question_difficulty_assessments"), /permission denied/);
+  await as(admin);
+  const initial = await getDifficulty();
+  assert.equal(initial.question.content_revision, 1);
+  assert.equal(initial.status, "unassessed");
+  assert.deepEqual(initial.assessments, []);
+  await assert.rejects(() => saveDifficulty(1, 2, "ready", undefined, "DMQ-0037"), /対象のAI作成問題/);
+  await assert.rejects(() => saveDifficulty(1, null), /check constraint/);
+  await saveDifficulty(1, null, "needs_review");
+  assert.equal((await getDifficulty()).status, "needs_review");
+  await saveDifficulty(1, 2);
+  await saveDifficulty(1, 2);
+  await assert.rejects(() => saveDifficulty(1, 3, "needs_review"), /既に保存/);
+  assert.equal((await getDifficulty()).status, "ready");
+  assert.equal((await getDifficulty()).assessments[0].difficulty, 2);
+  const adminList = async () => (await select("select public.dm_admin_questions() as data"))[0].data;
+  const listedAssessment = (await adminList()).find(({ id }) => id === "DMQ-0212").difficulty_assessment;
+  assert.equal(listedAssessment.level, 2);
+  assert.equal(listedAssessment.status, "ready");
+  assert.equal(listedAssessment.reason, "集計の順序を判断する");
+  assert.equal((await adminList()).find(({ id }) => id === "DMQ-0037").difficulty_assessment, undefined);
+
+  await select("select public.dm_admin_save_question($1::jsonb)", [
+    JSON.stringify({ ...initial.question, published: false }),
+  ]);
+  assert.equal((await getDifficulty()).question.content_revision, 1);
+  await select("select public.dm_admin_save_question($1::jsonb)", [
+    JSON.stringify({ ...initial.question, body: "改稿，確認。" }),
+  ]);
+  assert.equal((await getDifficulty()).status, "stale");
+  const staleAssessment = (await adminList()).find(({ id }) => id === "DMQ-0212").difficulty_assessment;
+  assert.equal(staleAssessment.status, "stale");
+  assert.equal(staleAssessment.level, null);
+  assert.equal(staleAssessment.reason, null);
+  assert.equal((await getDifficulty()).question.content_revision, 2);
+  assert.equal((await getDifficulty()).assessments[0].content_revision, 1);
+  await assert.rejects(() => saveDifficulty(1, 2), /問題の版が変わりました/);
+  await saveDifficulty(2, 3);
+  await db.exec("reset role");
+  await select("update study.questions set body='改稿，確認。', content_revision=1 where id='DMQ-0212'");
+  await as(admin);
+  assert.equal((await getDifficulty()).question.content_revision, 2);
+  assert.deepEqual((await getDifficulty()).assessments.map(({ content_revision, difficulty }) =>
+    [content_revision, difficulty]), [[2, 3], [1, 2]]);
+  await db.exec("reset role");
+  await select("update study.questions set asset_key='revised.png' where id='DMQ-0212'");
+  await as(admin);
+  assert.equal((await getDifficulty()).question.content_revision, 3);
+  await db.exec("reset role");
+  await db.exec("set role anon");
+  await assert.rejects(() => getDifficulty(), /permission denied/);
+  const publicQuestion = (await select("select public.dm_reveal_question('DMQ-0212') as data"))[0].data;
+  assert.equal(publicQuestion.content_revision, undefined);
+  assert.equal(publicQuestion.assessments, undefined);
+  await db.exec("reset role");
   await db.exec("set role anon");
   const catalog = (await select("select public.dm_catalog() as data"))[0].data;
   for (const [prefix, pattern] of [["DM-A-17-", /^DMQ-014[4-8]$/], ["DM-A-28-", /^DMQ-01(?:49|5[0-3])$/]]) {
@@ -268,5 +345,29 @@ test("RLS、重複回答、最新順序、リセット、削除後のJWTを検�
   correctIds.add(preferredAll.items[2].question.id);
   const wrongOnly = (await select("select public.dm_start_exercise(question_count=>10,wrong_only=>true,replace_existing=>true) as data"))[0].data;
   assert.deepEqual(priorities(wrongOnly), [1, 1, 1, 1]);
+
+  // 前回正解の問題が回答日時（answered_at）の古い順に出題されること
+  const [oldestId, olderId] = [...correctIds];
+  await db.exec("reset role");
+  await db.query(
+    `update study.answers set answered_at = now() - interval '10 days' where user_id = $1 and question_id = $2`,
+    [user2, oldestId],
+  );
+  await db.query(
+    `update study.answers set answered_at = now() - interval '5 days' where user_id = $1 and question_id = $2`,
+    [user2, olderId],
+  );
+  await as(user2);
+  const oldestFirst = (await select("select public.dm_start_exercise(question_count=>0,replace_existing=>true) as data"))[0].data;
+  const correctOrder = oldestFirst.items.slice(6).map((i) => i.question.id);
+  assert.equal(correctOrder[0], oldestId);
+  assert.equal(correctOrder[1], olderId);
+
+  // 問題別正誤履歴と特定1問チャレンジ
+  const qHist = (await select("select public.dm_question_history() as h"))[0].h;
+  assert.ok(qHist.length >= 100);
+  const single = (await select("select public.dm_start_single_question($1) as data", [oldestId]))[0].data;
+  assert.equal(single.items.length, 1);
+  assert.equal(single.items[0].question.id, oldestId);
   await db.close();
 });

@@ -7,22 +7,31 @@ declare eid uuid;ids text[];qid text;ord int[];pos int:=0;begin
  perform pg_advisory_xact_lock(hashtextextended(study.request_user_id()::text,0));
  if exists(select 1 from study.exercises where user_id=study.request_user_id() and status='active') and not replace_existing then raise exception '中断中の演習があります。再開するか、置き換えを選択してください。';end if;
  with recursive selected as(select id from study.categories where id=any(category_ids) union all select c.id from study.categories c join selected s on c.parent_id=s.id)
- select array_agg(candidate.id order by candidate.priority, candidate.draw)
+ select array_agg(candidate.id order by candidate.priority, candidate.answered_at_order asc nulls last, candidate.draw)
  into ids
  from (
    select q.id,
      case when last_answer.correct is null then 0
           when last_answer.correct = false then 1
           else 2 end as priority,
+     case when last_answer.correct is true then ans.answered_at else null end as answered_at_order,
      random() as draw
    from study.questions q
    left join study.latest last_answer
      on last_answer.question_id = q.id and last_answer.user_id = study.request_user_id()
+   left join lateral (
+     select a.answered_at
+     from study.answers a
+     where a.user_id = study.request_user_id()
+       and a.question_id = q.id
+     order by a.sequence desc
+     limit 1
+   ) ans on last_answer.correct is true
    where q.published
      and q.origin = any(question_origins)
      and (cardinality(category_ids) = 0 or q.category_id in (select id from selected))
      and (not wrong_only or last_answer.correct is false)
-   order by priority, draw
+   order by priority, answered_at_order asc nulls last, draw
    limit case when question_count = 0 then null else question_count end
  ) candidate;
  if ids is null then raise exception '条件に合う問題がありません。';end if;

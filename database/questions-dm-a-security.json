@@ -5,7 +5,7 @@
     "body": "支払予定表を更新した際、金額欄の数式を誤って上書きし、一部の支払額が変わった。閲覧者は権限をもつ担当者だけで、システムは通常どおり利用できた。この事象で直接損なわれた情報の性質はどれか。",
     "category_id": "DM-A-24-01-01",
     "origin": "ai_original",
-    "source": "オリジナル演習問題（IPA非公式）。出典：https://docs.google.com/document/d/1VsBKuIlokxC69YKcb3fR-dRgzgZ6Vd4Ge0XlIqHozFw/edit",
+    "source": "オリジナル演習問題（AI作成）",
     "choices": [
       {
         "id": 1,
@@ -39,7 +39,7 @@
     "body": "会社の規程では、発表前の製品価格は「関係者限り」、発表済みの製品仕様は「公開」とする。複数の区分が混在する資料には最も厳しい区分を適用する。広報担当者が、発表済みの仕様書の末尾に未発表の価格表を加えた。この時点での取扱いはどれか。",
     "category_id": "DM-A-24-03-01",
     "origin": "ai_original",
-    "source": "オリジナル演習問題（IPA非公式）。出典：https://docs.google.com/document/d/1VsBKuIlokxC69YKcb3fR-dRgzgZ6Vd4Ge0XlIqHozFw/edit",
+    "source": "オリジナル演習問題（AI作成）",
     "choices": [
       {
         "id": 1,
@@ -73,7 +73,7 @@
     "body": "月末の2日間だけ、応援担当者が東地区の未処理伝票を照合する。東地区の未処理伝票の閲覧だけで作業は完了する。権限は対象、操作、有効期間を個別に指定できる。最小権限の原則に最も合う設定はどれか。",
     "category_id": "DM-A-24-02-02",
     "origin": "ai_original",
-    "source": "オリジナル演習問題（IPA非公式）。出典：https://docs.google.com/document/d/1VsBKuIlokxC69YKcb3fR-dRgzgZ6Vd4Ge0XlIqHozFw/edit",
+    "source": "オリジナル演習問題（AI作成）",
     "choices": [
       {
         "id": 1,
@@ -107,7 +107,7 @@
     "body": "経理から販売企画に異動した社員が、旧部署の明細をまだ閲覧できる。経理グループからは削除済みである。アクセス権一覧には、同じ明細への個人単位の許可が残っていた。新しい業務で明細は使わない。最も適切な対応はどれか。",
     "category_id": "DM-A-24-02-02",
     "origin": "ai_original",
-    "source": "オリジナル演習問題（IPA非公式）。出典：https://docs.google.com/document/d/1VsBKuIlokxC69YKcb3fR-dRgzgZ6Vd4Ge0XlIqHozFw/edit",
+    "source": "オリジナル演習問題（AI作成）",
     "choices": [
       {
         "id": 1,
@@ -141,7 +141,7 @@
     "body": "取引先から、顧客明細を当日中に提供してほしいと依頼された。社内規程では、顧客明細の社外提供にはデータ管理責任者の事前承認が必要である。一方、社外提供を承認済みの月別集計表があり、取引先はその集計表でも目的を達成できる。適切な対応だけを全て挙げた組合せはどれか。\na　承認済みの集計表の提供条件を確認し、その範囲で集計表を渡す。\nb　明細を暗号化して先に送り、管理責任者には翌日に承認を求める。\nc　明細の提供が必要になった場合は、提供に先立って管理責任者の承認を得る。",
     "category_id": "DM-A-24-02-01",
     "origin": "ai_original",
-    "source": "オリジナル演習問題（IPA非公式）。出典：https://docs.google.com/document/d/1VsBKuIlokxC69YKcb3fR-dRgzgZ6Vd4Ge0XlIqHozFw/edit",
+    "source": "オリジナル演習問題（AI作成）",
     "choices": [
       {
         "id": 1,
@@ -175,7 +175,7 @@
     "body": "A社は「年間に見込む発生回数 × 1回当たりの損失額」で年間損失の期待値を算出し、その値が最大の事象から対策に着手する。次のうち、最初の対象はどれか。",
     "category_id": "DM-A-24-03-01",
     "origin": "ai_original",
-    "source": "オリジナル演習問題（IPA非公式）。出典：https://docs.google.com/document/d/1VsBKuIlokxC69YKcb3fR-dRgzgZ6Vd4Ge0XlIqHozFw/edit",
+    "source": "オリジナル演習問題（AI作成）",
     "choices": [
       {
         "id": 1,
@@ -209,7 +209,7 @@
     "body": "担当者は、①受注データが利用できなくなる原因を洗い出し、②発生可能性と業務への影響を見積もった。次に、上司から「当社の許容基準と照らして、どのリスクに追加対応が要るか判断してほしい」と言われた。この依頼に該当する活動はどれか。",
     "category_id": "DM-A-24-03-01",
     "origin": "ai_original",
-    "source": "オリジナル演習問題（IPA非公式）。出典：https://docs.google.com/document/d/1VsBKuIlokxC69YKcb3fR-dRgzgZ6Vd4Ge0XlIqHozFw/edit",
+    "source": "オリジナル演習問題（AI作成）",
     "choices": [
       {
         "id": 1,
@@ -243,7 +243,7 @@
     "body": "物流会社では、対策後も発注システムが数時間停止する可能性が残る。対策には優先する目的がある。停止時にも業務を再開できるかを、事前に直接確かめる取組はどれか。",
     "category_id": "DM-A-24-03-02",
     "origin": "ai_original",
-    "source": "オリジナル演習問題（IPA非公式）。出典：https://docs.google.com/document/d/1VsBKuIlokxC69YKcb3fR-dRgzgZ6Vd4Ge0XlIqHozFw/edit",
+    "source": "オリジナル演習問題（AI作成）",
     "choices": [
       {
         "id": 1,
@@ -277,7 +277,7 @@
     "body": "社内限定の原価表を、誤って社外から閲覧できるリンクで送信した。担当者はリンクを直ちに無効にでき、無効化後も操作ログは残る。規程では漏えいの疑いを把握した時点で所定の窓口に報告する。発見直後の対応として最も適切なものはどれか。",
     "category_id": "DM-A-24-03-02",
     "origin": "ai_original",
-    "source": "オリジナル演習問題（IPA非公式）。出典：https://docs.google.com/document/d/1VsBKuIlokxC69YKcb3fR-dRgzgZ6Vd4Ge0XlIqHozFw/edit",
+    "source": "オリジナル演習問題（AI作成）",
     "choices": [
       {
         "id": 1,
@@ -311,7 +311,7 @@
     "body": "退職者のアカウントが長期間有効なまま残ったため、会社は「退職日の終了時までに、本人の全業務アカウントを無効にする」というルールを導入した。翌月、このルールが実際に機能したかを最も直接に評価できる指標はどれか。",
     "category_id": "DM-A-24-03-02",
     "origin": "ai_original",
-    "source": "オリジナル演習問題（IPA非公式）。出典：https://docs.google.com/document/d/1VsBKuIlokxC69YKcb3fR-dRgzgZ6Vd4Ge0XlIqHozFw/edit",
+    "source": "オリジナル演習問題（AI作成）",
     "choices": [
       {
         "id": 1,

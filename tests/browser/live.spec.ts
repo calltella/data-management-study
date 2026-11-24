@@ -45,7 +45,7 @@ test("実Worker接続・ログイン画面と実APIのサンプル演習", async
     await page.getByRole("link", { name: "次の問題へ" }).click();
   }
   await expect(questionBody).toContainText(newQuestion);
-  await expect(heading).toHaveText("AI生成オリジナル（IPA非公式）");
+  await expect(heading).toHaveText("オリジナル演習問題（AI作成）");
   await reveal.click();
   await expect(page.locator(".explanation h2")).toContainText("正解：ア");
   await expect(page.locator(".choice-explanation")).toHaveCount(4);

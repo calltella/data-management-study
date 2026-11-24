@@ -5,7 +5,7 @@
     "body": "小売会社が、全店舗の顧客を対象に実施したアンケートの結果を公表する。担当者の行為のうち、データの改ざんに該当するものはどれか。",
     "category_id": "DM-A-27-01-01",
     "origin": "ai_original",
-    "source": "オリジナル演習問題（IPA非公式）。出典：https://docs.google.com/document/d/17kYnRxZQVQMvrIDe3XA7H-Lx9nWtIa-ON5HuOV_mlUQ/edit",
+    "source": "オリジナル演習問題（AI作成）",
     "choices": [
       {
         "id": 1,
@@ -39,7 +39,7 @@
     "body": "担当者が生成AIに市場調査の要約を作らせたところ、「国内の中小企業の64％がサービスXを導入済み」とする文と、出典とされる報告書名が示された。この数値を顧客向け資料に掲載する前の確認として、最も適切なものはどれか。",
     "category_id": "DM-A-27-02-01",
     "origin": "ai_original",
-    "source": "オリジナル演習問題（IPA非公式）。出典：https://docs.google.com/document/d/17kYnRxZQVQMvrIDe3XA7H-Lx9nWtIa-ON5HuOV_mlUQ/edit",
+    "source": "オリジナル演習問題（AI作成）",
     "choices": [
       {
         "id": 1,
@@ -73,7 +73,7 @@
     "body": "ある会社のAIは、問い合わせを「優先対応」と「通常対応」に振り分ける。導入前の評価では全体の正解率が96％だったが、運用開始後、特定の言い回しを含む緊急の問い合わせが、しばしば「通常対応」と判定された。偏りを調べ、是正するための対応として、適切なものだけを全て挙げた組合せはどれか。\na　担当者が緊急と確認した問い合わせのうち、AIが見逃した割合を、その言い回しを含む群と含まない群とで比較する。\nb　全体の正解率を正確に評価するため、件数の少ない言い回しを評価対象から外し、残りのデータで改善の要否を判断する。\nc　その言い回しを含む緊急事例が学習データに十分あるか、また、正しい分類が付いているかを調べる。",
     "category_id": "DM-A-27-02-01",
     "origin": "ai_original",
-    "source": "オリジナル演習問題（IPA非公式）。出典：https://docs.google.com/document/d/17kYnRxZQVQMvrIDe3XA7H-Lx9nWtIa-ON5HuOV_mlUQ/edit",
+    "source": "オリジナル演習問題（AI作成）",
     "choices": [
       {
         "id": 1,

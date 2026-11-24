@@ -328,10 +328,10 @@ test("科目Aとの関連度を言葉で表示し、根拠を確認できる", a
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
 
-test("問題文を文の区切りで改行して表示する", async ({ page }) => {
+test("問題文は文末で改行せず、入力済みの改行を表示する", async ({ page }) => {
   const question = {
     ...demoQuestions[0],
-    body: "資料を参照する。適切な対応を選ぶ。",
+    body: "資料を参照する。適切な対応を選ぶ。\n（1）資料A\n（2）資料B",
   };
   await page.route("**/api/demo", (route) =>
     route.fulfill({ json: { categories: demoCategories, questions: [question] } }),
@@ -340,7 +340,7 @@ test("問題文を文の区切りで改行して表示する", async ({ page }) 
   await page.getByRole("button", { name: "最初から出題する" }).click();
   const body = page.locator(".question-body");
   await expect(body).toHaveCSS("white-space", "pre-wrap");
-  expect(await body.textContent()).toContain("資料を参照する。\n適切な対応を選ぶ。");
+  expect(await body.textContent()).toBe(question.body);
 });
 
 test("問題の種類を複数選んでゲスト演習を始められる", async ({ page }) => {
@@ -354,7 +354,7 @@ test("問題の種類を複数選んでゲスト演習を始められる", async
     },
   }));
   await page.goto("/#practice");
-  const ai = page.getByRole("checkbox", { name: "AIオリジナル問題" });
+  const ai = page.getByRole("checkbox", { name: "オリジナル演習問題（AI作成）" });
   const past = page.getByRole("checkbox", { name: "IPA過去問" });
   const sample = page.getByRole("checkbox", { name: "IPA公式サンプル" });
   const start = page.getByRole("button", { name: "最初から出題する", exact: true });

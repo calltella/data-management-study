@@ -1,0 +1,43 @@
+# Dependencies & Package Locks
+node_modules/
+vendor/
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+composer.lock
+
+# Build Outputs & Caches
+.next/
+.open-next/
+.wrangler/
+dist/
+build/
+out/
+.turbo/
+.cache/
+storage/framework/
+bootstrap/cache/
+
+# Database Migrations & Logs (ノイズ・大量トークン消費源)
+drizzle/migrations/
+database/migrations/
+*.sql
+*.log
+logs/
+
+# Static Assets & Binary Files
+public/images/
+public/fonts/
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.svg
+*.ico
+*.pdf
+*.zip
+
+# Environment & Local Secrets
+.env
+.env.*
+.dev.vars

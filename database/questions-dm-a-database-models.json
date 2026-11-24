@@ -5,7 +5,7 @@
     "body": "新工場の立上げにあたり、製品、調達、生産、出荷という業務領域にどのデータが属し、領域間で何を共有するかを一枚にまとめたい。列名やファイル配置は次の段階で決める。最も目的に合う資料はどれか。",
     "category_id": "DM-A-17-01-01",
     "origin": "ai_original",
-    "source": "AI生成オリジナル（IPA非公式）。出典：https://docs.google.com/document/d/1Ypv-RDymOhrlvk_lwFFaYgFYOdkMdHcOUDN7_KqExvY/edit",
+    "source": "オリジナル演習問題（AI作成）",
     "choices": [
       {
         "id": 1,
@@ -39,7 +39,7 @@
     "body": "温室の端末は気温を記録する。集約装置は記録を受け取って時間帯別平均を作り、監視画面はその平均を取得する。この説明をデータフローとして正しく表したものはどれか。矢印はデータを渡す向きを示す。",
     "category_id": "DM-A-17-01-01",
     "origin": "ai_original",
-    "source": "AI生成オリジナル（IPA非公式）。出典：https://docs.google.com/document/d/1Ypv-RDymOhrlvk_lwFFaYgFYOdkMdHcOUDN7_KqExvY/edit",
+    "source": "オリジナル演習問題（AI作成）",
     "choices": [
       {
         "id": 1,
@@ -73,7 +73,7 @@
     "body": "店舗の販売端末は商品一覧のコピーを持つ。商品名は本部の台帳を正とし、端末へは毎晩、変更分を配信する。月曜の昼、本部で一つの商品名を訂正した。この構造から判断できることはどれか。",
     "category_id": "DM-A-17-01-01",
     "origin": "ai_original",
-    "source": "AI生成オリジナル（IPA非公式）。出典：https://docs.google.com/document/d/1Ypv-RDymOhrlvk_lwFFaYgFYOdkMdHcOUDN7_KqExvY/edit",
+    "source": "オリジナル演習問題（AI作成）",
     "choices": [
       {
         "id": 1,
@@ -107,7 +107,7 @@
     "body": "工房が講習会の受付を電子化する。データベース製品を選ぶ前に、担当者と概念データモデルの内容を合意したい。この段階で最も優先して確認する事項はどれか。",
     "category_id": "DM-A-17-02-01",
     "origin": "ai_original",
-    "source": "AI生成オリジナル（IPA非公式）。出典：https://docs.google.com/document/d/1Ypv-RDymOhrlvk_lwFFaYgFYOdkMdHcOUDN7_KqExvY/edit",
+    "source": "オリジナル演習問題（AI作成）",
     "choices": [
       {
         "id": 1,
@@ -141,7 +141,7 @@
     "body": "本には、同じ書名・版でも複数の現物がある。一冊ずつ異なる所蔵番号を貼り、破損状態を記録する。書名と版の情報は書誌番号で識別する。一冊だけが破損したとき、その一冊を正確に更新できる設計はどれか。",
     "category_id": "DM-A-17-02-01",
     "origin": "ai_original",
-    "source": "AI生成オリジナル（IPA非公式）。出典：https://docs.google.com/document/d/1Ypv-RDymOhrlvk_lwFFaYgFYOdkMdHcOUDN7_KqExvY/edit",
+    "source": "オリジナル演習問題（AI作成）",
     "choices": [
       {
         "id": 1,
@@ -175,7 +175,7 @@
     "body": "一つの利用枠には、予約がまだないか、予約が一件だけある。一件の予約は必ず一つの利用枠に対して行う。UMLの関連で、利用枠一つから見た予約の多重度と、予約一件から見た利用枠の多重度を、この順で表したものはどれか。",
     "category_id": "DM-A-17-02-02",
     "origin": "ai_original",
-    "source": "AI生成オリジナル（IPA非公式）。出典：https://docs.google.com/document/d/1Ypv-RDymOhrlvk_lwFFaYgFYOdkMdHcOUDN7_KqExvY/edit",
+    "source": "オリジナル演習問題（AI作成）",
     "choices": [
       {
         "id": 1,
@@ -209,7 +209,7 @@
     "body": "一つの楽曲を複数の奏者が演奏し、一人の奏者も複数の楽曲に出演する。同じ奏者は一つの楽曲で一つのパートを担当する。ある演奏会について、担当パートをどの単位で記録するのが適切か。",
     "category_id": "DM-A-17-02-02",
     "origin": "ai_original",
-    "source": "AI生成オリジナル（IPA非公式）。出典：https://docs.google.com/document/d/1Ypv-RDymOhrlvk_lwFFaYgFYOdkMdHcOUDN7_KqExvY/edit",
+    "source": "オリジナル演習問題（AI作成）",
     "choices": [
       {
         "id": 1,
@@ -243,7 +243,7 @@
     "body": "修理伝票には工場ごとの伝票番号を付ける。工場が違えば同じ伝票番号を使うことがある。各伝票の作業行には1から順に行番号を付ける。全工場の作業行を常に一意に識別するために必要な最小の組合せはどれか。",
     "category_id": "DM-A-17-02-01",
     "origin": "ai_original",
-    "source": "AI生成オリジナル（IPA非公式）。出典：https://docs.google.com/document/d/1Ypv-RDymOhrlvk_lwFFaYgFYOdkMdHcOUDN7_KqExvY/edit",
+    "source": "オリジナル演習問題（AI作成）",
     "choices": [
       {
         "id": 1,
@@ -277,7 +277,7 @@
     "body": "保冷庫が8台ある。先月、3台は各2回、4台は各1回点検し、残る1台は点検しなかった。「点検記録」には点検1回につき1行を作り、対象の保冷庫1台を参照する。先月の点検記録の行数と、その記録が参照する異なる保冷庫の台数はどれか。",
     "category_id": "DM-A-17-02-01",
     "origin": "ai_original",
-    "source": "AI生成オリジナル（IPA非公式）。出典：https://docs.google.com/document/d/1Ypv-RDymOhrlvk_lwFFaYgFYOdkMdHcOUDN7_KqExvY/edit",
+    "source": "オリジナル演習問題（AI作成）",
     "choices": [
       {
         "id": 1,
@@ -311,7 +311,7 @@
     "body": "美術館で、一つの作品を時期を変えて同じ施設へ何度も貸し出す。貸出のたびに全館で一意の貸出番号を付ける。返却後も、どの施設にいつ貸したかを一件ずつ調べたい。要件を満たす論理モデルはどれか。",
     "category_id": "DM-A-17-02-01",
     "origin": "ai_original",
-    "source": "AI生成オリジナル（IPA非公式）。出典：https://docs.google.com/document/d/1Ypv-RDymOhrlvk_lwFFaYgFYOdkMdHcOUDN7_KqExvY/edit",
+    "source": "オリジナル演習問題（AI作成）",
     "choices": [
       {
         "id": 1,

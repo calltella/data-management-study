@@ -20,6 +20,7 @@ import { bindQuestionUnderlines, underlineToggle, underlineApply } from "./quest
 import { bindWhiteboard, whiteboardToggle } from "./whiteboard.ts";
 import { supplementalChoiceExplanations } from "./choice-explanations.ts";
 import { likelihoodLabels, questionLikelihood } from "./question-likelihood.ts";
+import { renderExplanationMarkdown } from "./markdown.ts";
 const app = document.querySelector<HTMLDivElement>("#app")!;
 const esc = (v: unknown) =>
   String(v ?? "").replace(
@@ -51,13 +52,24 @@ let selectedCategories: string[] = [],
   wrong = false,
   page = 0;
 const questionOrigins = [
-  ["ai_original", "AIオリジナル問題"],
+  ["ai_original", "オリジナル演習問題（AI作成）"],
   ["ipa_past", "IPA過去問"],
   ["ipa_sample", "IPA公式サンプル"],
 ] as const;
 let selectedOrigins: string[] = questionOrigins.map(([origin]) => origin);
 let historyCategory = "";
-const adminFilters = { major: "", middle: "", minor: "", term: "" };
+type AccountTab = "password" | "data" | "account" | "history";
+let accountTab: AccountTab = "password";
+const adminFilters = {
+  major: "",
+  middle: "",
+  minor: "",
+  term: "",
+  showAll: false,
+  aiOnly: false,
+  needsReviewOnly: false,
+  publishedOnly: false,
+};
 const ratingStates = new Map<
   string,
   { value: number; saved: number; saving: boolean }
@@ -389,10 +401,6 @@ function questionImageUrl(q: Question): string {
     ?? `/api/images/${encodeURIComponent(q.id)}?v=${encodeURIComponent(q.asset_key ?? "")}`;
 }
 
-function breakSentences(text: string) {
-  return text.replace(/。[^\S\r\n]*(?=[^」』）\s])/gu, "。\n");
-}
-
 function choiceLayout(q: Question, imageOnly: boolean) {
   if (imageOnly) return "choices-symbols";
   return q.choices.some(({ body }) => {
@@ -405,7 +413,7 @@ function choiceExplanationRows(
   q: Question, choiceOrder: number[], correct: number | undefined, imageOnly: boolean, adminPreview = false,
 ) {
   const formatExplanation = (text: string) =>
-    esc(breakSentences(relabelExplanation(text, choiceOrder)));
+    renderExplanationMarkdown(relabelExplanation(text, choiceOrder));
   return correct == null ? "" : choiceOrder
     .map((id, pos) => {
       const choice = q.choices.find((c) => c.id === id)!;
@@ -423,7 +431,7 @@ function choiceExplanationRows(
         <div>
         <div class="choice-explanation-header"><p class="choice-explanation-quote">${esc(imageOnly ? choice.body.replaceAll("\u0332", "") : choice.body)}</p>
         ${id === correct ? '<strong class="choice-explanation-result">正解</strong>' : ""}</div>
-        <p class="choice-explanation-detail">${formatExplanation(detail)}</p>
+        <div class="choice-explanation-detail">${formatExplanation(detail)}</div>
         ${diagramUrl ? `<figure class="choice-explanation-figure">
           <img ${choice.diagram_key ? `data-diagram-url="${esc(diagramUrl)}" hidden` : `src="${esc(diagramUrl)}"`} alt="${esc(choice.diagram_key ? choice.body + "の解説図" : diagram?.alt)}">
           <figcaption>${esc(choice.diagram_key ? choice.body + "の解説図" : diagram?.caption)}</figcaption>
@@ -444,9 +452,9 @@ function officialQuestionPage(q: Question): string | undefined {
 function questionBodyMarkup(q: Question, className: string, imageOnly: boolean) {
   if (q.id === "DMQ-0079") {
     const [body, dependencies] = q.body.split(/\n\s*(?=〔関数従属性〕)/u, 2);
-    return `<p class="${className}">${esc(breakSentences(body.trimEnd()))}</p>${dependencies ? `<p class="question-transcript">${esc(dependencies)}</p>` : ""}`;
+    return `<p class="${className}">${esc(body.trimEnd())}</p>${dependencies ? `<p class="question-transcript">${esc(dependencies)}</p>` : ""}`;
   }
-  return `<p class="${className}${imageOnly ? " question-transcript" : ""}">${esc(breakSentences(q.body))}</p>`;
+  return `<p class="${className}${imageOnly ? " question-transcript" : ""}">${esc(q.body)}</p>`;
 }
 
 function showQuestion() {
@@ -500,7 +508,7 @@ function showQuestion() {
       }).join("")}</span>`
     : "";
   const formatExplanation = (text: string) =>
-    esc(breakSentences(relabelExplanation(text, choiceOrder)));
+    renderExplanationMarkdown(relabelExplanation(text, choiceOrder));
   const choiceExplanations = choiceExplanationRows(q, choiceOrder, correct, imageOnly);
   render(
     `<section class="card question">
@@ -538,7 +546,7 @@ function showQuestion() {
         "",
       )}</div>${!answer ? '<p class="muted question-choice-hint">記号を押すと回答が確定します。' + (imageOnly ? '' : '選択肢の文を押すと除外・解除できます。') + '</p>' : ""}${pending ? `<div role="alert" class="notice">回答が保存されていません。接続を確認して再試行してください。${button("同じ回答を再送する", "retry", true)}</div>` : ""}${
       resultVisible && (explanation || choiceExplanations || canEdit)
-        ? `<section class="explanation${resultClass}"><div class="question-edit-heading"><h2>${resultHeading} · 正解：${labels[choiceOrder.indexOf(correct!)]}</h2>${canEdit ? '<button type="button" class="question-edit-control" data-edit-exercise="explanation">解説を編集</button>' : ""}</div>${explanation ? `<p>${formatExplanation(explanation)}</p>` : ""}${choiceExplanations ? `<h3 class="choice-explanations-title">選択肢ごとの解説</h3><ul class="choice-explanations">${choiceExplanations}</ul>` : ""}${reconstructionNote ? `<p class="small muted">${esc(reconstructionNote[1])}</p>` : ""}${answer && !session ? '<p class="small">ゲストの回答は保存していません</p>' : ""}</section>`
+        ? `<section class="explanation${resultClass}"><div class="question-edit-heading"><h2>${resultHeading} · 正解：${labels[choiceOrder.indexOf(correct!)]}</h2>${canEdit ? '<button type="button" class="question-edit-control" data-edit-exercise="explanation">解説を編集</button>' : ""}</div>${explanation ? `<div class="explanation-body">${formatExplanation(explanation)}</div>` : ""}${choiceExplanations ? `<h3 class="choice-explanations-title">選択肢ごとの解説</h3><ul class="choice-explanations">${choiceExplanations}</ul>` : ""}${reconstructionNote ? `<p class="small muted">${esc(reconstructionNote[1])}</p>` : ""}${answer && !session ? '<p class="small">ゲストの回答は保存していません</p>' : ""}</section>`
         : ""
     }${session && q.origin === "ai_original" && explanation ? `<div class="rating" data-rating-question="${esc(q.id)}"><span id="rating-label">このAI問題を評価</span><div class="rating-stars" role="group" aria-labelledby="rating-label">${[1, 2, 3, 4, 5].map((n) => `<button type="button" class="rating-star" data-rating="${n}" aria-label="${n}点" aria-pressed="false">☆</button>`).join("")}</div><span class="small" id="rating-status" role="status" aria-live="polite"></span></div>` : ""}<div class="actions question-actions">${!answer && !revealed ? button("先に正答・解説を見る", "reveal", true) : ""}${answer || revealed ? `<a href="#practice" data-action="next">${index === exercise!.items.length - 1 ? "演習を終了" : "次の問題へ"}</a>` : ""}<div class="question-exit-actions">${button(session ? "中断して保存" : "演習を終了", "suspend", true)}</div></div>${canEdit ? '<dialog id="exercise-editor" aria-labelledby="exercise-editor-title"><div class="question-edit-heading"><h2 id="exercise-editor-title">出題内容を編集</h2><button type="button" class="secondary" data-close-exercise-editor>閉じる</button></div><div class="exercise-editor-content"></div></dialog>' : ""}</section>`,
   );
@@ -674,26 +682,36 @@ async function submit(selected: number) {
     if (questionPanel?.isConnected && current() === item) showQuestion();
   }
 }
-async function history() {
-  if (!session) {
-    location.hash = "login";
-    return;
-  }
+type QuestionHistoryItem = {
+  question_id: string;
+  title: string | null;
+  category_id: string | null;
+  published: boolean;
+  answered_count: number;
+  correct_count: number;
+  latest_correct: boolean;
+  latest_answered_at: string;
+  results: boolean[];
+};
+
+async function buildHistoryMarkup(includeQuestions = false) {
+  const categoryFilter = historyCategory
+    ? categories
+        .filter((c) => includesCategory(c.id, [historyCategory], categories))
+        .map((c) => c.id)
+    : [];
   const data = await request<{
     answers: { title: string; correct: boolean; answered_at: string; previous_results?: boolean[] }[];
     summary: { category_id: string; answered: number; correct: number }[];
   }>(historyCategory ? "history_by_category" : "history", {
     page_number: page,
-    ...(historyCategory
-      ? {
-          category_ids: categories
-            .filter((c) =>
-              includesCategory(c.id, [historyCategory], categories),
-            )
-            .map((c) => c.id),
-        }
-      : {}),
+    ...(historyCategory ? { category_ids: categoryFilter } : {}),
   });
+  const questionHistory = includeQuestions && historyCategory
+    ? (await request<QuestionHistoryItem[]>("question_history", {
+        category_ids: categoryFilter,
+      }).catch(() => [] as QuestionHistoryItem[])).filter((item) => item.published)
+    : [];
   const summary = categories
     .filter((c) => c.level === 1)
     .map((category) => {
@@ -717,38 +735,178 @@ async function history() {
   );
   const accuracy = ({ correct, answered }: { correct: number; answered: number }) =>
     answered ? `${((correct / answered) * 100).toLocaleString("ja-JP", { maximumFractionDigits: 1 })}%` : "—";
-  const timestamp = new Intl.DateTimeFormat("ja-JP", {
-    year: "numeric", month: "2-digit", day: "2-digit",
-    hour: "2-digit", minute: "2-digit", second: "2-digit", hourCycle: "h23",
-  });
   const resultIcon = (correct: boolean, label: string) =>
     `<span class="previous-answer ${correct ? "correct" : "incorrect"}" role="img" aria-label="${label}" title="${label}">${correct ? "✓" : "×"}</span>`;
   const selectedSummary = summary.find(({ category_id }) => category_id === historyCategory);
-  render(
-    `<div class="section-heading"><h1>学習履歴</h1><p class="muted">自分の回答と、分野別の理解度を確認できます。</p></div><section class="card history-summary"><h2>大分類別の学習状況</h2><div class="history-table-scroll"><table class="history-table"><thead><tr><th scope="col">大分類</th><th scope="col">正解数</th><th scope="col">回答数</th><th scope="col">正解率</th></tr></thead><tbody>${summary.map((s) => `<tr class="${historyCategory === s.category_id ? "selected" : ""}"><th scope="row"><button type="button" class="history-category" data-history-category="${esc(s.category_id)}" aria-pressed="${historyCategory === s.category_id}">${esc(categories.find((c) => c.id === s.category_id)?.name ?? s.category_id)}</button> <span class="history-question-count muted">（${publishedQuestionCount(s.category_id)}）</span></th><td>${s.correct}</td><td>${s.answered}</td><td>${accuracy(s)}</td></tr>`).join("")}</tbody><tfoot><tr><th scope="row">合計</th><td>${total.correct}</td><td>${total.answered}</td><td>${accuracy(total)}</td></tr></tfoot></table></div>${summary.length ? "" : "<p>まだ回答履歴がありません。</p>"}</section>${selectedSummary ? `<section class="card" id="answer-history"><div class="history-detail-heading"><h2>回答履歴：${esc(categories.find((c) => c.id === historyCategory)?.name ?? historyCategory)}</h2><span class="small">正解率 <strong>${accuracy(selectedSummary)}</strong>（${selectedSummary.correct} / ${selectedSummary.answered}件）</span></div>${data.answers.length ? data.answers.map((a) => `<div class="history-row"><span>${esc(a.title ?? "非公開の問題")}</span><span class="history-result-icons">${(a.previous_results ?? []).length ? `<span class="history-past-results" role="group" aria-label="同じ問題の過去の回答（新しい順）">${a.previous_results!.map((correct, i) => resultIcon(correct, `過去${i + 1}件目：${correct ? "正解" : "不正解"}`)).join("")}</span>` : ""}${resultIcon(a.correct, a.correct ? "今回：正解" : "今回：不正解")}</span><time datetime="${esc(a.answered_at)}">${esc(timestamp.format(new Date(a.answered_at)))}</time></div>`).join("") : "<p>該当する回答履歴がありません。</p>"}<div class="actions">${page ? button("前の50件", "history-prev", true) : ""}${data.answers.length === 50 ? button("次の50件", "history-next", true) : ""}</div></section>` : ""}`,
-  );
+  const questionSection = includeQuestions && selectedSummary
+    ? `<section class="card history-questions" id="answer-history">
+    <div class="history-detail-heading">
+      <h2>${esc(categories.find((c) => c.id === historyCategory)?.name ?? historyCategory)}の問題一覧</h2>
+      <span class="small muted">${questionHistory.length}問（正解率 ${accuracy(selectedSummary)}）</span>
+    </div>
+    ${questionHistory.length ? questionHistory.map((item) => `<div class="history-row question-history-row">
+        <span class="question-history-title">${esc(item.title ?? "")}</span>
+        <div class="question-history-actions">
+          <span class="history-result-icons" role="group" aria-label="過去の回答履歴（古い順）">${(item.results ?? []).map((c, i) => resultIcon(c, `${i + 1}回目：${c ? "正解" : "不正解"}`)).join("")}</span>
+          <span class="small muted question-history-count">${item.correct_count}/${item.answered_count}</span>
+          <button type="button" class="secondary small-button question-challenge-btn" data-challenge-question="${esc(item.question_id)}">1問チャレンジ</button>
+        </div>
+      </div>`).join("") : "<p class=\"small muted\">公開中の回答済み問題はありません。</p>"}
+  </section>`
+    : "";
+
+  const summarySection = `<section class="card history-summary"><h2>大分類別の学習状況</h2><p class="small muted">大分類を選ぶと、その分野の問題一覧と回答履歴を表示します。</p><div class="history-table-scroll"><table class="history-table"><thead><tr><th scope="col">大分類</th><th scope="col">正解数</th><th scope="col">回答数</th><th scope="col">正解率</th></tr></thead><tbody>${summary.map((s) => `<tr class="${historyCategory === s.category_id ? "selected" : ""}"><th scope="row"><button type="button" class="history-category" data-history-category="${esc(s.category_id)}" aria-pressed="${historyCategory === s.category_id}">${esc(categories.find((c) => c.id === s.category_id)?.name ?? s.category_id)}</button> <span class="history-question-count muted">（${publishedQuestionCount(s.category_id)}）</span></th><td>${s.correct}</td><td>${s.answered}</td><td>${accuracy(s)}</td></tr>`).join("")}</tbody><tfoot><tr><th scope="row">合計</th><td>${total.correct}</td><td>${total.answered}</td><td>${accuracy(total)}</td></tr></tfoot></table></div>${summary.length ? "" : "<p>まだ回答履歴がありません。</p>"}</section>`;
+
+  const detailSection = !includeQuestions && selectedSummary ? `<section class="card" id="answer-history"><div class="history-detail-heading"><h2>回答履歴：${esc(categories.find((c) => c.id === historyCategory)?.name ?? historyCategory)}</h2><span class="small">正解率 <strong>${accuracy(selectedSummary)}</strong>（${selectedSummary.correct} / ${selectedSummary.answered}件）</span></div>${data.answers.length ? data.answers.map((a) => `<div class="history-row"><span>${esc(a.title ?? "非公開の問題")}</span><span class="history-result-icons">${(a.previous_results ?? []).length ? `<span class="history-past-results" role="group" aria-label="同じ問題の過去の回答（新しい順）">${a.previous_results!.map((correct, i) => resultIcon(correct, `過去${i + 1}件目：${correct ? "正解" : "不正解"}`)).join("")}</span>` : ""}${resultIcon(a.correct, a.correct ? "今回：正解" : "今回：不正解")}</span><time datetime="${esc(a.answered_at)}">${esc(timestamp.format(new Date(a.answered_at)))}</time></div>`).join("") : "<p>該当する回答履歴がありません。</p>"}<div class="actions">${page ? button("前の50件", "history-prev", true) : ""}${data.answers.length === 50 ? button("次の50件", "history-next", true) : ""}</div></section>` : "";
+
+  return summarySection + questionSection + detailSection;
+}
+
+function bindHistoryEvents(reload: () => Promise<void>) {
   document
     .querySelectorAll<HTMLButtonElement>("[data-history-category]")
-    .forEach((button) => {
-      button.onclick = () =>
+    .forEach((btn) => {
+      btn.onclick = () =>
         void guard(async () => {
-          historyCategory = button.dataset.historyCategory ?? "";
+          const next = btn.dataset.historyCategory ?? "";
+          historyCategory = historyCategory === next ? "" : next;
           page = 0;
-          await history();
-          document
-            .querySelector("#answer-history")
-            ?.scrollIntoView({ behavior: "smooth", block: "start" });
+          await reload();
+          if (historyCategory) {
+            document
+              .querySelector("#answer-history")
+              ?.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        });
+    });
+  document
+    .querySelectorAll<HTMLButtonElement>("[data-challenge-question]")
+    .forEach((btn) => {
+      btn.onclick = () =>
+        void guard(async () => {
+          if (busy) return;
+          const qid = btn.dataset.challengeQuestion!;
+          busy = true;
+          try {
+            if (!questions.length) await load();
+            exercise = await request<Exercise>("start_single_question", {
+              target_question_id: qid,
+              shuffle_choices: shuffle,
+              replace_existing: true,
+            });
+            index = 0;
+            revealed = null;
+            pending = null;
+            notice = "";
+            showQuestion();
+          } finally {
+            busy = false;
+          }
         });
     });
 }
+
+async function history() {
+  if (!session) {
+    location.hash = "login";
+    return;
+  }
+  const sections = await buildHistoryMarkup();
+  render(
+    `<div class="section-heading"><h1>学習履歴</h1><p class="muted">自分の回答と、分野別の理解度を確認できます。</p></div>${sections}`,
+  );
+  bindHistoryEvents(history);
+}
+const timestamp = new Intl.DateTimeFormat("ja-JP", {
+  year: "numeric", month: "2-digit", day: "2-digit",
+  hour: "2-digit", minute: "2-digit", second: "2-digit", hourCycle: "h23",
+});
+
+type AdminDifficulty = {
+  level: 1 | 2 | 3 | null;
+  status: "ready" | "needs_review" | "stale" | "unassessed";
+  reason: string | null;
+  model: string | null;
+  rubric_version: string | null;
+  assessed_at: string | null;
+};
+type AdminQuestion = Question & { difficulty_assessment?: AdminDifficulty };
+
+const difficultyLabels = { 1: "基礎", 2: "標準", 3: "応用" };
+const difficultyStatuses = {
+  ready: "採用済み",
+  needs_review: "要レビュー",
+  stale: "再評価待ち",
+  unassessed: "未評価",
+};
+
+function adminDifficultyLabel(assessment?: AdminDifficulty) {
+  const status = difficultyStatuses[assessment?.status ?? "unassessed"];
+  return assessment?.level == null
+    ? status
+    : `${difficultyLabels[assessment.level]}（${status}）`;
+}
+
+function categoryTrail(categoryId: string) {
+  const byId = new Map(categories.map((c) => [c.id, c]));
+  const names: string[] = [];
+  let current = byId.get(categoryId);
+  while (current) {
+    names.unshift(current.name);
+    current = current.parent_id ? byId.get(current.parent_id) : undefined;
+  }
+  return names;
+}
+
+function adminDifficultyDetails(assessment?: AdminDifficulty) {
+  return `<section class="admin-difficulty">
+    <h3>AI難易度評価</h3>
+    <p><strong>${esc(adminDifficultyLabel(assessment))}</strong></p>
+    ${assessment?.reason ? `<p class="preview-body">${esc(assessment.reason)}</p>` : ""}
+    ${assessment?.assessed_at ? `<p class="small muted"><time datetime="${esc(assessment.assessed_at)}">${esc(timestamp.format(new Date(assessment.assessed_at)))}</time> ／ ${esc(assessment.model)} ／ 評価基準 ${esc(assessment.rubric_version)}</p>` : ""}
+  </section>`;
+}
+
 async function adminView(previewId?: string) {
   if (!session || !admin) {
     render('<section class="card"><h1>管理者権限が必要です。</h1></section>');
     return;
   }
-  const list = await request<Question[]>("admin_questions");
+  const list = await request<AdminQuestion[]>("admin_questions");
+  const majors = categories.filter((c) => c.level === 1);
+  const countByLevel = (items: AdminQuestion[], level: 1 | 2 | 3) =>
+    items.filter((q) => q.difficulty_assessment?.level === level).length;
+  const categorySummaryRows = majors.map((c) => {
+    const items = list.filter((q) =>
+      includesCategory(q.category_id, [c.id], categories),
+    );
+    const publishedCount = items.filter((q) => q.published).length;
+    const reviewCount = items.filter(
+      (q) => q.difficulty_assessment?.status === "needs_review",
+    ).length;
+    return {
+      category: c,
+      total: items.length,
+      published: publishedCount,
+      unpublished: items.length - publishedCount,
+      needsReview: reviewCount,
+      basic: countByLevel(items, 1),
+      standard: countByLevel(items, 2),
+      advanced: countByLevel(items, 3),
+    };
+  });
+  const totalPublished = list.filter((q) => q.published).length;
+  const totalNeedsReview = list.filter(
+    (q) => q.difficulty_assessment?.status === "needs_review",
+  ).length;
+  const totalBasic = countByLevel(list, 1);
+  const totalStandard = countByLevel(list, 2);
+  const totalAdvanced = countByLevel(list, 3);
   render(
-    `<div class="section-heading"><div><span class="eyebrow">WORKSPACE</span><h1>管理者メニュー</h1><p>問題の内容を確認し、公開状態を管理します。</p></div></div><section class="card"><div class="admin-category-filters"><label>大分類<select id="admin-major" aria-label="大分類"></select></label><label>中分類<select id="admin-middle" aria-label="中分類"></select></label><label>小分類<select id="admin-minor" aria-label="小分類"></select></label></div><label for="search">問題を検索</label><div class="admin-search"><input id="search" value="${esc(adminFilters.term)}" placeholder="問題文・問題ID（UUID）で検索"><button type="button" id="admin-search-clear" class="secondary" aria-label="検索をクリア" ${adminFilters.term ? "" : "hidden"}>×</button></div><p id="admin-result-count" class="small muted" role="status"></p><p id="admin-no-results" hidden>条件に合う問題がありません。</p><div id="admin-list">${list.map((q) => `<div class="history-row" data-question-id="${esc(q.id)}" data-search="${esc([q.id, q.public_id, q.title, q.body].join(" "))}"><span class="admin-question-details">${q.public_id ? `<small>${esc(q.public_id)}</small><br>` : ""}${esc(q.title)}<span class="admin-question-source small muted">${esc(q.source || "出典未設定")}</span></span>${q.origin === "ai_original" ? `<span class="small">評価 ${q.rating_average == null ? "未評価" : Number(q.rating_average).toFixed(1)} / ${q.rating_count ?? 0}件</span>` : ""}<span class="badge">${q.published ? "公開" : "非公開"}</span><div class="admin-question-actions"><button type="button" data-preview="${esc(q.id)}" class="secondary" aria-haspopup="dialog" aria-controls="admin-question-dialog">プレビュー</button><button type="button" data-edit="${esc(q.id)}" class="secondary" aria-haspopup="dialog" aria-controls="admin-question-dialog">確認・編集</button></div></div>`).join("")}</div></section><dialog id="admin-question-dialog" aria-labelledby="admin-question-dialog-title"><div class="question-edit-heading"><h2 id="admin-question-dialog-title" tabindex="-1"></h2><button type="button" class="secondary" data-close-admin-question>閉じる</button></div><div id="editor"></div></dialog>`,
+    `<div class="section-heading admin-section-heading"><h1>管理者メニュー</h1><p class="small muted">問題の内容を確認し、公開状態を管理します。</p></div><section class="card"><div class="admin-category-filters"><label>大分類<select id="admin-major" aria-label="大分類"></select></label><label>中分類<select id="admin-middle" aria-label="中分類"></select></label><label>小分類<select id="admin-minor" aria-label="小分類"></select></label></div><label for="search">問題を検索</label><div class="admin-search-row"><div class="admin-search"><input id="search" value="${esc(adminFilters.term)}" placeholder="問題文・問題ID（UUID）で検索"><button type="button" id="admin-search-clear" class="secondary" aria-label="検索をクリア" ${adminFilters.term ? "" : "hidden"}>×</button></div><div class="admin-filter-checks"><label class="admin-check"><input type="checkbox" id="admin-ai-only" ${adminFilters.aiOnly ? "checked" : ""}>AI問題のみ</label><label class="admin-check"><input type="checkbox" id="admin-needs-review" ${adminFilters.needsReviewOnly ? "checked" : ""}>要レビューのみ</label><label class="admin-check"><input type="checkbox" id="admin-published-only" ${adminFilters.publishedOnly ? "checked" : ""}>非公開を除く</label></div></div><div class="admin-status-bar"><p id="admin-result-count" class="small muted" role="status"></p><div class="admin-status-actions"><button type="button" id="admin-reset-filters" class="secondary small-button" hidden>分類別一覧に戻る</button><button type="button" id="admin-show-all" class="secondary small-button">すべて表示</button></div></div><section id="admin-category-summary" class="admin-summary-section"><h2 class="admin-summary-heading">分類別の登録状況</h2><div class="admin-table-scroll"><table class="history-table admin-summary-table"><thead><tr><th>大分類</th><th>登録</th><th>公開</th><th>非公開</th><th>要レビュー</th><th>基礎</th><th>標準</th><th>応用</th></tr></thead><tbody>${categorySummaryRows.map((row) => `<tr><td><button type="button" class="history-category" data-select-major="${esc(row.category.id)}">${esc(row.category.name)}</button></td><td>${row.total}</td><td>${row.published}</td><td>${row.unpublished}</td><td>${row.needsReview}</td><td>${row.basic}</td><td>${row.standard}</td><td>${row.advanced}</td></tr>`).join("")}</tbody><tfoot><tr><td>合計</td><td>${list.length}</td><td>${totalPublished}</td><td>${list.length - totalPublished}</td><td>${totalNeedsReview}</td><td>${totalBasic}</td><td>${totalStandard}</td><td>${totalAdvanced}</td></tr></tfoot></table></div></section><p id="admin-no-results" hidden>条件に合う問題がありません。</p><div id="admin-list" class="admin-table-scroll" hidden><table class="admin-table"><thead><tr><th>問題</th><th>分類</th><th>評価</th><th>状態</th><th>操作</th></tr></thead><tbody>${list.map((q) => {
+      const trail = categoryTrail(q.category_id);
+      return `<tr data-question-id="${esc(q.id)}" data-search="${esc([q.id, q.public_id, q.title, q.body].join(" "))}"><td><div class="admin-question-details">${q.public_id ? `<small class="admin-question-id muted">${esc(q.public_id)}</small>` : ""}<strong class="admin-question-title">${esc(q.title)}</strong><span class="admin-question-source small muted">${esc(q.source || "出典未設定")}</span></div></td><td class="admin-category-cell small">${esc(trail.join(" / ") || "未分類")}</td><td>${q.origin === "ai_original" ? `<div class="admin-question-metrics small"><span>AI難易度 ${esc(adminDifficultyLabel(q.difficulty_assessment))}</span><span class="muted">利用者評価 ${q.rating_average == null ? "未評価" : Number(q.rating_average).toFixed(1)} / ${q.rating_count ?? 0}件</span></div>` : '<span class="small muted">—</span>'}</td><td><span class="badge">${q.published ? "公開" : "非公開"}</span></td><td><div class="admin-question-actions"><button type="button" data-preview="${esc(q.id)}" class="admin-text-action" aria-haspopup="dialog" aria-controls="admin-question-dialog">プレビュー</button><button type="button" data-edit="${esc(q.id)}" class="admin-text-action" aria-haspopup="dialog" aria-controls="admin-question-dialog">確認・編集</button></div></td></tr>`;
+    }).join("")}</tbody></table></div></section><dialog id="admin-question-dialog" aria-labelledby="admin-question-dialog-title"><div class="question-edit-heading"><h2 id="admin-question-dialog-title" tabindex="-1"></h2><button type="button" class="secondary admin-dialog-close" data-close-admin-question aria-label="閉じる">×</button></div><div id="editor"></div></dialog>`,
   );
   const major = document.querySelector<HTMLSelectElement>("#admin-major")!;
   const middle = document.querySelector<HTMLSelectElement>("#admin-middle")!;
@@ -793,6 +951,13 @@ async function adminView(previewId?: string) {
     minor.disabled = !adminFilters.middle;
   };
   const byId = new Map(list.map((q) => [q.id, q]));
+  const summarySection = document.querySelector<HTMLElement>("#admin-category-summary")!;
+  const adminList = document.querySelector<HTMLElement>("#admin-list")!;
+  const showAllButton = document.querySelector<HTMLButtonElement>("#admin-show-all")!;
+  const resetFiltersButton = document.querySelector<HTMLButtonElement>("#admin-reset-filters")!;
+  const aiOnlyCheck = document.querySelector<HTMLInputElement>("#admin-ai-only")!;
+  const needsReviewCheck = document.querySelector<HTMLInputElement>("#admin-needs-review")!;
+  const publishedOnlyCheck = document.querySelector<HTMLInputElement>("#admin-published-only")!;
   const applyFilters = () => {
     const selected =
       adminFilters.minor || adminFilters.middle || adminFilters.major;
@@ -800,14 +965,36 @@ async function adminView(previewId?: string) {
       .trim()
       .normalize("NFKC")
       .toLocaleLowerCase("ja");
+    const active = Boolean(
+      selected ||
+      term ||
+      adminFilters.showAll ||
+      adminFilters.aiOnly ||
+      adminFilters.needsReviewOnly ||
+      adminFilters.publishedOnly,
+    );
+    summarySection.hidden = active;
+    showAllButton.hidden = active;
+    resetFiltersButton.hidden = !active;
+    if (!active) {
+      adminList.hidden = true;
+      document.querySelector<HTMLElement>("#admin-no-results")!.hidden = true;
+      document.querySelector("#admin-result-count")!.textContent =
+        `登録 ${list.length}問（大分類を選ぶか、問題文・問題IDで検索すると問題一覧を表示します）`;
+      return;
+    }
     let visible = 0;
     document
-      .querySelectorAll<HTMLElement>("[data-question-id]")
+      .querySelectorAll<HTMLElement>("#admin-list [data-question-id]")
       .forEach((row) => {
         const q = byId.get(row.dataset.questionId!)!;
         const matches =
           (!selected ||
             includesCategory(q.category_id, [selected], categories)) &&
+          (!adminFilters.aiOnly || q.origin === "ai_original") &&
+          (!adminFilters.needsReviewOnly ||
+            q.difficulty_assessment?.status === "needs_review") &&
+          (!adminFilters.publishedOnly || q.published) &&
           row.dataset
             .search!.normalize("NFKC")
             .toLocaleLowerCase("ja")
@@ -815,6 +1002,7 @@ async function adminView(previewId?: string) {
         row.hidden = !matches;
         if (matches) visible++;
       });
+    adminList.hidden = visible === 0;
     document.querySelector("#admin-result-count")!.textContent =
       `${visible}問表示 ／ 登録 ${list.length}問`;
     document.querySelector<HTMLElement>("#admin-no-results")!.hidden =
@@ -824,23 +1012,70 @@ async function adminView(previewId?: string) {
     adminFilters.major = major.value;
     adminFilters.middle = "";
     adminFilters.minor = "";
+    adminFilters.showAll = false;
     updateOptions();
     applyFilters();
   };
   middle.onchange = () => {
     adminFilters.middle = middle.value;
     adminFilters.minor = "";
+    adminFilters.showAll = false;
     updateOptions();
     applyFilters();
   };
   minor.onchange = () => {
     adminFilters.minor = minor.value;
+    adminFilters.showAll = false;
+    applyFilters();
+  };
+  document.querySelectorAll<HTMLButtonElement>("[data-select-major]").forEach((button) => {
+    button.onclick = () => {
+      adminFilters.major = button.dataset.selectMajor!;
+      adminFilters.middle = "";
+      adminFilters.minor = "";
+      adminFilters.showAll = false;
+      updateOptions();
+      applyFilters();
+    };
+  });
+  showAllButton.onclick = () => {
+    adminFilters.showAll = true;
+    applyFilters();
+  };
+  aiOnlyCheck.onchange = () => {
+    adminFilters.aiOnly = aiOnlyCheck.checked;
+    applyFilters();
+  };
+  needsReviewCheck.onchange = () => {
+    adminFilters.needsReviewOnly = needsReviewCheck.checked;
+    applyFilters();
+  };
+  publishedOnlyCheck.onchange = () => {
+    adminFilters.publishedOnly = publishedOnlyCheck.checked;
     applyFilters();
   };
   const search = document.querySelector<HTMLInputElement>("#search")!;
   const clearSearch = document.querySelector<HTMLButtonElement>("#admin-search-clear")!;
+  resetFiltersButton.onclick = () => {
+    adminFilters.major = "";
+    adminFilters.middle = "";
+    adminFilters.minor = "";
+    adminFilters.term = "";
+    adminFilters.showAll = false;
+    adminFilters.aiOnly = false;
+    adminFilters.needsReviewOnly = false;
+    adminFilters.publishedOnly = false;
+    search.value = "";
+    clearSearch.hidden = true;
+    aiOnlyCheck.checked = false;
+    needsReviewCheck.checked = false;
+    publishedOnlyCheck.checked = false;
+    updateOptions();
+    applyFilters();
+  };
   search.oninput = () => {
     adminFilters.term = search.value;
+    if (search.value.trim()) adminFilters.showAll = false;
     clearSearch.hidden = !search.value;
     applyFilters();
   };
@@ -883,7 +1118,7 @@ async function adminView(previewId?: string) {
     showDialog();
     editor.querySelector<HTMLInputElement>('input[name="title"]')?.focus();
   };
-  const preview = (question: Question, afterSave = false) => {
+  const preview = (question: AdminQuestion, afterSave = false) => {
     title.textContent = afterSave ? "保存後のプレビュー" : "問題のプレビュー";
     showQuestionPreview(editor, question, () => edit(question), afterSave);
     showDialog();
@@ -944,8 +1179,9 @@ async function openExerciseEditor(item: ExerciseItem, field: "body" | "explanati
     const question = list.find(({ id }) => id === item.question.id);
     if (!question) throw new Error("問題が見つかりません。");
     showQuestionEditor(editor, question, async () => {
-      const latest = (await request<Question[]>("admin_questions")).find(({ id }) => id === question.id);
-      if (!latest) throw new Error("保存した問題を読み込めませんでした。");
+      const saved = (await request<AdminQuestion[]>("admin_questions")).find(({ id }) => id === question.id);
+      if (!saved) throw new Error("保存した問題を読み込めませんでした。");
+      const { difficulty_assessment: _assessment, ...latest } = saved;
       if (!dialog.isConnected || current() !== item || !session || !admin) return;
       item.question = latest;
       editedExerciseQuestions.set(item, latest);
@@ -1123,16 +1359,23 @@ async function loadAdminImageUrl(image: HTMLImageElement, src: string) {
     }
   }
 }
-function showQuestionPreview(editor: HTMLElement, q: Question, edit: () => void, afterSave: boolean) {
+function showQuestionPreview(editor: HTMLElement, q: AdminQuestion, edit: () => void, afterSave: boolean) {
   releaseAdminImages();
   const officialPage = officialQuestionPage(q);
   const imageOnly = Boolean(officialPage);
   const choices = q.choices;
+  const trail = categoryTrail(q.category_id);
   const details = choiceExplanationRows(q, choices.map(({ id }) => id), q.correct, imageOnly, true);
   editor.innerHTML = `<section id="saved-question-preview" class="saved-question-preview">
-    <h2 tabindex="-1">${esc(q.id)} · ${esc(q.title)}</h2>
-    <p class="small muted">${esc(categories.find((c) => c.id === q.category_id)?.name)} ／ ${q.published ? "公開" : "非公開"}</p>
-    ${questionBodyMarkup(q, "preview-body", imageOnly)}
+    <div class="question-meta">
+      <p class="question-breadcrumb">${trail.map((name) => esc(name)).join(' <span class="breadcrumb-separator">»</span> ')} ／ ${q.published ? "公開" : "非公開"}</p>
+      ${q.public_id ? `<p class="question-public-id"><code>${esc(q.public_id)}</code></p>` : ""}
+    </div>
+    <div class="question-title-row">
+      <h2 class="preview-title" tabindex="-1">${esc(q.id)} · ${esc(q.title)}</h2>
+      <button type="button" id="preview-edit" class="question-edit-control">${afterSave ? "もう一度編集する" : "問題を編集する"}</button>
+    </div>
+    ${questionBodyMarkup(q, "question-body", imageOnly)}
     ${imageOnly ? `<figure class="question-figure"><img class="question-image" src="${esc(officialPage)}" alt="${q.id === "DMQ-0079" ? "公式冊子の関数従属性と選択肢" : "公式冊子の問題と選択肢"}"></figure>` : q.asset_key ? `<figure class="question-figure"><img id="admin-saved-image" class="question-image" alt="${afterSave ? "保存した問題の図表" : "問題の図表"}"></figure>` : ""}
     <div class="choices ${choiceLayout(q, imageOnly)}">${choices.map((c, i) => `<div class="choice ${c.id === q.correct ? "correct" : ""}">
       <span class="choice-label"${imageOnly ? ` aria-label="${labels[i]}、${esc(c.body.replaceAll("\u0332", ""))}"` : ""}>${labels[i]}</span>
@@ -1140,11 +1383,11 @@ function showQuestionPreview(editor: HTMLElement, q: Question, edit: () => void,
     </div>`).join("")}</div>
     <section class="explanation">
       <h3>正答：${labels[choices.findIndex((c) => c.id === q.correct)] ?? ""}</h3>
-      <p class="preview-body">${esc(breakSentences(q.explanation ?? ""))}</p>
+      <div class="preview-body">${renderExplanationMarkdown(q.explanation ?? "")}</div>
       ${details ? `<h3 class="choice-explanations-title">選択肢ごとの解説</h3><ul class="choice-explanations">${details}</ul>` : ""}
     </section>
-    <p class="small muted">${esc(q.source)}</p>
-    <button type="button" id="preview-edit" class="secondary">${afterSave ? "もう一度編集する" : "問題を編集する"}</button>
+    ${q.origin === "ai_original" ? adminDifficultyDetails(q.difficulty_assessment) : ""}
+    <p class="small muted preview-source">${esc(q.source)}</p>
   </section>`;
   if (q.asset_key && !imageOnly) void loadAdminImage(q, "#admin-saved-image");
   editor.querySelectorAll<HTMLImageElement>("[data-diagram-url]").forEach((image) => {
@@ -1152,17 +1395,59 @@ function showQuestionPreview(editor: HTMLElement, q: Question, edit: () => void,
   });
   editor.querySelector<HTMLButtonElement>("#preview-edit")!.onclick = edit;
 }
-function account() {
+async function account() {
   if (!session) {
     location.hash = "login";
     return;
   }
+  const tabs: { id: AccountTab; label: string }[] = [
+    { id: "password", label: "パスワード変更" },
+    { id: "data", label: "学習データの管理" },
+    { id: "account", label: "アカウントの処理" },
+    { id: "history", label: "学習履歴" },
+  ];
+  const menuHtml = `<nav class="account-menu" role="tablist" aria-label="マイページメニュー">${tabs
+    .map(
+      (t) =>
+        `<button type="button" role="tab" class="${accountTab === t.id ? "active" : "secondary"}" aria-selected="${accountTab === t.id}" data-account-tab="${t.id}">${t.label}</button>`,
+    )
+    .join("")}</nav>`;
+
+  let panelHtml = "";
+  if (accountTab === "password") {
+    panelHtml = `<section class="card account-panel" role="tabpanel"><h2>パスワードの変更</h2><form id="change-password-form"><label>現在のパスワード<input name="current_password" type="password" autocomplete="current-password" required></label><label>新しいパスワード<input name="new_password" type="password" autocomplete="new-password" minlength="8" placeholder="8文字以上" required></label><label>新しいパスワード（確認）<input name="confirm_password" type="password" autocomplete="new-password" minlength="8" required></label><button type="submit">パスワードを変更する</button><p id="change-password-status" role="status" aria-live="polite"></p></form></section>`;
+  } else if (accountTab === "data") {
+    panelHtml = `<section class="card account-panel" role="tabpanel"><h2>学習データの管理</h2><p>履歴の削除・リセットを行うと、中断中の演習も削除されます。</p>${button("回答履歴を削除する", "clear", true)}${button("学習履歴をリセットする", "reset", true)}</section>`;
+  } else if (accountTab === "account") {
+    panelHtml = `<section class="card account-panel" role="tabpanel"><h2>アカウントの処理</h2><p class="muted">ログイン中：${esc(session.user.email)}</p>${button("ログアウト", "logout", true)}${button("このアプリのアカウントを削除", "delete", true)}</section>`;
+  } else {
+    if (!categories.length) await load();
+    panelHtml = `<div class="account-history-panel" role="tabpanel">${await buildHistoryMarkup(true)}</div>`;
+  }
+
   render(
-    `<section class="card account"><h1>マイページ</h1><p>${esc(session.user.email)}</p><h2>パスワードの変更</h2><form id="change-password-form"><label>現在のパスワード<input name="current_password" type="password" autocomplete="current-password" required></label><label>新しいパスワード<input name="new_password" type="password" autocomplete="new-password" minlength="8" placeholder="8文字以上" required></label><label>新しいパスワード（確認）<input name="confirm_password" type="password" autocomplete="new-password" minlength="8" required></label><button type="submit">パスワードを変更する</button><p id="change-password-status" role="status" aria-live="polite"></p></form><h2>学習データの管理</h2><p>履歴の削除・リセットを行うと、中断中の演習も削除されます。</p>${button("回答履歴を削除する", "clear", true)}${button("学習履歴をリセットする", "reset", true)}<h2>アカウント</h2>${button("ログアウト", "logout", true)}${button("このアプリのアカウントを削除", "delete", true)}</section>`,
+    `<div class="account"><div class="section-heading"><h1>マイページ</h1><p class="muted">${esc(session.user.email)}</p></div>${menuHtml}${panelHtml}</div>`,
   );
+
+  document
+    .querySelectorAll<HTMLButtonElement>("[data-account-tab]")
+    .forEach((tabBtn) => {
+      tabBtn.onclick = () =>
+        void guard(async () => {
+          accountTab = tabBtn.dataset.accountTab as AccountTab;
+          await account();
+        });
+    });
+
+  if (accountTab === "history") {
+    bindHistoryEvents(account);
+    return;
+  }
+
   const form = document.querySelector<HTMLFormElement>(
     "#change-password-form",
-  )!;
+  );
+  if (!form) return;
   form.onsubmit = async (event) => {
     event.preventDefault();
     const submit = form.querySelector<HTMLButtonElement>(
@@ -1243,7 +1528,7 @@ async function route() {
       practice();
     } else if (path === "history") await history();
     else if (path === "admin") await adminView();
-    else if (path === "account") account();
+    else if (path === "account") await account();
     else login();
   });
 }
@@ -1319,13 +1604,14 @@ function bind() {
             }
           } else if (action === "history-prev" || action === "history-next") {
             page += action === "history-next" ? 1 : -1;
-            await history();
+            if (location.hash.slice(1).split("?")[0] === "account") await account();
+            else await history();
           } else if (action === "clear" || action === "reset") {
             if (confirm("回答履歴と中断情報を削除します。よろしいですか？")) {
               await request("reset_history");
               exercise = null;
               notice = "履歴と中断情報を削除しました。";
-              account();
+              await account();
             }
           } else if (action === "logout") {
             await auth?.auth.signOut();
