@@ -358,6 +358,14 @@ textarea {
 .question-choice-hint {
   font-size: 11px;
 }
+.explanation-diagram-image {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 12px 0;
+  border-radius: 8px;
+  border: 1px solid #e2ddd5;
+}
 .question .question-source {
   flex: 1 1 260px;
   margin: 0;

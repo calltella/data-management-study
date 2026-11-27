@@ -68,8 +68,64 @@ const adminFilters = {
   showAll: false,
   aiOnly: false,
   needsReviewOnly: false,
-  publishedOnly: false,
+  unpublishedOnly: false,
 };
+const exerciseConditionStorageKey = "dm_last_exercise_conditions";
+type ExerciseConditionSnapshot = {
+  origins: string[];
+  selectedCategoryCount: number;
+  allCategories: boolean;
+  shuffle: boolean;
+  wrong: boolean;
+  count: number;
+};
+let lastExerciseConditions: ExerciseConditionSnapshot | null = (() => {
+  try {
+    const raw = localStorage.getItem(exerciseConditionStorageKey);
+    return raw ? (JSON.parse(raw) as ExerciseConditionSnapshot) : null;
+  } catch {
+    return null;
+  }
+})();
+function saveExerciseConditions(snapshot: ExerciseConditionSnapshot) {
+  lastExerciseConditions = snapshot;
+  try {
+    localStorage.setItem(exerciseConditionStorageKey, JSON.stringify(snapshot));
+  } catch {
+    // ignore storage errors
+  }
+}
+function formatExerciseConditions(ex: Exercise): string {
+  const cond = lastExerciseConditions ?? {
+    origins: selectedOrigins,
+    selectedCategoryCount: selectedCategories.length,
+    allCategories:
+      selectedCategories.length === 0 ||
+      selectedCategories.length === categories.filter((c) => c.level === 3).length,
+    shuffle,
+    wrong,
+    count: ex.requested,
+  };
+  const originShortLabels: Record<string, string> = {
+    ai_original: "AI問題",
+    ipa_past: "IPA過去問",
+    ipa_sample: "公式サンプル",
+  };
+  const originText =
+    cond.origins.length === 0 || cond.origins.length === questionOrigins.length
+      ? "全種別"
+      : cond.origins.map((o) => originShortLabels[o] ?? o).join("・");
+  const categoryText = cond.allCategories
+    ? "全分野"
+    : `${cond.selectedCategoryCount}分野`;
+  const countText = cond.count === 0 ? `全問（${ex.items.length}問）` : `${cond.count}問`;
+  return [
+    `選択問題: ${originText}（${categoryText}）`,
+    `並び替え: ${cond.shuffle ? "あり" : "なし"}`,
+    `間違えた問題: ${cond.wrong ? "のみ" : "含めてすべて"}`,
+    `出題数: ${countText}`,
+  ].join(" ／ ");
+}
 const ratingStates = new Map<
   string,
   { value: number; saved: number; saving: boolean }
@@ -341,6 +397,17 @@ async function start() {
         })),
       };
     }
+    const totalLeafCategories = categories.filter((c) => c.level === 3).length;
+    saveExerciseConditions({
+      origins: [...selectedOrigins],
+      selectedCategoryCount: selectedCategories.length,
+      allCategories:
+        selectedCategories.length === 0 ||
+        (totalLeafCategories > 0 && selectedCategories.length >= totalLeafCategories),
+      shuffle,
+      wrong,
+      count,
+    });
     index = 0;
     revealed = null;
     pending = null;
@@ -393,7 +460,7 @@ function bundledQuestionImage(q: Question): string | undefined {
   const key = `ipa-original/${q.id}.png`;
   const legacyOfficialFigure = (q.id === "DMQ-0002" || q.id === "DMQ-0003")
     && q.asset_key === `questions/${q.id}/figure.png`;
-  if (q.asset_key === key || legacyOfficialFigure) return `/${key}?v=2`;
+  if (q.asset_key === key || legacyOfficialFigure) return `/${key}?v=3`;
 }
 
 function questionImageUrl(q: Question): string {
@@ -441,12 +508,8 @@ function choiceExplanationRows(
     .join("");
 }
 
-function officialQuestionPage(q: Question): string | undefined {
-  if (q.id === "DMQ-0079") return "/ipa-original/DMQ-0079.png?v=3";
-  if (["DMQ-0102", "DMQ-0110", "DMQ-0111", "DMQ-0119"].includes(q.id)
-      && q.asset_key === `ipa-original/${q.id}.png`) {
-    return `/${q.asset_key}?v=3`;
-  }
+function officialQuestionPage(_q: Question): string | undefined {
+  return undefined;
 }
 
 function questionBodyMarkup(q: Question, className: string, imageOnly: boolean) {
@@ -510,9 +573,13 @@ function showQuestion() {
   const formatExplanation = (text: string) =>
     renderExplanationMarkdown(relabelExplanation(text, choiceOrder));
   const choiceExplanations = choiceExplanationRows(q, choiceOrder, correct, imageOnly);
+  const difficultyText = q.difficulty_level ? difficultyLabels[q.difficulty_level] : null;
+  const difficultyDetail = difficultyText
+    ? `<strong>${esc(difficultyText)}</strong>${q.difficulty_reason ? `｜${esc(q.difficulty_reason)}` : ""}`
+    : "未評価";
   render(
     `<section class="card question">
-      <div class="question-meta"><p class="question-breadcrumb" role="navigation" aria-label="パンくず"><a href="#practice" data-action="conditions">出題条件</a>${categoryPath.map(({ name }) => ` <span class="breadcrumb-separator">»</span> ${esc(name)}`).join("")}</p>
+      <div class="question-meta"><p class="question-breadcrumb" role="navigation" aria-label="出題条件"><a href="#practice" data-action="conditions">出題条件</a> <span class="breadcrumb-separator">»</span> <span>${esc(formatExerciseConditions(exercise!))}</span></p>
         ${publicId ? `<p class="question-public-id"><code>${esc(publicId)}</code></p>` : ""}
       </div>
       <div class="question-title-row">
@@ -523,9 +590,7 @@ function showQuestion() {
         <div class="question-heading-tools">
           ${underlineToggle}
           ${whiteboardToggle}
-          ${assessment
-            ? `<details class="question-likelihood"><summary>科目Aとの関連度（AI評価）｜<strong>${likelihoodLabels[assessment[0]]}</strong></summary><p>${esc(assessment[1])}</p></details>`
-            : '<span class="question-likelihood">科目Aとの関連度（AI評価）｜未評価</span>'}
+          <details class="question-likelihood"><summary>AI判定難易度（クリックして表示）</summary><p>${difficultyDetail}</p></details>
         </div>
       </div>
       ${underlineApply}
@@ -546,7 +611,7 @@ function showQuestion() {
         "",
       )}</div>${!answer ? '<p class="muted question-choice-hint">記号を押すと回答が確定します。' + (imageOnly ? '' : '選択肢の文を押すと除外・解除できます。') + '</p>' : ""}${pending ? `<div role="alert" class="notice">回答が保存されていません。接続を確認して再試行してください。${button("同じ回答を再送する", "retry", true)}</div>` : ""}${
       resultVisible && (explanation || choiceExplanations || canEdit)
-        ? `<section class="explanation${resultClass}"><div class="question-edit-heading"><h2>${resultHeading} · 正解：${labels[choiceOrder.indexOf(correct!)]}</h2>${canEdit ? '<button type="button" class="question-edit-control" data-edit-exercise="explanation">解説を編集</button>' : ""}</div>${explanation ? `<div class="explanation-body">${formatExplanation(explanation)}</div>` : ""}${choiceExplanations ? `<h3 class="choice-explanations-title">選択肢ごとの解説</h3><ul class="choice-explanations">${choiceExplanations}</ul>` : ""}${reconstructionNote ? `<p class="small muted">${esc(reconstructionNote[1])}</p>` : ""}${answer && !session ? '<p class="small">ゲストの回答は保存していません</p>' : ""}</section>`
+        ? `<section class="explanation${resultClass}"><div class="question-edit-heading"><h2>${resultHeading} · 正解：${labels[choiceOrder.indexOf(correct!)]}</h2>${canEdit ? '<button type="button" class="question-edit-control" data-edit-exercise="explanation">解説を編集</button>' : ""}</div>${categoryPath.length ? `<p class="small muted">分類：${categoryPath.map(({ name }) => esc(name)).join(" » ")}</p>` : ""}${explanation ? `<div class="explanation-body">${formatExplanation(explanation)}</div>` : ""}${choiceExplanations ? `<h3 class="choice-explanations-title">選択肢ごとの解説</h3><ul class="choice-explanations">${choiceExplanations}</ul>` : ""}${reconstructionNote ? `<p class="small muted">${esc(reconstructionNote[1])}</p>` : ""}${answer && !session ? '<p class="small">ゲストの回答は保存していません</p>' : ""}</section>`
         : ""
     }${session && q.origin === "ai_original" && explanation ? `<div class="rating" data-rating-question="${esc(q.id)}"><span id="rating-label">このAI問題を評価</span><div class="rating-stars" role="group" aria-labelledby="rating-label">${[1, 2, 3, 4, 5].map((n) => `<button type="button" class="rating-star" data-rating="${n}" aria-label="${n}点" aria-pressed="false">☆</button>`).join("")}</div><span class="small" id="rating-status" role="status" aria-live="polite"></span></div>` : ""}<div class="actions question-actions">${!answer && !revealed ? button("先に正答・解説を見る", "reveal", true) : ""}${answer || revealed ? `<a href="#practice" data-action="next">${index === exercise!.items.length - 1 ? "演習を終了" : "次の問題へ"}</a>` : ""}<div class="question-exit-actions">${button(session ? "中断して保存" : "演習を終了", "suspend", true)}</div></div>${canEdit ? '<dialog id="exercise-editor" aria-labelledby="exercise-editor-title"><div class="question-edit-heading"><h2 id="exercise-editor-title">出題内容を編集</h2><button type="button" class="secondary" data-close-exercise-editor>閉じる</button></div><div class="exercise-editor-content"></div></dialog>' : ""}</section>`,
   );
@@ -794,7 +859,18 @@ function bindHistoryEvents(reload: () => Promise<void>) {
               shuffle_choices: shuffle,
               replace_existing: true,
             });
-            index = 0;
+            const totalLeafCategories = categories.filter((c) => c.level === 3).length;
+    saveExerciseConditions({
+      origins: [...selectedOrigins],
+      selectedCategoryCount: selectedCategories.length,
+      allCategories:
+        selectedCategories.length === 0 ||
+        (totalLeafCategories > 0 && selectedCategories.length >= totalLeafCategories),
+      shuffle,
+      wrong,
+      count,
+    });
+    index = 0;
             revealed = null;
             pending = null;
             notice = "";
@@ -903,7 +979,7 @@ async function adminView(previewId?: string) {
   const totalStandard = countByLevel(list, 2);
   const totalAdvanced = countByLevel(list, 3);
   render(
-    `<div class="section-heading admin-section-heading"><h1>管理者メニュー</h1><p class="small muted">問題の内容を確認し、公開状態を管理します。</p></div><section class="card"><div class="admin-category-filters"><label>大分類<select id="admin-major" aria-label="大分類"></select></label><label>中分類<select id="admin-middle" aria-label="中分類"></select></label><label>小分類<select id="admin-minor" aria-label="小分類"></select></label></div><label for="search">問題を検索</label><div class="admin-search-row"><div class="admin-search"><input id="search" value="${esc(adminFilters.term)}" placeholder="問題文・問題ID（UUID）で検索"><button type="button" id="admin-search-clear" class="secondary" aria-label="検索をクリア" ${adminFilters.term ? "" : "hidden"}>×</button></div><div class="admin-filter-checks"><label class="admin-check"><input type="checkbox" id="admin-ai-only" ${adminFilters.aiOnly ? "checked" : ""}>AI問題のみ</label><label class="admin-check"><input type="checkbox" id="admin-needs-review" ${adminFilters.needsReviewOnly ? "checked" : ""}>要レビューのみ</label><label class="admin-check"><input type="checkbox" id="admin-published-only" ${adminFilters.publishedOnly ? "checked" : ""}>非公開を除く</label></div></div><div class="admin-status-bar"><p id="admin-result-count" class="small muted" role="status"></p><div class="admin-status-actions"><button type="button" id="admin-reset-filters" class="secondary small-button" hidden>分類別一覧に戻る</button><button type="button" id="admin-show-all" class="secondary small-button">すべて表示</button></div></div><section id="admin-category-summary" class="admin-summary-section"><h2 class="admin-summary-heading">分類別の登録状況</h2><div class="admin-table-scroll"><table class="history-table admin-summary-table"><thead><tr><th>大分類</th><th>登録</th><th>公開</th><th>非公開</th><th>要レビュー</th><th>基礎</th><th>標準</th><th>応用</th></tr></thead><tbody>${categorySummaryRows.map((row) => `<tr><td><button type="button" class="history-category" data-select-major="${esc(row.category.id)}">${esc(row.category.name)}</button></td><td>${row.total}</td><td>${row.published}</td><td>${row.unpublished}</td><td>${row.needsReview}</td><td>${row.basic}</td><td>${row.standard}</td><td>${row.advanced}</td></tr>`).join("")}</tbody><tfoot><tr><td>合計</td><td>${list.length}</td><td>${totalPublished}</td><td>${list.length - totalPublished}</td><td>${totalNeedsReview}</td><td>${totalBasic}</td><td>${totalStandard}</td><td>${totalAdvanced}</td></tr></tfoot></table></div></section><p id="admin-no-results" hidden>条件に合う問題がありません。</p><div id="admin-list" class="admin-table-scroll" hidden><table class="admin-table"><thead><tr><th>問題</th><th>分類</th><th>評価</th><th>状態</th><th>操作</th></tr></thead><tbody>${list.map((q) => {
+    `<div class="section-heading admin-section-heading"><h1>管理者メニュー</h1><p class="small muted">問題の内容を確認し、公開状態を管理します。</p></div><section class="card"><div class="admin-category-filters"><label>大分類<select id="admin-major" aria-label="大分類"></select></label><label>中分類<select id="admin-middle" aria-label="中分類"></select></label><label>小分類<select id="admin-minor" aria-label="小分類"></select></label></div><label for="search">問題を検索</label><div class="admin-search-row"><div class="admin-search"><input id="search" value="${esc(adminFilters.term)}" placeholder="問題文・問題ID（UUID）で検索"><button type="button" id="admin-search-clear" class="secondary" aria-label="検索をクリア" ${adminFilters.term ? "" : "hidden"}>×</button></div><div class="admin-filter-checks"><label class="admin-check"><input type="checkbox" id="admin-ai-only" ${adminFilters.aiOnly ? "checked" : ""}>AI問題のみ</label><label class="admin-check"><input type="checkbox" id="admin-needs-review" ${adminFilters.needsReviewOnly ? "checked" : ""}>要レビューのみ</label><label class="admin-check"><input type="checkbox" id="admin-unpublished-only" ${adminFilters.unpublishedOnly ? "checked" : ""}>非公開</label></div></div><div class="admin-status-bar"><p id="admin-result-count" class="small muted" role="status"></p><div class="admin-status-actions"><button type="button" id="admin-reset-filters" class="secondary small-button" hidden>分類別一覧に戻る</button><button type="button" id="admin-show-all" class="secondary small-button">すべて表示</button></div></div><section id="admin-category-summary" class="admin-summary-section"><h2 class="admin-summary-heading">分類別の登録状況</h2><div class="admin-table-scroll"><table class="history-table admin-summary-table"><thead><tr><th>大分類</th><th>登録</th><th>公開</th><th>非公開</th><th>要レビュー</th><th>基礎</th><th>標準</th><th>応用</th></tr></thead><tbody>${categorySummaryRows.map((row) => `<tr><td><button type="button" class="history-category" data-select-major="${esc(row.category.id)}">${esc(row.category.name)}</button></td><td>${row.total}</td><td>${row.published}</td><td>${row.unpublished}</td><td>${row.needsReview}</td><td>${row.basic}</td><td>${row.standard}</td><td>${row.advanced}</td></tr>`).join("")}</tbody><tfoot><tr><td>合計</td><td>${list.length}</td><td>${totalPublished}</td><td>${list.length - totalPublished}</td><td>${totalNeedsReview}</td><td>${totalBasic}</td><td>${totalStandard}</td><td>${totalAdvanced}</td></tr></tfoot></table></div></section><p id="admin-no-results" hidden>条件に合う問題がありません。</p><div id="admin-list" class="admin-table-scroll" hidden><table class="admin-table"><thead><tr><th>問題</th><th>分類</th><th>評価</th><th>状態</th><th>操作</th></tr></thead><tbody>${list.map((q) => {
       const trail = categoryTrail(q.category_id);
       return `<tr data-question-id="${esc(q.id)}" data-search="${esc([q.id, q.public_id, q.title, q.body].join(" "))}"><td><div class="admin-question-details">${q.public_id ? `<small class="admin-question-id muted">${esc(q.public_id)}</small>` : ""}<strong class="admin-question-title">${esc(q.title)}</strong><span class="admin-question-source small muted">${esc(q.source || "出典未設定")}</span></div></td><td class="admin-category-cell small">${esc(trail.join(" / ") || "未分類")}</td><td>${q.origin === "ai_original" ? `<div class="admin-question-metrics small"><span>AI難易度 ${esc(adminDifficultyLabel(q.difficulty_assessment))}</span><span class="muted">利用者評価 ${q.rating_average == null ? "未評価" : Number(q.rating_average).toFixed(1)} / ${q.rating_count ?? 0}件</span></div>` : '<span class="small muted">—</span>'}</td><td><span class="badge">${q.published ? "公開" : "非公開"}</span></td><td><div class="admin-question-actions"><button type="button" data-preview="${esc(q.id)}" class="admin-text-action" aria-haspopup="dialog" aria-controls="admin-question-dialog">プレビュー</button><button type="button" data-edit="${esc(q.id)}" class="admin-text-action" aria-haspopup="dialog" aria-controls="admin-question-dialog">確認・編集</button></div></td></tr>`;
     }).join("")}</tbody></table></div></section><dialog id="admin-question-dialog" aria-labelledby="admin-question-dialog-title"><div class="question-edit-heading"><h2 id="admin-question-dialog-title" tabindex="-1"></h2><button type="button" class="secondary admin-dialog-close" data-close-admin-question aria-label="閉じる">×</button></div><div id="editor"></div></dialog>`,
@@ -957,7 +1033,7 @@ async function adminView(previewId?: string) {
   const resetFiltersButton = document.querySelector<HTMLButtonElement>("#admin-reset-filters")!;
   const aiOnlyCheck = document.querySelector<HTMLInputElement>("#admin-ai-only")!;
   const needsReviewCheck = document.querySelector<HTMLInputElement>("#admin-needs-review")!;
-  const publishedOnlyCheck = document.querySelector<HTMLInputElement>("#admin-published-only")!;
+  const unpublishedOnlyCheck = document.querySelector<HTMLInputElement>("#admin-unpublished-only")!;
   const applyFilters = () => {
     const selected =
       adminFilters.minor || adminFilters.middle || adminFilters.major;
@@ -971,7 +1047,7 @@ async function adminView(previewId?: string) {
       adminFilters.showAll ||
       adminFilters.aiOnly ||
       adminFilters.needsReviewOnly ||
-      adminFilters.publishedOnly,
+      adminFilters.unpublishedOnly,
     );
     summarySection.hidden = active;
     showAllButton.hidden = active;
@@ -994,7 +1070,7 @@ async function adminView(previewId?: string) {
           (!adminFilters.aiOnly || q.origin === "ai_original") &&
           (!adminFilters.needsReviewOnly ||
             q.difficulty_assessment?.status === "needs_review") &&
-          (!adminFilters.publishedOnly || q.published) &&
+          (!adminFilters.unpublishedOnly || !q.published) &&
           row.dataset
             .search!.normalize("NFKC")
             .toLocaleLowerCase("ja")
@@ -1050,8 +1126,8 @@ async function adminView(previewId?: string) {
     adminFilters.needsReviewOnly = needsReviewCheck.checked;
     applyFilters();
   };
-  publishedOnlyCheck.onchange = () => {
-    adminFilters.publishedOnly = publishedOnlyCheck.checked;
+  unpublishedOnlyCheck.onchange = () => {
+    adminFilters.unpublishedOnly = unpublishedOnlyCheck.checked;
     applyFilters();
   };
   const search = document.querySelector<HTMLInputElement>("#search")!;
@@ -1064,12 +1140,12 @@ async function adminView(previewId?: string) {
     adminFilters.showAll = false;
     adminFilters.aiOnly = false;
     adminFilters.needsReviewOnly = false;
-    adminFilters.publishedOnly = false;
+    adminFilters.unpublishedOnly = false;
     search.value = "";
     clearSearch.hidden = true;
     aiOnlyCheck.checked = false;
     needsReviewCheck.checked = false;
-    publishedOnlyCheck.checked = false;
+    unpublishedOnlyCheck.checked = false;
     updateOptions();
     applyFilters();
   };

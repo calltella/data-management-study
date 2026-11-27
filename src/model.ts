@@ -27,6 +27,8 @@ export interface Question {
   correct?: number;
   explanation?: string;
   diagram_key?: string;
+  difficulty_level?: 1 | 2 | 3 | null;
+  difficulty_reason?: string | null;
 }
 export interface ExerciseItem {
   id: string;

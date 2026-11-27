@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 280" role="img" aria-label="設備と点検記録のE-R図と多重度">
+  <rect width="640" height="280" fill="#faf8f5" rx="8"/>
+  <text x="320" y="30" text-anchor="middle" font-family="sans-serif" font-size="16" font-weight="bold" fill="#183536">設備と点検記録の関連（多重度・カーディナリティ）</text>
+
+  <!-- 設備エンティティ -->
+  <rect x="40" y="64" width="170" height="84" rx="8" fill="#e8f1fb" stroke="#1b4d89" stroke-width="2"/>
+  <text x="125" y="94" text-anchor="middle" font-family="sans-serif" font-size="16" font-weight="bold" fill="#1b4d89">設備</text>
+  <line x1="56" y1="104" x2="194" y2="104" stroke="#9db9dc" stroke-width="1"/>
+  <text x="125" y="124" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#2c3e50">設備ID（主キー）</text>
+  <text x="125" y="140" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#2c3e50">設備名・稼働状態</text>
+
+  <!-- 点検記録エンティティ -->
+  <rect x="430" y="64" width="170" height="84" rx="8" fill="#edf7f1" stroke="#245c58" stroke-width="2"/>
+  <text x="515" y="94" text-anchor="middle" font-family="sans-serif" font-size="16" font-weight="bold" fill="#245c58">点検記録</text>
+  <line x1="446" y1="104" x2="584" y2="104" stroke="#9ec9bc" stroke-width="1"/>
+  <text x="515" y="124" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#2c3e50">点検ID（主キー）</text>
+  <text x="515" y="140" text-anchor="middle" font-family="sans-serif" font-size="12" fill="#2c3e50">設備ID（外部キー）・点検日</text>
+
+  <!-- 関連線とIE記法（鳥の足） -->
+  <line x1="210" y1="106" x2="430" y2="106" stroke="#333333" stroke-width="2.2"/>
+  <!-- 設備側: 1のみ (縦線2本) -->
+  <line x1="224" y1="94" x2="224" y2="118" stroke="#1b4d89" stroke-width="2.2"/>
+  <line x1="232" y1="94" x2="232" y2="118" stroke="#1b4d89" stroke-width="2.2"/>
+  <!-- 点検記録側: 0以上 (丸 + 鳥の足) -->
+  <circle cx="400" cy="106" r="6" fill="#faf8f5" stroke="#245c58" stroke-width="2.2"/>
+  <line x1="430" y1="106" x2="412" y2="94" stroke="#245c58" stroke-width="2.2"/>
+  <line x1="430" y1="106" x2="412" y2="118" stroke="#245c58" stroke-width="2.2"/>
+
+  <!-- 多重度ラベル -->
+  <text x="234" y="84" text-anchor="start" font-family="sans-serif" font-size="14" font-weight="bold" fill="#1b4d89">1（1..1）</text>
+  <text x="406" y="84" text-anchor="end" font-family="sans-serif" font-size="14" font-weight="bold" fill="#245c58">0以上（0..*）</text>
+
+  <!-- 読み方解説ボックス -->
+  <rect x="40" y="172" width="270" height="86" rx="6" fill="#ffffff" stroke="#d5cfc6" stroke-width="1.5"/>
+  <text x="56" y="195" font-family="sans-serif" font-size="13" font-weight="bold" fill="#245c58">設備 1件 → 点検記録：0件以上</text>
+  <text x="56" y="216" font-family="sans-serif" font-size="12" fill="#333333">• 稼働前（未点検）は 0件</text>
+  <text x="56" y="236" font-family="sans-serif" font-size="12" fill="#333333">• 稼働後は繰り返し点検されるため複数件</text>
+
+  <rect x="330" y="172" width="270" height="86" rx="6" fill="#ffffff" stroke="#d5cfc6" stroke-width="1.5"/>
+  <text x="346" y="195" font-family="sans-serif" font-size="13" font-weight="bold" fill="#1b4d89">点検記録 1件 → 設備：1件</text>
+  <text x="346" y="216" font-family="sans-serif" font-size="12" fill="#333333">• 必ず1つの設備について作成（最小1）</text>
+  <text x="346" y="236" font-family="sans-serif" font-size="12" fill="#333333">• 複数の設備を1件にまとめない（最大1）</text>
+</svg>

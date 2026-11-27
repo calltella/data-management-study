@@ -14,7 +14,6 @@ explanationMarkdown.disable([
   "lheading",
   "emphasis",
   "link",
-  "image",
   "autolink",
   "backticks",
   "strikethrough",
@@ -22,6 +21,24 @@ explanationMarkdown.disable([
   "html_inline",
   "reference",
 ]);
+
+function escapeHtmlAttr(value: string): string {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");
+}
+
+explanationMarkdown.renderer.rules.image = (tokens, idx) => {
+  const token = tokens[idx];
+  const src = String(token?.attrGet("src") ?? "");
+  if (!/^\/explanation-diagrams\/[a-zA-Z0-9_.-]+\.(?:svg|png|jpe?g|webp)$/u.test(src)) {
+    return "";
+  }
+  const alt = token?.content ?? "";
+  return `<img class="explanation-diagram-image" src="${escapeHtmlAttr(src)}" alt="${escapeHtmlAttr(alt)}" loading="lazy">`;
+};
 
 const isSpaceOrNewline = (ch: number) => ch === 0x20 || ch === 0x09 || ch === 0x0a || ch === 0x0d;
 
@@ -82,7 +99,17 @@ export function breakSentences(text: string): string {
     .split(/\r?\n/)
     .map((line) => {
       if (/^\s*(?:\||#)/.test(line)) return line;
-      return line.replace(/(。\*{0,2})[^\S\r\n]*(?=[^」』）\s*])/gu, "$1\n");
+      return line.replace(/(。)(\*{0,2})[^\S\r\n]*(?=[^」』）\s])/gu, (match, period: string, stars: string, offset: number) => {
+        if (stars.length === 2) {
+          const prefix = line.slice(0, offset);
+          const isInsideStrong = ((prefix.match(/\*\*/g) ?? []).length % 2) === 1;
+          return isInsideStrong ? `${period}${stars}\n` : `${period}\n${stars}`;
+        }
+        if (stars.length === 1) {
+          return `${period}\n${stars}`;
+        }
+        return `${period}\n`;
+      });
     })
     .join("\n");
 }

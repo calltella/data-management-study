@@ -66,4 +66,12 @@ test("breakSentencesは表行と見出し行を分割せず太字文末を維持
     renderExplanationMarkdown("**重要な文です。** 次の文です。"),
     /<strong>重要な文です。<\/strong><br>\n次の文です。/,
   );
+  assert.equal(
+    breakSentences("次元削減のアプローチです。**主成分分析**（PCA）は、"),
+    "次元削減のアプローチです。\n**主成分分析**（PCA）は、",
+  );
+  assert.match(
+    renderExplanationMarkdown("次元削減のアプローチです。**主成分分析**（PCA）は、"),
+    /次元削減のアプローチです。<br>\n<strong>主成分分析<\/strong>（PCA）は、/,
+  );
 });
