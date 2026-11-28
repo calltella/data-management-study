@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 170">
-  <defs><marker id="a" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0 0L7 3.5L0 7Z" fill="#245c58"/></marker></defs>
-  <rect width="560" height="170" fill="#fff"/>
-  <g fill="#e8f1fb" stroke="#245c58" stroke-width="2"><rect x="16" y="25" width="115" height="42" rx="5"/><rect x="16" y="110" width="115" height="42" rx="5"/><rect x="213" y="43" width="120" height="42" rx="5"/><rect x="213" y="113" width="120" height="42" rx="5"/><rect x="427" y="62" width="115" height="48" rx="5"/></g>
-  <g fill="none" stroke="#245c58" stroke-width="2" marker-end="url(#a)"><path d="M132 46L211 57"/><path d="M132 124L211 72"/><path d="M333 63L425 79"/><path d="M333 132L425 94"/></g>
-  <g fill="#183536" font-family="sans-serif" font-size="16" text-anchor="middle"><text x="73" y="52">記録漏れ</text><text x="73" y="137">情報不足</text><text x="273" y="70">確認待ち</text><text x="273" y="140">作業の集中</text><text x="484" y="92">納期遅れ</text></g>
-</svg>

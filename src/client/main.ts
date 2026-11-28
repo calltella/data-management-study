@@ -21,6 +21,7 @@ import { bindWhiteboard, whiteboardToggle } from "./whiteboard.ts";
 import { supplementalChoiceExplanations } from "./choice-explanations.ts";
 import { likelihoodLabels, questionLikelihood } from "./question-likelihood.ts";
 import { renderExplanationMarkdown } from "./markdown.ts";
+import { cleanupKamokuB, renderKamokuB } from "./kamoku-b.ts";
 const app = document.querySelector<HTMLDivElement>("#app")!;
 const esc = (v: unknown) =>
   String(v ?? "").replace(
@@ -132,8 +133,12 @@ const ratingStates = new Map<
 >();
 const labels = ["ア", "イ", "ウ", "エ"];
 const icon = '<img src="/logo.svg" alt="" width="34" height="34">';
+function isKamokuBRoute(): boolean {
+  return location.hash.slice(1).split("?")[0] === "b-practice";
+}
 function header() {
-  return `<header><a class="brand" href="#login">${icon}<span>DM STUDY</span></a><span class="subtitle">データマネジメント試験・科目A</span><nav><a href="#practice">学習する</a>${session ? '<a href="#history">学習履歴</a><a href="#account">マイページ</a>' : '<a href="#login">ログイン</a>'}${admin ? '<a href="#admin">管理者</a>' : ""}</nav></header>`;
+  const onB = isKamokuBRoute();
+  return `<header><a class="brand" href="#login">${icon}<span>DM STUDY</span></a><div class="subject-switcher" role="navigation" aria-label="科目切替"><a href="#practice" class="subject-tab${!onB ? " active" : ""}">科目A</a><a href="#b-practice" class="subject-tab${onB ? " active" : ""}">科目B</a></div><nav><a href="${onB ? "#b-practice" : "#practice"}">学習する</a>${session ? '<a href="#history">学習履歴</a><a href="#account">マイページ</a>' : '<a href="#login">ログイン</a>'}${admin ? '<a href="#admin">管理者</a>' : ""}</nav></header>`;
 }
 const adminImageUrls = new Set<string>();
 function releaseAdminImages() {
@@ -144,7 +149,7 @@ function render(content: string) {
   releaseAdminImages();
   app.innerHTML =
     header() +
-    `<main>${startup === "ready" && !configured ? '<div class="banner">サンプルモード · 動作確認用の問題を出題します。回答履歴は保存しません。</div>' : ""}${notice ? `<div role="status" class="notice">${esc(notice)}</div>` : ""}${content}</main><footer>DM STUDY · 科目Aの非公式学習支援アプリ</footer>`;
+    `<main>${startup === "ready" && !configured ? '<div class="banner">サンプルモード · 動作確認用の問題を出題します。回答履歴は保存しません。</div>' : ""}${notice ? `<div role="status" class="notice">${esc(notice)}</div>` : ""}${content}</main><footer>DM STUDY · データマネジメント試験（科目A・科目B）の非公式学習支援アプリ</footer>`;
   bind();
 }
 async function request<T>(
@@ -437,20 +442,6 @@ function choiceExplanation(question: Question, choice: Question["choices"][numbe
     : "";
 }
 
-const affinityQuestionDiagrams: Record<number, { file: string; caption: string; alt: string }> = {
-  1: { file: "fishbone", caption: "特性要因図の例", alt: "製品の傷を結果とし、設備、材料、作業方法、作業環境を原因候補として枝で結ぶ図" },
-  2: { file: "affinity", caption: "親和図の例", alt: "作業時の困り事を、作業環境と作業手順の二つのまとまりに分けた図" },
-  3: { file: "matrix", caption: "マトリックス図の例", alt: "保護シートと工具の定位置化を行に、傷の削減と作業時間短縮を列に置き、効果を記号で示す表" },
-  4: { file: "histogram", caption: "ヒストグラムの例", alt: "製品の幅を1ミリメートルごとの区間に分けた度数分布。100ミリメートル以上101ミリメートル未満が10個で最も多い" },
-};
-
-const relationQuestionDiagrams: typeof affinityQuestionDiagrams = {
-  1: { file: "arrow-network", caption: "アローダイアグラムの例", alt: "準備2日後に組立3日と点検1日を並行し、引渡しへ進む作業順序の図" },
-  2: { file: "pareto", caption: "パレート図の例", alt: "不良の件数を降順の棒で、累積割合を折れ線で示した図" },
-  3: affinityQuestionDiagrams[3],
-  4: { file: "relations", caption: "連関図の例", alt: "記録漏れと情報不足が確認待ちにつながり、確認待ちと作業の集中が納期遅れにつながる図" },
-};
-
 function choiceDiagramUrl(questionId: string, choiceId: number, key: string) {
   return `/api/images/${encodeURIComponent(questionId)}?choice=${choiceId}&v=${encodeURIComponent(key)}`;
 }
@@ -484,14 +475,10 @@ function choiceExplanationRows(
   return correct == null ? "" : choiceOrder
     .map((id, pos) => {
       const choice = q.choices.find((c) => c.id === id)!;
-      const supplemental = supplementalChoiceExplanations[q.id];
       const detail = choiceExplanation(q, choice);
-      const diagram = supplemental && Object.hasOwn(supplemental, choice.body)
-        ? (q.id === "DMQ-0029" ? affinityQuestionDiagrams : q.id === "DMQ-0020" ? relationQuestionDiagrams : undefined)?.[id]
-        : undefined;
       const diagramUrl = choice.diagram_key
         ? choiceDiagramUrl(q.id, id, choice.diagram_key)
-        : diagram && `/explanation-diagrams/${diagram.file}.svg`;
+        : undefined;
       if (!detail && !diagramUrl) return "";
       return `<li class="choice-explanation${id === correct ? " correct" : ""}">
         <span class="choice-explanation-label">${labels[pos]}</span>
@@ -500,8 +487,8 @@ function choiceExplanationRows(
         ${id === correct ? '<strong class="choice-explanation-result">正解</strong>' : ""}</div>
         <div class="choice-explanation-detail">${formatExplanation(detail)}</div>
         ${diagramUrl ? `<figure class="choice-explanation-figure">
-          <img ${choice.diagram_key ? `data-diagram-url="${esc(diagramUrl)}" hidden` : `src="${esc(diagramUrl)}"`} alt="${esc(choice.diagram_key ? choice.body + "の解説図" : diagram?.alt)}">
-          <figcaption>${esc(choice.diagram_key ? choice.body + "の解説図" : diagram?.caption)}</figcaption>
+          <img data-diagram-url="${esc(diagramUrl)}" hidden alt="${esc(choice.body + "の解説図")}">
+          <figcaption>${esc(choice.body + "の解説図")}</figcaption>
         </figure>` : ""}</div>
       </li>`;
     })
@@ -894,6 +881,7 @@ async function history() {
   bindHistoryEvents(history);
 }
 const timestamp = new Intl.DateTimeFormat("ja-JP", {
+  timeZone: "Asia/Tokyo",
   year: "numeric", month: "2-digit", day: "2-digit",
   hour: "2-digit", minute: "2-digit", second: "2-digit", hourCycle: "h23",
 });
@@ -906,7 +894,11 @@ type AdminDifficulty = {
   rubric_version: string | null;
   assessed_at: string | null;
 };
-type AdminQuestion = Question & { difficulty_assessment?: AdminDifficulty };
+type AdminQuestion = Question & {
+  difficulty_assessment?: AdminDifficulty;
+  created_at?: string | null;
+  updated_at?: string | null;
+};
 
 const difficultyLabels = { 1: "基礎", 2: "標準", 3: "応用" };
 const difficultyStatuses = {
@@ -1284,6 +1276,7 @@ function showQuestionEditor(
 ) {
   const initialChoiceExplanations = new Map(q.choices.map((choice) => [choice.id, choiceExplanation(q, choice)]));
   editor.innerHTML = `<form id="edit-form"><h2>${esc(q.id)}を編集</h2>
+    <label class="check"><input name="published" type="checkbox" ${q.published ? "checked" : ""}>公開する</label>
     <label>図表画像（PNG・JPEG・WebP、5MB以下）<input id="asset-file" type="file" accept="image/png,image/jpeg,image/webp"></label>
     <button type="button" id="upload-asset" class="secondary">図表をアップロード</button><p id="asset-status" role="status"></p>
     <div id="asset-preview"><img id="admin-editor-image" class="question-image" alt="現在の図表" hidden></div>
@@ -1299,7 +1292,6 @@ function showQuestionEditor(
     ${q.choices.map(({ id, diagram_key }) => `<label>${labels[id - 1]}の解説<textarea name="choice-explanation-${id}">${esc(initialChoiceExplanations.get(id))}</textarea></label>
       <label>${labels[id - 1]}の解説図（PNG・JPEG・WebP、5MB以下）<input type="file" name="choice-diagram-${id}" accept="image/png,image/jpeg,image/webp"></label>
       ${diagram_key ? '<p class="small muted">登録済み。画像を選ぶと差し替えます。</p>' : ''}`).join("")}
-    <label class="check"><input name="published" type="checkbox" ${q.published ? "checked" : ""}>公開する</label>
     <button type="submit">保存する</button><p class="editor-error" role="alert" hidden></p></form>`;
   if (q.asset_key) void loadAdminImage(q, "#admin-editor-image");
 
@@ -1457,6 +1449,7 @@ function showQuestionPreview(editor: HTMLElement, q: AdminQuestion, edit: () => 
       <span class="choice-label"${imageOnly ? ` aria-label="${labels[i]}、${esc(c.body.replaceAll("\u0332", ""))}"` : ""}>${labels[i]}</span>
       ${imageOnly ? "" : `<span class="choice-text">${esc(c.body)}</span>`}
     </div>`).join("")}</div>
+    ${(q.created_at || q.updated_at) ? `<p class="small muted preview-timestamps">作成 ${q.created_at ? `<time datetime="${esc(q.created_at)}">${esc(timestamp.format(new Date(q.created_at)))}</time>` : "—"} ／ 更新 ${q.updated_at ? `<time datetime="${esc(q.updated_at)}">${esc(timestamp.format(new Date(q.updated_at)))}</time>` : "—"}</p>` : ""}
     <section class="explanation">
       <h3>正答：${labels[choices.findIndex((c) => c.id === q.correct)] ?? ""}</h3>
       <div class="preview-body">${renderExplanationMarkdown(q.explanation ?? "")}</div>
@@ -1599,6 +1592,15 @@ async function route() {
   notice = "";
   const path = location.hash.slice(1).split("?")[0];
   await guard(async () => {
+    if (path === "b-practice") {
+      renderKamokuB({
+        render,
+        isAdmin: () => admin,
+        isLoggedIn: () => Boolean(session),
+      });
+      return;
+    }
+    cleanupKamokuB();
     if (path === "practice") {
       await load();
       practice();
